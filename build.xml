@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <project name="RoT-Reloaded" default="makejar" basedir=".">
+        <target name="makejar" description="Create a jar for the project">
+            <mkdir dir="target"/>
+            <jar destfile="target/${ant.project.name}.jar">
+                <fileset dir="out/production/rot-plugin"/>
+                <fileset file="plugin.yml"/>
+            </jar>
+        </target>
+    </project>

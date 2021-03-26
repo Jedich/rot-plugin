@@ -1,0 +1,18 @@
+main: tld.sofugames.rot.Main
+name: RoT-Reloaded
+version: 0.01-alpha
+author: jedichchch
+description: Roots of Ternaria Reloaded!
+commands:
+  claim:
+    description: Claims a chunk as your kingdom property for daily charge
+    usage: /claim
+    permission: rot.king
+    permission-message: You don't have the rot.king permission.
+permissions:
+  rot.king:
+    description: Allows foo command
+    default: op
+  rot.god:
+    description: Allows foo command
+    default: op
