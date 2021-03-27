@@ -1,0 +1,7 @@
+﻿CREATE TABLE IF NOT EXISTS user_claims (
+   id INT(11) NOT NULL AUTO_INCREMENT,
+   name VARCHAR(64) DEFAULT NULL,
+   chunk_x INT(11) DEFAULT NULL,
+   chunk_y INT(11) DEFAULT NULL,
+   PRIMARY KEY (id)
+)
