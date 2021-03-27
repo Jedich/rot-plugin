@@ -4,16 +4,16 @@ import com.mysql.jdbc.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.command.*;
-import org.bukkit.craftbukkit.v1_16_R3.CraftChunk;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class Main extends JavaPlugin {
@@ -52,21 +52,30 @@ public class Main extends JavaPlugin {
 		}
 	}
 
+
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		Player player = getServer().getPlayer(sender.getName());
+		String chunkName = player.getLocation().getChunk().toString();
 		if(command.getName().equalsIgnoreCase("claim")) {
-			Player c = getServer().getPlayer(sender.getName());
-			String a = c.getLocation().getChunk().toString();
-			sender.sendMessage("AYYE fuck off " + sender.getName() + " whose chunk is " + a);
-			claims.put(c.getLocation().getChunk().toString(), sender.getName());
-			try {
-				sendToDatabase();
-			}
-			catch (SQLException e) {
-				sender.sendMessage("lmao loser " + e.getMessage());
-				e.printStackTrace();
+			if(!claims.containsKey(chunkName)) {
+				sender.sendMessage("AYYE fuck off " + sender.getName() + " whose chunk is " + chunkName);
+				claims.put(player.getLocation().getChunk().toString(), sender.getName());
 			}
 			return true;
+		}
+		else if(command.getName().equalsIgnoreCase("reset")) {
+			claims.clear();
+		}
+		else if(command.getName().equalsIgnoreCase("chunk-info")) {
+			String ownerName = "None";
+			if(claims.get(chunkName) != null) {
+				sender.sendMessage("Current owner: " + claims.get(chunkName));
+			}
+			else {
+				sender.sendMessage("The chunk is available for conquer!");
+			}
 		}
 		return false;
 	}

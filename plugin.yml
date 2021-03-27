@@ -9,6 +9,16 @@ commands:
     usage: /claim
     permission: rot.king
     permission-message: You don't have the rot.king permission.
+  reset:
+    description: Resets all claimed chunks
+    usage: /reset
+    permission: rot.god
+    permission-message: You don't have the rot.god permission.
+  chunk-info:
+    description: Gives information about chunks' ruler
+    usage: /chunk-info
+    permission: rot.king
+    permission-message: You don't have the rot.king permission.
 permissions:
   rot.king:
     description: Allows foo command
