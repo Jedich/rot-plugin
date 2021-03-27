@@ -19,6 +19,11 @@ commands:
     usage: /chunk-info
     permission: rot.king
     permission-message: You don't have the rot.king permission.
+  kingdom:
+    description: Gives information about your kingdom and also lets you manage its parameters
+    usage: /kingdom [TASK] {NAME}
+    permission: rot.king
+    permission-message: You don't have the rot.king permission.
 permissions:
   rot.king:
     description: Allows foo command

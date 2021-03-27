@@ -2,6 +2,7 @@ package tld.sofugames.rot;
 
 import com.mysql.jdbc.*;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -24,93 +25,141 @@ public class Main extends JavaPlugin {
 
 	//Connection vars
 	static Connection connection; //This is the variable we will use to connect to database
-	HashMap<String, String> claims = new HashMap<>();
+	HashMap<String, ClaimedChunk> claimData = new HashMap<>();
+	HashMap<String, King> kingData = new HashMap<>();
 
 	@Override
 	public void onEnable() {
-
-		try { // try catch to get any SQL errors (for example connections errors)
-			connection = (Connection) DriverManager.getConnection(url, username, password);
-			// with the method getConnection() from DriverManager, we're trying to set
-			// the connection's url, username, password to the variables we made earlier and
-			// trying to get a connection at the same time. JDBC allows us to do this.
-		} catch (SQLException e) { // catching errors
-			e.printStackTrace(); // prints out SQLException errors to the console (if any)
-		}
-		String sql = "SELECT * FROM user_claims"; // Note the question mark as placeholders for input values
-		PreparedStatement stmt = null;
-		ResultSet results;
-		try {
-			stmt = (PreparedStatement) connection.prepareStatement(sql);
-			results = stmt.executeQuery();
-			while (results.next()) {
-				claims.put(results.getString("chunk"), results.getString("name"));
-			}
-		}
-		catch (SQLException e) {
-			e.printStackTrace();
-		}
+		//TODO: db tables and checking for new data
+//		try { // try catch to get any SQL errors (for example connections errors)
+//			connection = (Connection) DriverManager.getConnection(url, username, password);
+//			// with the method getConnection() from DriverManager, we're trying to set
+//			// the connection's url, username, password to the variables we made earlier and
+//			// trying to get a connection at the same time. JDBC allows us to do this.
+//		} catch (SQLException e) { // catching errors
+//			e.printStackTrace(); // prints out SQLException errors to the console (if any)
+//		}
+//		String sql = "SELECT * FROM user_claims"; // Note the question mark as placeholders for input values
+//		PreparedStatement stmt = null;
+//		ResultSet results;
+//		try {
+//			stmt = (PreparedStatement) connection.prepareStatement(sql);
+//			results = stmt.executeQuery();
+//			while (results.next()) {
+//				//claimData.put(results.getString("chunk"),
+//				//		new ClaimedChunk(results.getString("chunk"),
+//				//				results.getString("name"), ChunkType.Default));
+//			}
+//		}
+//		catch (SQLException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		Player player = getServer().getPlayer(sender.getName());
-		String chunkName = player.getLocation().getChunk().toString();
-		if(command.getName().equalsIgnoreCase("claim")) {
-			if(!claims.containsKey(chunkName)) {
-				sender.sendMessage("AYYE fuck off " + sender.getName() + " whose chunk is " + chunkName);
-				claims.put(player.getLocation().getChunk().toString(), sender.getName());
+		if (command.getName().equalsIgnoreCase("claim")) {
+			Player player = getServer().getPlayer(sender.getName());
+			String chunkName = player.getLocation().getChunk().toString();
+			if (!claimData.containsKey(chunkName)) {
+				if (!kingData.containsKey(sender.getName())) {
+					sender.sendMessage("Let your journey begin here.");
+					ClaimedChunk homeChunk = new ClaimedChunk(chunkName,
+							sender.getName(), ChunkType.Home, player.getLocation().getChunk());
+
+					claimData.put(player.getLocation().getChunk().toString(), homeChunk);
+					kingData.put(sender.getName(), new King(player, homeChunk));
+
+					sender.sendMessage("Chunk successfully claimed!" + ChatColor.GOLD + " You are now a King.");
+					sender.sendMessage("Please, name your kingdom with /kingdom setname [NAME]");
+				}
+				else {
+					//TODO: Check for neighboring chunks
+					sender.sendMessage("Chunk successfully claimed!");
+					claimData.put(player.getLocation().getChunk().toString(), new ClaimedChunk(chunkName,
+							sender.getName(), ChunkType.Default, player.getLocation().getChunk()));
+				}
+			}
+			else {
+				sender.sendMessage(ChatColor.RED + "Chunk is already claimed.");
 			}
 			return true;
 		}
+		else if(command.getName().equalsIgnoreCase("kingdom")) {
+			if(args[0].equalsIgnoreCase("name")) {
+				kingData.get(sender.getName()).kingdomName = args[1];
+			}
+			else if(args[0].equalsIgnoreCase("info")) {
+				Player player = getServer().getPlayer(sender.getName());
+				String chunkName = player.getLocation().getChunk().toString();
+				if(!kingData.containsKey(sender.getName())) {
+					sender.sendMessage("You are not a king yet! Type your first /claim to become a king!");
+				} else {
+					King thisKing = kingData.get(sender.getName());
+					sender.sendMessage(thisKing.kingdomName + ", the kingdom of " + sender.getName());
+					sender.sendMessage("Ruler level: " + thisKing.kingdomLevel);
+					sender.sendMessage("Total chunks: " + thisKing.chunkNumber);
+					if(chunkName.equals(thisKing.homeChunk.chunkId)) {
+						sender.sendMessage("This is the ruler's home chunk.");
+					}
+				}
+			}
+		}
 		else if(command.getName().equalsIgnoreCase("reset")) {
-			claims.clear();
+			claimData.clear();
+			return true;
 		}
 		else if(command.getName().equalsIgnoreCase("chunk-info")) {
+			Player player = getServer().getPlayer(sender.getName());
+			String chunkName = player.getLocation().getChunk().toString();
 			String ownerName = "None";
-			if(claims.get(chunkName) != null) {
-				sender.sendMessage("Current owner: " + claims.get(chunkName));
+			sender.sendMessage("Current chunk: " + chunkName);
+			if(claimData.get(chunkName) != null) {
+				sender.sendMessage("Current owner: " + claimData.get(chunkName).owner);
 			}
 			else {
 				sender.sendMessage("The chunk is available for conquer!");
 			}
+			return true;
 		}
 		return false;
 	}
 
-	public void sendToDatabase() throws SQLException {
-		connection.setAutoCommit(false);
-		PreparedStatement pstmt = null;
-		pstmt = (PreparedStatement) connection.prepareStatement(
-				"INSERT INTO user_claims VALUES(?, ?)");
-		for(Map.Entry<String, String> entry : claims.entrySet()) {
-			pstmt.setString(1, entry.getKey());
-			pstmt.setString(2, entry.getValue());
-			pstmt.addBatch();
-		}
-		pstmt.executeBatch();
-		connection.commit();
-		connection.setAutoCommit(true);
-	}
+//	public void sendToDatabase() throws SQLException {
+//		connection.setAutoCommit(false);
+//		PreparedStatement pstmt = null;
+//		//pstmt = (PreparedStatement) connection.prepareStatement(
+//		//		"INSERT INTO user_claims VALUES(?, ?)");
+//		//for(Map.Entry<String, String> entry : claimsModel.entrySet()) {
+//		//	pstmt.setString(1, entry.getKey());
+//		//	pstmt.setString(2, entry.getValue());
+//		//	pstmt.addBatch();
+//		//}
+//		pstmt.executeBatch();
+//		connection.commit();
+//		connection.setAutoCommit(true);
+//	}
 
 	@Override
 	public void onDisable() {
-		try {
-			sendToDatabase();
-		}
-		catch (SQLException e) {
-			e.printStackTrace();
-		}
-		// invoke on disable.
-		try { // using a try catch to catch connection errors (like wrong sql password...)
-			if (connection!=null && !connection.isClosed()){ // checking if connection isn't null to
-				// avoid receiving a nullpointer
-				connection.close(); // closing the connection field variable.
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
+		//TODO: check for data uniqueness
 	}
+//		try {
+//			sendToDatabase();
+//		}
+//		catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+//		// invoke on disable.
+//		try { // using a try catch to catch connection errors (like wrong sql password...)
+//			if (connection!=null && !connection.isClosed()){ // checking if connection isn't null to
+//				// avoid receiving a nullpointer
+//				connection.close(); // closing the connection field variable.
+//			}
+//		} catch(Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 }
