@@ -4,6 +4,7 @@ import com.mysql.jdbc.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -31,32 +32,39 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		//TODO: db tables and checking for new data
-//		try { // try catch to get any SQL errors (for example connections errors)
-//			connection = (Connection) DriverManager.getConnection(url, username, password);
-//			// with the method getConnection() from DriverManager, we're trying to set
-//			// the connection's url, username, password to the variables we made earlier and
-//			// trying to get a connection at the same time. JDBC allows us to do this.
-//		} catch (SQLException e) { // catching errors
-//			e.printStackTrace(); // prints out SQLException errors to the console (if any)
-//		}
-//		String sql = "SELECT * FROM user_claims"; // Note the question mark as placeholders for input values
-//		PreparedStatement stmt = null;
-//		ResultSet results;
-//		try {
-//			stmt = (PreparedStatement) connection.prepareStatement(sql);
-//			results = stmt.executeQuery();
-//			while (results.next()) {
-//				//claimData.put(results.getString("chunk"),
-//				//		new ClaimedChunk(results.getString("chunk"),
-//				//				results.getString("name"), ChunkType.Default));
-//			}
-//		}
-//		catch (SQLException e) {
-//			e.printStackTrace();
-//		}
+		try {
+			connection = (Connection) DriverManager.getConnection(url, username, password);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		ResultSet results;
+		World world = Bukkit.getOnlinePlayers().iterator().next().getWorld();
+		try {
+			PreparedStatement stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM user_claims");
+			results = stmt.executeQuery();
+			while (results.next()) {
+				claimData.put(results.getString("name"),
+						new ClaimedChunk(results.getString("name"),
+								results.getString("owner"),
+								ChunkType.valueOf(results.getString("type")),
+								world.getChunkAt(results.getInt("chunk_x"),
+										results.getInt("chunk_y"))));
+			}
+			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM kings");
+			results = stmt.executeQuery();
+			while (results.next()) {
+				kingData.put(results.getString("name"), new King(
+						Objects.requireNonNull(getServer().getPlayer(results.getString("name"))),
+						claimData.get(results.getString("home_chunk")),
+						results.getInt("kingdom_level"),
+						results.getInt("chunk_number")
+				));
+			}
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
-
-
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
