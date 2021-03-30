@@ -55,6 +55,7 @@ public class Main extends JavaPlugin {
 			while (results.next()) {
 				kingData.put(results.getString("name"), new King(
 						Objects.requireNonNull(getServer().getPlayer(results.getString("name"))),
+						results.getString("kingdom_name"),
 						claimData.get(results.getString("home_chunk")),
 						results.getInt("kingdom_level"),
 						results.getInt("chunk_number")
@@ -74,20 +75,37 @@ public class Main extends JavaPlugin {
 			if (!claimData.containsKey(chunkName)) {
 				if (!kingData.containsKey(sender.getName())) {
 					sender.sendMessage("Let your journey begin here.");
+
 					ClaimedChunk homeChunk = new ClaimedChunk(chunkName,
 							sender.getName(), ChunkType.Home, player.getLocation().getChunk());
-
+					try {
+						homeChunk.pushToDb(connection);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
 					claimData.put(player.getLocation().getChunk().toString(), homeChunk);
-					kingData.put(sender.getName(), new King(player, homeChunk));
-
-					sender.sendMessage("Chunk successfully claimed!" + ChatColor.GOLD + " You are now a King.");
-					sender.sendMessage("Please, name your kingdom with /kingdom setname [NAME]");
+					King thisKing = new King(player, homeChunk);
+					kingData.put(sender.getName(), thisKing);
+					try {
+						if(thisKing.pushToDb(connection)) {
+							sender.sendMessage("Chunk successfully claimed!" + ChatColor.GOLD + " You are now a King.");
+							sender.sendMessage("Please, name your kingdom with /kingdom setname [NAME]");
+						}
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
 				}
 				else {
 					//TODO: Check for neighboring chunks
 					sender.sendMessage("Chunk successfully claimed!");
-					claimData.put(player.getLocation().getChunk().toString(), new ClaimedChunk(chunkName,
-							sender.getName(), ChunkType.Default, player.getLocation().getChunk()));
+					ClaimedChunk claim = new ClaimedChunk(chunkName,
+							sender.getName(), ChunkType.Default, player.getLocation().getChunk());
+					claimData.put(player.getLocation().getChunk().toString(), claim);
+					try {
+						claim.pushToDb(connection);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 			else {
