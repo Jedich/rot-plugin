@@ -5,11 +5,12 @@ import org.bukkit.entity.Player;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.UUID;
 
 public class King implements Model {
 
 	public int id;
-	public String nickname;
+	public UUID nickname;
 	public String kingdomName;
 	public Player assignedPlayer;
 	public ClaimedChunk homeChunk;
@@ -21,7 +22,7 @@ public class King implements Model {
 		this.id = id;
 		this.assignedPlayer = player;
 		this.homeChunk = homeChunk;
-		nickname = player.getDisplayName();
+		nickname = player.getUniqueId();
 		kingdomLevel = 1;
 		chunkNumber = 1;
 	}
@@ -31,7 +32,7 @@ public class King implements Model {
 		this.assignedPlayer = player;
 		this.kingdomName = kingdomName;
 		this.homeChunk = homeChunk;
-		nickname = player.getDisplayName();
+		nickname = player.getUniqueId();
 		this.kingdomLevel = kingdomLevel;
 		this.chunkNumber = chunkNumber;
 	}
@@ -40,7 +41,7 @@ public class King implements Model {
 		PreparedStatement pstmt = (PreparedStatement) connection.prepareStatement(
 				"INSERT INTO kings VALUES(?, ?, ?, ?, ?, ?)");
 		pstmt.setInt(1, id);
-		pstmt.setString(2, nickname);
+		pstmt.setString(2, nickname.toString());
 		pstmt.setString(3, kingdomName);
 		pstmt.setString(4, homeChunk.chunkId);
 		pstmt.setInt(5, kingdomLevel);

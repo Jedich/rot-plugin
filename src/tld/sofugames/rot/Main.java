@@ -1,14 +1,9 @@
 package tld.sofugames.rot;
 
 import com.mysql.jdbc.*;
-import net.minecraft.server.v1_16_R3.EntityPlayer;
 import org.bukkit.*;
 import org.bukkit.command.*;
-import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.DriverManager;
@@ -55,7 +50,7 @@ public class Main extends JavaPlugin {
 				claimData.put(results.getString("name"),
 						new ClaimedChunk(results.getInt("id"),
 								results.getString("name"),
-								results.getString("owner"),
+								UUID.fromString(results.getString("owner")),
 								ChunkType.valueOf(results.getString("type")),
 								world.getChunkAt(results.getInt("chunk_x"),
 										results.getInt("chunk_y"))));
@@ -65,7 +60,8 @@ public class Main extends JavaPlugin {
 			results = stmt.executeQuery();
 			while (results.next()) {
 				kingData.put(results.getString("name"), new King(results.getInt("id"),
-						Objects.requireNonNull(getServer().getPlayer(results.getString("name"))),
+						(Player) Bukkit.getOfflinePlayer(UUID.fromString(results.getString("name"))),
+						//Objects.requireNonNull(getServer().getPlayer(results.getString("name"))),
 						results.getString("kingdom_name"),
 						claimData.get(results.getString("home_chunk")),
 						results.getInt("kingdom_level"),
@@ -81,13 +77,13 @@ public class Main extends JavaPlugin {
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (command.getName().equalsIgnoreCase("claim")) {
-			Player player = getServer().getPlayer(sender.getName());
+			Player player = (Player) sender;
 			String chunkName = player.getLocation().getChunk().toString();
 			if (!claimData.containsKey(chunkName)) {
 				if (!kingData.containsKey(sender.getName())) {
 
 					ClaimedChunk homeChunk = new ClaimedChunk(getLastClaim(), chunkName,
-							sender.getName(), ChunkType.Home, player.getLocation().getChunk());
+							((Player) sender).getUniqueId(), ChunkType.Home, player.getLocation().getChunk());
 					try {
 						homeChunk.pushToDb(connection);
 					} catch (SQLException e) {
@@ -110,7 +106,7 @@ public class Main extends JavaPlugin {
 					//TODO: Check for neighboring chunks
 					sender.sendMessage("Chunk successfully claimed!");
 					ClaimedChunk claim = new ClaimedChunk(getLastClaim(), chunkName,
-							sender.getName(), ChunkType.Default, player.getLocation().getChunk());
+							((Player) sender).getUniqueId(), ChunkType.Default, player.getLocation().getChunk());
 					claimData.put(player.getLocation().getChunk().toString(), claim);
 					try {
 						claim.pushToDb(connection);
