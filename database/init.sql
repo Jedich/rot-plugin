@@ -4,7 +4,7 @@
    chunk_x INT(11) DEFAULT NULL,
    chunk_y INT(11) DEFAULT NULL,
    owner VARCHAR(64) DEFAULT NULL,
-   type ENUM('DEFAULT', 'HOME', 'CITY'),
+   type ENUM('Default', 'Home', 'Town'),
    PRIMARY KEY (id)
 );
 

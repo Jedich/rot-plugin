@@ -28,7 +28,15 @@ public class Main extends JavaPlugin {
 	static Connection connection; //This is the variable we will use to connect to database
 	HashMap<String, ClaimedChunk> claimData = new HashMap<>();
 	HashMap<String, King> kingData = new HashMap<>();
+	int lastClaim = 1, lastKing = 1;
 
+	public int getLastClaim() {
+		return lastClaim++;
+	}
+
+	public int getLastKing() {
+		return lastKing++;
+	}
 	@Override
 	public void onEnable() {
 		//TODO: db tables and checking for new data
@@ -38,28 +46,32 @@ public class Main extends JavaPlugin {
 			e.printStackTrace();
 		}
 		ResultSet results;
-		World world = Bukkit.getOnlinePlayers().iterator().next().getWorld();
+		World world;
+		world = Bukkit.getWorlds().get(0);
 		try {
 			PreparedStatement stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM user_claims");
 			results = stmt.executeQuery();
 			while (results.next()) {
 				claimData.put(results.getString("name"),
-						new ClaimedChunk(results.getString("name"),
+						new ClaimedChunk(results.getInt("id"),
+								results.getString("name"),
 								results.getString("owner"),
 								ChunkType.valueOf(results.getString("type")),
 								world.getChunkAt(results.getInt("chunk_x"),
 										results.getInt("chunk_y"))));
+				lastClaim++;
 			}
 			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM kings");
 			results = stmt.executeQuery();
 			while (results.next()) {
-				kingData.put(results.getString("name"), new King(
+				kingData.put(results.getString("name"), new King(results.getInt("id"),
 						Objects.requireNonNull(getServer().getPlayer(results.getString("name"))),
 						results.getString("kingdom_name"),
 						claimData.get(results.getString("home_chunk")),
 						results.getInt("kingdom_level"),
 						results.getInt("chunk_number")
 				));
+				lastKing++;
 			}
 		}
 		catch (SQLException e) {
@@ -74,17 +86,18 @@ public class Main extends JavaPlugin {
 			String chunkName = player.getLocation().getChunk().toString();
 			if (!claimData.containsKey(chunkName)) {
 				if (!kingData.containsKey(sender.getName())) {
-					sender.sendMessage("Let your journey begin here.");
 
-					ClaimedChunk homeChunk = new ClaimedChunk(chunkName,
+					ClaimedChunk homeChunk = new ClaimedChunk(getLastClaim(), chunkName,
 							sender.getName(), ChunkType.Home, player.getLocation().getChunk());
 					try {
 						homeChunk.pushToDb(connection);
 					} catch (SQLException e) {
 						e.printStackTrace();
+						return false;
 					}
+					sender.sendMessage("Let your journey begin here.");
 					claimData.put(player.getLocation().getChunk().toString(), homeChunk);
-					King thisKing = new King(player, homeChunk);
+					King thisKing = new King(getLastKing(), player, homeChunk);
 					kingData.put(sender.getName(), thisKing);
 					try {
 						if(thisKing.pushToDb(connection)) {
@@ -98,7 +111,7 @@ public class Main extends JavaPlugin {
 				else {
 					//TODO: Check for neighboring chunks
 					sender.sendMessage("Chunk successfully claimed!");
-					ClaimedChunk claim = new ClaimedChunk(chunkName,
+					ClaimedChunk claim = new ClaimedChunk(getLastClaim(), chunkName,
 							sender.getName(), ChunkType.Default, player.getLocation().getChunk());
 					claimData.put(player.getLocation().getChunk().toString(), claim);
 					try {
@@ -114,8 +127,14 @@ public class Main extends JavaPlugin {
 			return true;
 		}
 		else if(command.getName().equalsIgnoreCase("kingdom")) {
-			if(args[0].equalsIgnoreCase("name")) {
-				kingData.get(sender.getName()).kingdomName = args[1];
+			if(args[0].equalsIgnoreCase("setname")) {
+				try {
+					kingData.get(sender.getName()).kingdomName = args[1];
+					kingData.get(sender.getName()).updateInDb(connection, new String[] {"kingdom_name"});
+				} catch (SQLException e) {
+					sender.sendMessage("Update execution error");
+					e.printStackTrace();
+				}
 			}
 			else if(args[0].equalsIgnoreCase("info")) {
 				Player player = getServer().getPlayer(sender.getName());
@@ -135,6 +154,9 @@ public class Main extends JavaPlugin {
 		}
 		else if(command.getName().equalsIgnoreCase("reset")) {
 			claimData.clear();
+			kingData.clear();
+			onDisable();
+			onEnable();
 			return true;
 		}
 		else if(command.getName().equalsIgnoreCase("chunk-info")) {
@@ -153,39 +175,14 @@ public class Main extends JavaPlugin {
 		return false;
 	}
 
-//	public void sendToDatabase() throws SQLException {
-//		connection.setAutoCommit(false);
-//		PreparedStatement pstmt = null;
-//		//pstmt = (PreparedStatement) connection.prepareStatement(
-//		//		"INSERT INTO user_claims VALUES(?, ?)");
-//		//for(Map.Entry<String, String> entry : claimsModel.entrySet()) {
-//		//	pstmt.setString(1, entry.getKey());
-//		//	pstmt.setString(2, entry.getValue());
-//		//	pstmt.addBatch();
-//		//}
-//		pstmt.executeBatch();
-//		connection.commit();
-//		connection.setAutoCommit(true);
-//	}
-
 	@Override
 	public void onDisable() {
-		//TODO: check for data uniqueness
+		try {
+			if (connection!=null && !connection.isClosed()){
+				connection.close();
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
-//		try {
-//			sendToDatabase();
-//		}
-//		catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//		// invoke on disable.
-//		try { // using a try catch to catch connection errors (like wrong sql password...)
-//			if (connection!=null && !connection.isClosed()){ // checking if connection isn't null to
-//				// avoid receiving a nullpointer
-//				connection.close(); // closing the connection field variable.
-//			}
-//		} catch(Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
 }
