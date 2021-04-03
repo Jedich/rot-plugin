@@ -1,5 +1,5 @@
 package tld.sofugames.rot;
 
-enum ChunkType {
+public enum ChunkType {
 	Home, Town, Default
 }

@@ -1,6 +1,7 @@
-package tld.sofugames.rot;
+package tld.sofugames.models;
 
 import org.bukkit.entity.Player;
+import tld.sofugames.rot.Model;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
