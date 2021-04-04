@@ -14,6 +14,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class ClaimCommand implements CommandExecutor {
+
+//	public ClaimCommand(ClaimCommand instance){
+//		plugin = instance;
+//	}
+
 	Connection connection;
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

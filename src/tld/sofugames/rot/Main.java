@@ -5,6 +5,7 @@ import org.bukkit.*;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import tld.sofugames.commands.*;
 import tld.sofugames.data.Data;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.King;
@@ -64,6 +65,12 @@ public class Main extends JavaPlugin {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+
+		getCommand("claim").setExecutor(new ClaimCommand());
+		getCommand("kingdom").setExecutor(new KingdomCommand());
+
+		getServer().getPluginManager().registerEvents(new EventListener(), this);
+
 	}
 
 	@Override

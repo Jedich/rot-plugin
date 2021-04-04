@@ -12,11 +12,11 @@ public class King implements Model {
 
 	public int id;
 	public UUID nickname;
-	public String kingdomName;
+	public String kingdomName = "Unnamed Kingdom";
 	public Player assignedPlayer;
 	public ClaimedChunk homeChunk;
 	public int kingdomLevel;
-	public float charge;
+	public float charge = 0;
 	public int chunkNumber;
 
 	public King(int id, Player player, ClaimedChunk homeChunk) {
@@ -58,7 +58,7 @@ public class King implements Model {
 		}
 		sql.deleteCharAt(sql.length() - 2);
 		sql.append("WHERE id = ").append(id);
-		System.out.println(sql);
+		System.out.println(sql.toString());
 		PreparedStatement pstmt = (PreparedStatement) connection.prepareStatement(sql.toString());
 		pstmt.setString(1, kingdomName);
 		pstmt.executeUpdate();

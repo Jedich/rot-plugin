@@ -23,21 +23,23 @@ public class KingdomCommand implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (command.getName().equalsIgnoreCase("kingdom")) {
+			Player player = (Player) sender;
+			String UUID = player.getUniqueId().toString();
+			String chunkName = player.getLocation().getChunk().toString();
 			if (args[0].equalsIgnoreCase("setname")) {
 				try {
-					Data.getInstance().kingData.get(sender.getName()).kingdomName = args[1];
-					Data.getInstance().kingData.get(sender.getName()).updateInDb(connection, new String[]{"kingdom_name"});
+					Data.getInstance().kingData.get(UUID).kingdomName = args[1];
+					Data.getInstance().kingData.get(UUID).updateInDb(connection, new String[]{"kingdom_name"});
 				} catch (SQLException e) {
 					sender.sendMessage("Update execution error");
 					e.printStackTrace();
 				}
 			} else if (args[0].equalsIgnoreCase("info")) {
-				Player player = getServer().getPlayer(sender.getName());
-				String chunkName = player.getLocation().getChunk().toString();
-				if (!Data.getInstance().kingData.containsKey(sender.getName())) {
+
+				if (!Data.getInstance().kingData.containsKey(UUID)) {
 					sender.sendMessage("You are not a king yet! Type your first /claim to become a king!");
 				} else {
-					King thisKing = Data.getInstance().kingData.get(sender.getName());
+					King thisKing = Data.getInstance().kingData.get(UUID);
 					sender.sendMessage((ChatColor.GOLD + thisKing.kingdomName) +
 							ChatColor.WHITE + ", the kingdom of " + ChatColor.GOLD + sender.getName());
 					sender.sendMessage("Kingdom level: " + thisKing.kingdomLevel);
@@ -47,11 +49,9 @@ public class KingdomCommand implements CommandExecutor {
 					}
 				}
 			} else if (args[0].equalsIgnoreCase("show")) {
-				if (!Data.getInstance().kingData.containsKey(sender.getName())) {
+				if (!Data.getInstance().kingData.containsKey(UUID)) {
 					sender.sendMessage("You are not a king yet! Type your first /claim to become a king!");
 				} else {
-					Player player = getServer().getPlayer(sender.getName());
-					String chunkName = player.getLocation().getChunk().toString();
 					for (Map.Entry<String, ClaimedChunk> chunk : Data.getInstance().claimData.entrySet()) {
 						ClaimedChunk ch = chunk.getValue();
 						int a = ch.world.getX() * 16;
