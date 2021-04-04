@@ -38,5 +38,17 @@ public class ClaimedChunk implements Model {
 		pstmt.executeUpdate();
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "ClaimedChunk{" +
+				"id=" + id +
+				", owner=" + owner +
+				", chunkId='" + chunkId + '\'' +
+				", type=" + type +
+				", world=" + world +
+				", income=" + income +
+				'}';
+	}
 }
 

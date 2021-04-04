@@ -12,6 +12,7 @@ import tld.sofugames.rot.ChunkType;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collections;
 
 public class ClaimCommand implements CommandExecutor {
 
@@ -27,9 +28,10 @@ public class ClaimCommand implements CommandExecutor {
 				connection = Data.getInstance().connection;
 			}
 			Player player = (Player) sender;
+			String uuid = player.getUniqueId().toString();
 			String chunkName = player.getLocation().getChunk().toString();
 			if (!Data.getInstance().claimData.containsKey(chunkName)) {
-				if (!Data.getInstance().kingData.containsKey(sender.getName())) {
+				if (!Data.getInstance().kingData.containsKey(uuid)) {
 
 					ClaimedChunk homeChunk = new ClaimedChunk(Data.getInstance().getLastClaim(), chunkName,
 							((Player) sender).getUniqueId(), ChunkType.Home, player.getLocation().getChunk());
@@ -42,7 +44,7 @@ public class ClaimCommand implements CommandExecutor {
 					sender.sendMessage("Let your journey begin here.");
 					Data.getInstance().claimData.put(player.getLocation().getChunk().toString(), homeChunk);
 					King thisKing = new King(Data.getInstance().getLastKing(), player, homeChunk);
-					Data.getInstance().kingData.put(sender.getName(), thisKing);
+					Data.getInstance().kingData.put(uuid, thisKing);
 					try {
 						if (thisKing.pushToDb(connection)) {
 							sender.sendMessage("Chunk successfully claimed!" + ChatColor.GOLD + " You are now a King.");
@@ -53,12 +55,15 @@ public class ClaimCommand implements CommandExecutor {
 					}
 				} else {
 					//TODO: Check for neighboring chunks
+					King king = Data.getInstance().kingData.get(uuid);
 					sender.sendMessage("Chunk successfully claimed!");
 					ClaimedChunk claim = new ClaimedChunk(Data.getInstance().getLastClaim(), chunkName,
 							((Player) sender).getUniqueId(), ChunkType.Default, player.getLocation().getChunk());
 					Data.getInstance().claimData.put(player.getLocation().getChunk().toString(), claim);
+					king.chunkNumber++;
 					try {
 						claim.pushToDb(connection);
+						king.updateInDb(connection, Collections.singletonMap("chunk_number", Integer.toString(king.chunkNumber)));
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}

@@ -11,7 +11,7 @@ public class Data {
 	public HashMap<String, ClaimedChunk> claimData = new HashMap<>();
 	public HashMap<String, King> kingData = new HashMap<>();
 	public Connection connection;
-	private int lastClaim = 1, lastKing = 1;
+	public int lastClaim = 1, lastKing = 1;
 
 	public static Data getInstance() {
 		if(instance == null) {

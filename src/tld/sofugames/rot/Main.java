@@ -47,20 +47,19 @@ public class Main extends JavaPlugin {
 								ChunkType.valueOf(results.getString("type")),
 								world.getChunkAt(results.getInt("chunk_x"),
 										results.getInt("chunk_y"))));
-				Data.getInstance().getLastClaim();
+				Data.getInstance().lastClaim = results.getInt("id");
 			}
 			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM kings");
 			results = stmt.executeQuery();
 			while (results.next()) {
 				Data.getInstance().kingData.put(results.getString("name"), new King(results.getInt("id"),
-						(Player) Bukkit.getOfflinePlayer(UUID.fromString(results.getString("name"))),
-						//Objects.requireNonNull(getServer().getPlayer(results.getString("name"))),
+						Objects.requireNonNull(Bukkit.getOfflinePlayer(UUID.fromString(results.getString("name"))).getPlayer()),
 						results.getString("kingdom_name"),
 						Data.getInstance().claimData.get(results.getString("home_chunk")),
 						results.getInt("kingdom_level"),
 						results.getInt("chunk_number")
 				));
-				Data.getInstance().getLastKing();
+				Data.getInstance().lastKing = results.getInt("id");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

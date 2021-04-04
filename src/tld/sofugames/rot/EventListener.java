@@ -27,7 +27,8 @@ public class EventListener implements Listener {
 		ClaimedChunk chunk = Data.getInstance().claimData.get(block.getChunk().toString());
 		if (block.getY() > 40) {
 			if (chunk != null) {
-				if (chunk.owner != senderUUID) {
+				if (!chunk.owner.equals(senderUUID)) {
+					System.out.println(chunk.owner + " " + senderUUID);
 					event.setCancelled(true);
 					player.sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
 				}

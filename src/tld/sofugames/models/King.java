@@ -6,12 +6,15 @@ import tld.sofugames.rot.Model;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class King implements Model {
 
 	public int id;
-	public UUID nickname;
+	public UUID kingUuid;
+	public String nickname;
 	public String kingdomName = "Unnamed Kingdom";
 	public Player assignedPlayer;
 	public ClaimedChunk homeChunk;
@@ -23,7 +26,7 @@ public class King implements Model {
 		this.id = id;
 		this.assignedPlayer = player;
 		this.homeChunk = homeChunk;
-		nickname = player.getUniqueId();
+		kingUuid = player.getUniqueId();
 		kingdomLevel = 1;
 		chunkNumber = 1;
 	}
@@ -33,7 +36,7 @@ public class King implements Model {
 		this.assignedPlayer = player;
 		this.kingdomName = kingdomName;
 		this.homeChunk = homeChunk;
-		nickname = player.getUniqueId();
+		kingUuid = player.getUniqueId();
 		this.kingdomLevel = kingdomLevel;
 		this.chunkNumber = chunkNumber;
 	}
@@ -42,7 +45,7 @@ public class King implements Model {
 		PreparedStatement pstmt = (PreparedStatement) connection.prepareStatement(
 				"INSERT INTO kings VALUES(?, ?, ?, ?, ?, ?)");
 		pstmt.setInt(1, id);
-		pstmt.setString(2, nickname.toString());
+		pstmt.setString(2, kingUuid.toString());
 		pstmt.setString(3, kingdomName);
 		pstmt.setString(4, homeChunk.chunkId);
 		pstmt.setInt(5, kingdomLevel);
@@ -51,16 +54,23 @@ public class King implements Model {
 		return true;
 	}
 
-	public boolean updateInDb(Connection connection, String[] params) throws SQLException {
+	public boolean updateInDb(Connection connection, Map<String, Object> params) throws SQLException {
 		StringBuilder sql = new StringBuilder("UPDATE kings SET ");
-		for(String param:params) {
-			sql.append(param).append(" = ?, ");
+		for(Map.Entry<String, Object> entry:params.entrySet()) {
+			sql.append(entry.getKey()).append(" = ");
+			if(entry.getValue() instanceof String) {
+				sql.append("'").append(entry.getValue()).append("', ");
+			} else if(entry.getValue() instanceof Integer) {
+				sql.append(entry.getValue()).append(", ");
+			} else {
+				throw new SQLException("Uncaught type.");
+			}
 		}
 		sql.deleteCharAt(sql.length() - 2);
 		sql.append("WHERE id = ").append(id);
 		System.out.println(sql.toString());
 		PreparedStatement pstmt = (PreparedStatement) connection.prepareStatement(sql.toString());
-		pstmt.setString(1, kingdomName);
+		//pstmt.setString(1, kingdomName);
 		pstmt.executeUpdate();
 		return true;
 	}
