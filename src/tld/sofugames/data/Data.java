@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.util.HashMap;
 
 public class Data {
+	public static final int basicFee = 2;
 	private static Data instance = null;
 	public HashMap<String, ClaimedChunk> claimData = new HashMap<>();
 	public HashMap<String, King> kingData = new HashMap<>();

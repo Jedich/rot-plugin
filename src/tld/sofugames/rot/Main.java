@@ -5,6 +5,7 @@ import org.bukkit.*;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
 import tld.sofugames.commands.*;
 import tld.sofugames.data.Data;
 import tld.sofugames.models.ClaimedChunk;
@@ -70,6 +71,9 @@ public class Main extends JavaPlugin {
 
 		getServer().getPluginManager().registerEvents(new EventListener(), this);
 
+		Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "/time set 0");
+		BukkitScheduler scheduler = getServer().getScheduler();
+		scheduler.scheduleSyncRepeatingTask(this, this::checkIncomes, 0L, 50L);
 	}
 
 	@Override
@@ -104,6 +108,24 @@ public class Main extends JavaPlugin {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void checkIncomes() {
+		for(King king : Data.getInstance().kingData.values()) {
+			if(Bukkit.getPlayerExact(king.nickname) != null) {
+				king.calculateFee();
+				king.goldBalance += Math.round(king.income) - Math.round(king.fee);
+
+				king.assignedPlayer.sendMessage(ChatColor.GOLD + "Good morning, my honor!");
+				king.assignedPlayer.sendMessage("Income: " + ChatColor.GREEN + Math.round(king.income) + "ing. " +
+						ChatColor.WHITE + "Charge: " + ChatColor.RED + Math.round(king.fee) + "ing.");
+				king.assignedPlayer.sendMessage("Your balance: " + ChatColor.GOLD + king.goldBalance + "ing.");
+				if(king.goldBalance < -5) {
+					king.assignedPlayer.sendMessage(ChatColor.DARK_RED + "The treasury is empty, my lord! " +
+							"We should take a foreign aid before it's not too late!");
+				}
+			}
 		}
 	}
 }

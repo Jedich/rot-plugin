@@ -1,6 +1,8 @@
 package tld.sofugames.models;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import tld.sofugames.data.Data;
 import tld.sofugames.rot.Model;
 
 import java.sql.Connection;
@@ -8,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 public class King implements Model {
@@ -19,7 +22,8 @@ public class King implements Model {
 	public Player assignedPlayer;
 	public ClaimedChunk homeChunk;
 	public int kingdomLevel;
-	public float charge = 0;
+	public int goldBalance = 0;
+	public float income, fee = 0;
 	public int chunkNumber;
 
 	public King(int id, Player player, ClaimedChunk homeChunk) {
@@ -27,6 +31,7 @@ public class King implements Model {
 		this.assignedPlayer = player;
 		this.homeChunk = homeChunk;
 		kingUuid = player.getUniqueId();
+		nickname = Objects.requireNonNull(Bukkit.getServer().getPlayer(player.getUniqueId())).getName();
 		kingdomLevel = 1;
 		chunkNumber = 1;
 	}
@@ -37,8 +42,13 @@ public class King implements Model {
 		this.kingdomName = kingdomName;
 		this.homeChunk = homeChunk;
 		kingUuid = player.getUniqueId();
+		nickname = Objects.requireNonNull(Bukkit.getServer().getPlayer(player.getUniqueId())).getName();
 		this.kingdomLevel = kingdomLevel;
 		this.chunkNumber = chunkNumber;
+	}
+
+	public void calculateFee() {
+		fee = (float) ((0.5f*chunkNumber)*Math.log(chunkNumber));
 	}
 
 	public boolean pushToDb(Connection connection) throws SQLException {
