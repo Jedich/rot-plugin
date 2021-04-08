@@ -1,8 +1,10 @@
 package tld.sofugames.rot;
 
 import net.minecraft.server.v1_16_R3.DoubleBlockFinder;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -80,14 +82,15 @@ public class EventListener implements Listener {
 	}
 
 	public int allDirectionSearch(Block currentBlock, HashMap<String, Block> visitedList, int space) {
-		BlockFace[] faces = new BlockFace[]{BlockFace.EAST, BlockFace.NORTH, BlockFace.WEST, BlockFace.SOUTH, BlockFace.UP, BlockFace.DOWN};
-		for (BlockFace face : faces) {
+		for (BlockFace face : Data.getInstance().faces) {
 			Block rel = currentBlock.getRelative(face);
 			if (!visitedList.containsKey(rel.toString())) {
 				visitedList.put(rel.toString(), rel);
-				if (rel.getType() == Material.AIR) {
+				if (rel.getType() == Material.AIR //*********************************
+						|| Data.getInstance().ignoreList.contains(rel.getType())
+						|| rel.getType() == Material.TORCH) {//*********************************
 					space++;
-					if (space >= 100) {
+					if (space > 150) {
 						return 0;
 					}
 					int temp = allDirectionSearch(rel, visitedList, space);
