@@ -2,7 +2,6 @@ package tld.sofugames.models;
 
 import org.bukkit.Chunk;
 import tld.sofugames.rot.ChunkType;
-import tld.sofugames.rot.Model;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

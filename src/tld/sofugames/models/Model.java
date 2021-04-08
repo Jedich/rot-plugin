@@ -1,4 +1,4 @@
-package tld.sofugames.rot;
+package tld.sofugames.models;
 
 import java.sql.Connection;
 import java.sql.SQLException;

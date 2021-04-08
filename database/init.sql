@@ -16,4 +16,14 @@ CREATE TABLE IF NOT EXISTS kings(
     kingdom_level INT(11) DEFAULT NULL,
     chunk_number INT(11) DEFAULT NULL,
     PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS houses(
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    owner VARCHAR(64) DEFAULT NULL,
+    level INT(11) DEFAULT NULL,
+    area INT(11) DEFAULT NULL,
+    benefits INT(11) DEFAULT NULL,
+    income INT(11) DEFAULT NULL,
+    PRIMARY KEY (id)
 )

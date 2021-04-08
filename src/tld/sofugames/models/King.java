@@ -2,13 +2,10 @@ package tld.sofugames.models;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import tld.sofugames.data.Data;
-import tld.sofugames.rot.Model;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
