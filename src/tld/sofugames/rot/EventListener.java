@@ -17,7 +17,7 @@ public class EventListener implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockBreak(BlockBreakEvent event) {
-		if(!checkOwnership(event.getPlayer(), event.getBlock())){
+		if (!checkOwnership(event.getPlayer(), event.getBlock())) {
 			event.setCancelled(true);
 			event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
 		}
@@ -25,7 +25,7 @@ public class EventListener implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockPlace(BlockPlaceEvent event) {
-		if(checkOwnership(event.getPlayer(), event.getBlock())) {
+		if (checkOwnership(event.getPlayer(), event.getBlock())) {
 			Block start = event.getBlock();
 			if (start.getBlockData() instanceof org.bukkit.block.data.type.Bed) {
 				if (hasCeiling(start, 0)) {
@@ -46,7 +46,7 @@ public class EventListener implements Listener {
 			event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
 		}
 	}
-	
+
 	public boolean checkOwnership(Player player, Block block) {
 		UUID senderUUID = player.getUniqueId();
 		ClaimedChunk chunk = Data.getInstance().claimData.get(block.getChunk().toString());
@@ -55,8 +55,7 @@ public class EventListener implements Listener {
 				if (!chunk.owner.equals(senderUUID)) {
 					return false;
 				}
-			}
-			else {
+			} else {
 				return false;
 			}
 		}
@@ -81,19 +80,22 @@ public class EventListener implements Listener {
 	}
 
 	public int allDirectionSearch(Block currentBlock, HashMap<String, Block> visitedList, int space) {
-		BlockFace[] faces = new BlockFace[] {BlockFace.EAST, BlockFace.NORTH, BlockFace.WEST, BlockFace.SOUTH, BlockFace.UP};
-		for(BlockFace face : faces) {
+		BlockFace[] faces = new BlockFace[]{BlockFace.EAST, BlockFace.NORTH, BlockFace.WEST, BlockFace.SOUTH, BlockFace.UP, BlockFace.DOWN};
+		for (BlockFace face : faces) {
 			Block rel = currentBlock.getRelative(face);
-			System.out.println(rel.getType());
-			if(!visitedList.containsKey(rel.toString())) {
+			if (!visitedList.containsKey(rel.toString())) {
 				visitedList.put(rel.toString(), rel);
-				if(rel.getType() == Material.LEGACY_AIR || rel.getType() == Material.AIR) {
+				if (rel.getType() == Material.AIR) {
 					space++;
-					System.out.println(space);
-					if(space > 100) {
+					if (space >= 100) {
 						return 0;
 					}
-					return allDirectionSearch(rel, visitedList, space);
+					int temp = allDirectionSearch(rel, visitedList, space);
+					if (temp == 0) {
+						return 0;
+					} else {
+						space = temp;
+					}
 				}
 			}
 		}
