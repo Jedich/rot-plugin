@@ -73,7 +73,7 @@ public class Main extends JavaPlugin {
 
 		Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "/time set 0");
 		BukkitScheduler scheduler = getServer().getScheduler();
-		scheduler.scheduleSyncRepeatingTask(this, this::checkIncomes, 0L, 50L);
+		scheduler.scheduleSyncRepeatingTask(this, this::checkIncomes, 0L, 24000L);
 	}
 
 	@Override
