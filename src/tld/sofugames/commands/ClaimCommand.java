@@ -49,6 +49,7 @@ public class ClaimCommand implements CommandExecutor {
 						if (thisKing.pushToDb(connection)) {
 							sender.sendMessage("Chunk successfully claimed!" + ChatColor.GOLD + " You are now a King.");
 							sender.sendMessage("Please, name your kingdom with /kingdom setname [NAME]");
+							Data.getInstance().giveBed((Player) sender);
 						}
 					} catch (SQLException e) {
 						e.printStackTrace();

@@ -8,7 +8,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.block.*;
-import org.bukkit.inventory.ItemStack;
 import tld.sofugames.data.*;
 import tld.sofugames.models.*;
 
@@ -22,29 +21,47 @@ public class EventListener implements Listener {
 		if (!checkOwnership(event.getPlayer(), event.getBlock())) {
 			event.setCancelled(true);
 			event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
+		} else {
+			if (Tag.BEDS.getValues().contains(event.getBlock().getType())) {
+				if (Data.getInstance().houseData.containsKey(Data.getInstance().getBedHash(event.getBlock()))) {
+					try {
+						event.getPlayer().sendMessage("Bed was destroyed");
+						Data.getInstance().houseData.get(Data.getInstance().getBedHash(event.getBlock())).Delete(Data.getInstance().connection);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 	}
 
-	@EventHandler(priority = EventPriority.NORMAL)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockPlace(BlockPlaceEvent event) {
+		if (!checkOwnership(event.getPlayer(), event.getBlock())) {
+			event.setCancelled(true);
+			event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
+		}
+	}
+
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onMultiBlockPlace(BlockMultiPlaceEvent event) {
 		if (checkOwnership(event.getPlayer(), event.getBlock())) {
 			Block start = event.getBlock();
 			if (start.getBlockData() instanceof org.bukkit.block.data.type.Bed) {
 				if (hasCeiling(start, 0)) {
-					House newHouse = new House(event.getPlayer().getUniqueId());
+					House newHouse = new House(Data.getInstance().getLastHouse(), event.getPlayer().getUniqueId(), Data.getInstance().getBedHash(start));
+					System.out.println(Data.getInstance().getBedHash(start));
 					try {
 						newHouse = allDirectionSearch(start, new HashMap<>(), newHouse, null);
 
-						event.getPlayer().sendMessage(ChatColor.GOLD + "House claimed! Space: "
-								+ newHouse.area + "\nbenefits:" + newHouse.benefits);
+						event.getPlayer().sendMessage(ChatColor.GOLD + "House claimed!");
 
-						event.getPlayer().getInventory().addItem(
-								new ItemStack(Tag.BEDS.getValues().
-										stream()
-										.skip(new Random().nextInt(
-												Tag.BEDS.getValues().size())).findFirst().orElse(Material.WHITE_BED)));
+						Data.getInstance().giveBed(event.getPlayer());
 
 						newHouse.pushToDb(Data.getInstance().connection);
+
+						Data.getInstance().houseData.put(newHouse.bedBlock, newHouse);
 					} catch (HousingOutOfBoundsException | SQLException e) {
 						event.getPlayer().sendMessage(ChatColor.RED + e.getMessage());
 						start.breakNaturally();
@@ -75,12 +92,6 @@ public class EventListener implements Listener {
 		return true;
 	}
 
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void houseClaim(BlockPlaceEvent event) {
-
-	}
-
 	public boolean hasCeiling(Block current, int counter) {
 		if (counter > 15) return false;
 
@@ -94,29 +105,29 @@ public class EventListener implements Listener {
 
 	public House allDirectionSearch(Block currentBlock, HashMap<String, Block> visitedList, House thisHouse, Block startBed)
 			throws HousingOutOfBoundsException {
-		if(startBed == null) startBed = currentBlock;
+		if (startBed == null) startBed = currentBlock;
 		for (BlockFace face : Data.getInstance().faces) {
 			Block rel = currentBlock.getRelative(face);
 			if (!visitedList.containsKey(rel.toString())) {
 				visitedList.put(rel.toString(), rel);
 				if (rel.getType() == Material.AIR || rel.getType() == Material.TORCH //*********************************
 						|| Data.getInstance().ignoreList.contains(rel.getType())) {
-					if(Tag.BEDS.getValues().contains(rel.getType())) {
-						if(currentBlock != rel) {
-							throw new HousingOutOfBoundsException("House area doesn't match the rules");
+					if (Tag.BEDS.getValues().contains(rel.getType())) {
+						if (Data.getInstance().houseData.containsKey(Data.getInstance().getBedHash(rel))) {
+							throw new HousingOutOfBoundsException("House is already claimed!");
 						}
 					}
 					thisHouse.area++;
 					if (thisHouse.area > 150) {
-						throw new HousingOutOfBoundsException("House area doesn't match the rules");
+						throw new HousingOutOfBoundsException("House area doesn't match the rules: Size can't be > 150");
 					}
 					House tempHouse = allDirectionSearch(rel, visitedList, thisHouse, startBed);
 					if (tempHouse.area == 0) {
-						throw new HousingOutOfBoundsException("House area doesn't match the rules");
+						throw new HousingOutOfBoundsException("House area doesn't match the rules: Size can't be > 150");
 					} else {
 						thisHouse.area = tempHouse.area;
 					}
-				} else if(Data.getInstance().benefitList.contains(rel.getType())) {
+				} else if (Data.getInstance().benefitList.contains(rel.getType())) {
 					thisHouse.benefits++;
 				}
 			}

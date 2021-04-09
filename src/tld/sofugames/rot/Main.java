@@ -4,12 +4,15 @@ import com.mysql.jdbc.*;
 import org.bukkit.*;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import tld.sofugames.commands.*;
 import tld.sofugames.data.Data;
 import tld.sofugames.models.ClaimedChunk;
+import tld.sofugames.models.House;
 import tld.sofugames.models.King;
+import org.bukkit.event.EventHandler;
 
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -62,12 +65,26 @@ public class Main extends JavaPlugin {
 				));
 				Data.getInstance().lastKing = results.getInt("id");
 			}
+			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM houses");
+			results = stmt.executeQuery();
+			while (results.next()) {
+				Data.getInstance().houseData.put(results.getString("bed_block"), new House(results.getInt("id"),
+						UUID.fromString(results.getString("owner")),
+						results.getString("bed_block"),
+						results.getInt("area"),
+						results.getInt("benefits"),
+						results.getInt("income")
+				));
+				Data.getInstance().lastHouse = results.getInt("id");
+				Data.getInstance().kingData.get(results.getString("owner")).changeIncome(results.getInt("income"), connection);
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
 		getCommand("claim").setExecutor(new ClaimCommand());
 		getCommand("kingdom").setExecutor(new KingdomCommand());
+
 
 		getServer().getPluginManager().registerEvents(new EventListener(), this);
 
@@ -81,6 +98,7 @@ public class Main extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("reset")) {
 			Data.getInstance().claimData.clear();
 			Data.getInstance().kingData.clear();
+			Data.getInstance().houseData.clear();
 			onDisable();
 			onEnable();
 			return true;
@@ -109,6 +127,7 @@ public class Main extends JavaPlugin {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		HandlerList.unregisterAll();
 	}
 
 	public void checkIncomes() {
