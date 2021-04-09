@@ -15,8 +15,6 @@ import java.util.UUID;
 public class King implements Model {
 
 	public int id;
-	public UUID kingUuid;
-	public String nickname;
 	public String kingdomName = "Unnamed Kingdom";
 	public Player assignedPlayer;
 	public ClaimedChunk homeChunk;
@@ -30,43 +28,39 @@ public class King implements Model {
 		this.id = id;
 		this.assignedPlayer = player;
 		this.homeChunk = homeChunk;
-		kingUuid = player.getUniqueId();
-		nickname = Objects.requireNonNull(Bukkit.getServer().getPlayer(player.getUniqueId())).getName();
 		kingdomLevel = 1;
 		chunkNumber = 1;
 	}
 
-	public King(int id, Player player, String kingdomName, ClaimedChunk homeChunk, int kingdomLevel, int chunkNumber) {
+	public King(int id, Player player, String kingdomName, ClaimedChunk homeChunk, int kingdomLevel, int chunkNumber, int goldBalance) {
 		this.id = id;
 		this.assignedPlayer = player;
 		this.kingdomName = kingdomName;
 		this.homeChunk = homeChunk;
-		kingUuid = player.getUniqueId();
-		nickname = Objects.requireNonNull(Bukkit.getServer().getPlayer(player.getUniqueId())).getName();
 		this.kingdomLevel = kingdomLevel;
 		this.chunkNumber = chunkNumber;
 		this.income = 0;
+		this.goldBalance = goldBalance;
 	}
 
 	public void calculateFee() {
 		fee = (int) Math.floor((0.5f * chunkNumber) * Math.log(chunkNumber));
 	}
 
-	public void changeIncome(int income, Connection connection) throws SQLException {
+	public void changeIncome(int income) {
 		this.income += income;
-		updateInDb(connection, Collections.singletonMap("income", this.income));
 	}
 
 	public boolean pushToDb(Connection connection) throws SQLException {
 		PreparedStatement pstmt = (PreparedStatement) connection.prepareStatement(
 				"INSERT INTO kings VALUES(?, ?, ?, ?, ?, ?, ?)");
 		pstmt.setInt(1, id);
-		pstmt.setString(2, kingUuid.toString());
+		pstmt.setString(2, assignedPlayer.getUniqueId().toString());
 		pstmt.setString(3, kingdomName);
 		pstmt.setString(4, homeChunk.chunkId);
 		pstmt.setInt(5, kingdomLevel);
 		pstmt.setInt(6, chunkNumber);
-		pstmt.setInt(7, income);
+		pstmt.setInt(7, goldBalance);
 		pstmt.executeUpdate();
 		return true;
 	}

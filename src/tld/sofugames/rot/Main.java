@@ -56,7 +56,8 @@ public class Main extends JavaPlugin {
 						results.getString("kingdom_name"),
 						Data.getInstance().claimData.get(results.getString("home_chunk")),
 						results.getInt("kingdom_level"),
-						results.getInt("chunk_number")
+						results.getInt("chunk_number"),
+						results.getInt("balance")
 				));
 				Data.getInstance().lastKing = results.getInt("id");
 			}
@@ -71,7 +72,7 @@ public class Main extends JavaPlugin {
 						results.getInt("income")
 				));
 				Data.getInstance().lastHouse = results.getInt("id");
-				Data.getInstance().kingData.get(results.getString("owner")).changeIncome(results.getInt("income"), connection);
+				Data.getInstance().kingData.get(results.getString("owner")).changeIncome(results.getInt("income"));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -83,7 +84,7 @@ public class Main extends JavaPlugin {
 
 		getServer().getPluginManager().registerEvents(new EventListener(), this);
 
-		Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "/time set 0");
+		Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "time set 0");
 		BukkitScheduler scheduler = getServer().getScheduler();
 		scheduler.scheduleSyncRepeatingTask(this, this::checkIncomes, 0L, 24000L);
 	}
@@ -127,17 +128,19 @@ public class Main extends JavaPlugin {
 
 	public void checkIncomes() {
 		for (King king : Data.getInstance().kingData.values()) {
-			if (Bukkit.getPlayerExact(king.nickname) != null) {
-				king.calculateFee();
-				king.goldBalance += Math.round(king.income) - Math.round(king.fee);
+			if(king.assignedPlayer != null) {
+				if (Bukkit.getPlayerExact(king.assignedPlayer.getName()) != null) {
+					king.calculateFee();
+					king.goldBalance += Math.round(king.income) - Math.round(king.fee);
 
-				king.assignedPlayer.sendMessage(ChatColor.GOLD + "Good morning, my honor!");
-				king.assignedPlayer.sendMessage("Income: " + ChatColor.GREEN + Math.round(king.income) + "ing. " +
-						ChatColor.WHITE + "Charge: " + ChatColor.RED + Math.round(king.fee) + "ing.");
-				king.assignedPlayer.sendMessage("Your balance: " + ChatColor.GOLD + king.goldBalance + "ing.");
-				if (king.goldBalance < -5) {
-					king.assignedPlayer.sendMessage(ChatColor.DARK_RED + "The treasury is empty, my lord! " +
-							"We should take a foreign aid before it's not too late!");
+					king.assignedPlayer.sendMessage(ChatColor.GOLD + "Good morning, my honor!");
+					king.assignedPlayer.sendMessage("Income: " + ChatColor.GREEN + Math.round(king.income) + "ing. " +
+							ChatColor.WHITE + "Charge: " + ChatColor.RED + Math.round(king.fee) + "ing.");
+					king.assignedPlayer.sendMessage("Your balance: " + ChatColor.GOLD + king.goldBalance + "ing.");
+					if (king.goldBalance < -5) {
+						king.assignedPlayer.sendMessage(ChatColor.DARK_RED + "The treasury is empty, my lord! " +
+								"We should take a foreign aid before it's not too late!");
+					}
 				}
 			}
 		}

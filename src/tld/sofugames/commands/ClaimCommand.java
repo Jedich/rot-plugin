@@ -48,6 +48,7 @@ public class ClaimCommand implements CommandExecutor {
 						King thisKing = new King(Data.getInstance().getLastKing(), player, homeChunk);
 						Data.getInstance().kingData.put(uuid, thisKing);
 						if (thisKing.pushToDb(connection)) {
+							thisKing.chunkNumber++;
 							sender.sendMessage("Chunk successfully claimed!" + ChatColor.GOLD + " You are now a King.");
 							sender.sendMessage("Please, name your kingdom with /kingdom setname [NAME]");
 							Data.getInstance().giveBed((Player) sender);
@@ -58,17 +59,19 @@ public class ClaimCommand implements CommandExecutor {
 					}
 				} else {
 					//TODO: Check for neighboring chunks
-					King king = Data.getInstance().kingData.get(uuid);
-					sender.sendMessage("Chunk successfully claimed!");
-					ClaimedChunk claim = new ClaimedChunk(Data.getInstance().getLastClaim(), chunkName,
-							((Player) sender).getUniqueId(), ChunkType.Default, player.getLocation().getChunk());
-					Data.getInstance().claimData.put(player.getLocation().getChunk().toString(), claim);
-					king.chunkNumber++;
+
 					try {
+						King king = Data.getInstance().kingData.get(uuid);
+						king.updateInDb(connection, Collections.singletonMap("chunk_number", king.chunkNumber));
+						ClaimedChunk claim = new ClaimedChunk(Data.getInstance().getLastClaim(), chunkName,
+								((Player) sender).getUniqueId(), ChunkType.Default, player.getLocation().getChunk());
+						Data.getInstance().claimData.put(player.getLocation().getChunk().toString(), claim);
 						claim.pushToDb(connection);
-						king.updateInDb(connection, Collections.singletonMap("chunk_number", Integer.toString(king.chunkNumber)));
+						king.chunkNumber++;
+						sender.sendMessage("Chunk successfully claimed!");
 					} catch (SQLException e) {
 						e.printStackTrace();
+						sender.sendMessage(ChatColor.RED + "Internal server error.");
 					}
 				}
 			} else {

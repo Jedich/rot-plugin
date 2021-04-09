@@ -52,7 +52,6 @@ public class EventListener implements Listener {
 			if (start.getBlockData() instanceof org.bukkit.block.data.type.Bed) {
 				if (hasCeiling(start, 0)) {
 					House newHouse = new House(Data.getInstance().getLastHouse(), event.getPlayer().getUniqueId(), Data.getInstance().getBedHash(start));
-					System.out.println(Data.getInstance().getBedHash(start));
 					try {
 						newHouse = allDirectionSearch(start, new HashMap<>(), newHouse, null);
 

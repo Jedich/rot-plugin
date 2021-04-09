@@ -33,15 +33,15 @@ public class House implements Model {
 		this.income = income;
 	}
 
-	private void calculateIncome(Connection connection) throws SQLException {
+	private void calculateIncome() {
 		float a = 1 + benefits * 0.025f;
 		income = (int) Math.ceil(4 * a * Math.sin(0.024 * area - 7.9) + 4 * a);
-		Data.getInstance().kingData.get(owner.toString()).changeIncome(income, connection);
+		Data.getInstance().kingData.get(owner.toString()).changeIncome(income);
 	}
 
 	@Override
 	public boolean pushToDb(Connection connection) throws SQLException {
-		calculateIncome(connection);
+		calculateIncome();
 		PreparedStatement pstmt = (PreparedStatement) connection.prepareStatement(
 				"INSERT INTO houses VALUES(?, ?, ?, ?, ?, ?, ?)");
 		pstmt.setInt(1, id);
@@ -61,6 +61,6 @@ public class House implements Model {
 		System.out.println("delete id " + id);
 		pstmt.executeUpdate();
 		Data.getInstance().houseData.remove(bedBlock);
-		Data.getInstance().kingData.get(owner.toString()).changeIncome(-income, connection);
+		Data.getInstance().kingData.get(owner.toString()).changeIncome(-income);
 	}
 }

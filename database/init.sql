@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS kings(
     home_chunk VARCHAR(64) DEFAULT NULL,
     kingdom_level INT(11) DEFAULT NULL,
     chunk_number INT(11) DEFAULT NULL,
-    income INT(11) DEFAULT NULL,
+    balance INT(11) DEFAULT NULL,
     PRIMARY KEY (id)
 );
 

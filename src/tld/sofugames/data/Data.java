@@ -109,14 +109,14 @@ public class Data {
 
 
 	public int getLastClaim() {
-		return lastClaim++;
+		return ++lastClaim;
 	}
 
 	public int getLastKing() {
-		return lastKing++;
+		return ++lastKing;
 	}
 
 	public int getLastHouse() {
-		return lastHouse++;
+		return ++lastHouse;
 	}
 }
