@@ -19,6 +19,7 @@ public class House implements Model {
 	public int income;
 
 	public House(int id, UUID owner, String bedBlock) {
+		this.id = id;
 		this.owner = owner;
 		this.bedBlock = bedBlock;
 	}
@@ -54,10 +55,10 @@ public class House implements Model {
 		return true;
 	}
 
-	public void Delete(Connection connection) throws SQLException {
-		PreparedStatement pstmt = (PreparedStatement) connection.prepareStatement(
-				"DELETE FROM houses WHERE id = ?");
+	public void delete(Connection connection) throws SQLException {
+		PreparedStatement pstmt = connection.prepareStatement("DELETE FROM houses WHERE id = ?");
 		pstmt.setInt(1, id);
+		System.out.println("delete id " + id);
 		pstmt.executeUpdate();
 		Data.getInstance().houseData.remove(bedBlock);
 		Data.getInstance().kingData.get(owner.toString()).changeIncome(-income, connection);

@@ -8,6 +8,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.block.*;
+import org.bukkit.event.player.PlayerJoinEvent;
 import tld.sofugames.data.*;
 import tld.sofugames.models.*;
 
@@ -26,7 +27,7 @@ public class EventListener implements Listener {
 				if (Data.getInstance().houseData.containsKey(Data.getInstance().getBedHash(event.getBlock()))) {
 					try {
 						event.getPlayer().sendMessage("Bed was destroyed");
-						Data.getInstance().houseData.get(Data.getInstance().getBedHash(event.getBlock())).Delete(Data.getInstance().connection);
+						Data.getInstance().houseData.get(Data.getInstance().getBedHash(event.getBlock())).delete(Data.getInstance().getConnection());
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
@@ -59,21 +60,29 @@ public class EventListener implements Listener {
 
 						Data.getInstance().giveBed(event.getPlayer());
 
-						newHouse.pushToDb(Data.getInstance().connection);
+						newHouse.pushToDb(Data.getInstance().getConnection());
 
 						Data.getInstance().houseData.put(newHouse.bedBlock, newHouse);
 					} catch (HousingOutOfBoundsException | SQLException e) {
 						event.getPlayer().sendMessage(ChatColor.RED + e.getMessage());
-						start.breakNaturally();
+						event.setCancelled(true);
 					}
 				} else {
 					event.getPlayer().sendMessage(ChatColor.RED + "This house can't match the rules!");
-					start.breakNaturally();
+					event.setCancelled(true);
 				}
 			}
 		} else {
 			event.setCancelled(true);
 			event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
+		}
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onJoin(PlayerJoinEvent event) {
+		Player player = event.getPlayer();
+		if(Data.getInstance().kingData.containsKey(player.getUniqueId().toString())) {
+			Data.getInstance().kingData.get(player.getUniqueId().toString()).assignedPlayer = player;
 		}
 	}
 

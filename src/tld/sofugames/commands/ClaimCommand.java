@@ -21,11 +21,12 @@ public class ClaimCommand implements CommandExecutor {
 //	}
 
 	Connection connection;
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (command.getName().equalsIgnoreCase("claim")) {
-			if(connection == null) {
-				connection = Data.getInstance().connection;
+			if (connection == null) {
+				connection = Data.getInstance().getConnection();
 			}
 			Player player = (Player) sender;
 			String uuid = player.getUniqueId().toString();
@@ -42,10 +43,10 @@ public class ClaimCommand implements CommandExecutor {
 						return false;
 					}
 					sender.sendMessage("Let your journey begin here.");
-					Data.getInstance().claimData.put(player.getLocation().getChunk().toString(), homeChunk);
-					King thisKing = new King(Data.getInstance().getLastKing(), player, homeChunk);
-					Data.getInstance().kingData.put(uuid, thisKing);
 					try {
+						Data.getInstance().claimData.put(player.getLocation().getChunk().toString(), homeChunk);
+						King thisKing = new King(Data.getInstance().getLastKing(), player, homeChunk);
+						Data.getInstance().kingData.put(uuid, thisKing);
 						if (thisKing.pushToDb(connection)) {
 							sender.sendMessage("Chunk successfully claimed!" + ChatColor.GOLD + " You are now a King.");
 							sender.sendMessage("Please, name your kingdom with /kingdom setname [NAME]");
@@ -53,6 +54,7 @@ public class ClaimCommand implements CommandExecutor {
 						}
 					} catch (SQLException e) {
 						e.printStackTrace();
+						sender.sendMessage(ChatColor.RED + "Internal server error.");
 					}
 				} else {
 					//TODO: Check for neighboring chunks

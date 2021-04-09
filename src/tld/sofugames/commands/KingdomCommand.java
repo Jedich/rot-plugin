@@ -14,12 +14,8 @@ import tld.sofugames.models.King;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static org.bukkit.Bukkit.getServer;
 
 public class KingdomCommand implements CommandExecutor {
 	Connection connection;
@@ -31,7 +27,7 @@ public class KingdomCommand implements CommandExecutor {
 			String uuid = player.getUniqueId().toString();
 			String chunkName = player.getLocation().getChunk().toString();
 			if (connection == null) {
-				connection = Data.getInstance().connection;
+				connection = Data.getInstance().getConnection();
 			}
 			if (args[0].equalsIgnoreCase("setname")) {
 				String name = StringUtils.join(args, ' ', 1, args.length);
@@ -60,6 +56,13 @@ public class KingdomCommand implements CommandExecutor {
 					sender.sendMessage("Total chunks: " + thisKing.chunkNumber);
 					if (chunkName.equals(thisKing.homeChunk.chunkId)) {
 						sender.sendMessage("This is the ruler's home chunk.");
+					}
+					sender.sendMessage("Income: " + ChatColor.GREEN + Math.round(thisKing.income) + "ing. " +
+							ChatColor.WHITE + "Charge: " + ChatColor.RED + Math.round(thisKing.fee) + "ing.");
+					sender.sendMessage("Your balance: " + ChatColor.GOLD + thisKing.goldBalance + "ing.");
+					if (thisKing.goldBalance < -5) {
+						sender.sendMessage(ChatColor.DARK_RED + "The treasury is empty, my lord! " +
+								"We should take a foreign aid before it's not too late!");
 					}
 				}
 			} else if (args[0].equalsIgnoreCase("show")) {

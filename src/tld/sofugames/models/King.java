@@ -49,12 +49,12 @@ public class King implements Model {
 	}
 
 	public void calculateFee() {
-		fee = (int) Math.floor((0.5f*chunkNumber)*Math.log(chunkNumber));
+		fee = (int) Math.floor((0.5f * chunkNumber) * Math.log(chunkNumber));
 	}
 
 	public void changeIncome(int income, Connection connection) throws SQLException {
 		this.income += income;
-		updateInDb(connection, Collections.singletonMap("income", income));
+		updateInDb(connection, Collections.singletonMap("income", this.income));
 	}
 
 	public boolean pushToDb(Connection connection) throws SQLException {
@@ -73,11 +73,11 @@ public class King implements Model {
 
 	public boolean updateInDb(Connection connection, Map<String, Object> params) throws SQLException {
 		StringBuilder sql = new StringBuilder("UPDATE kings SET ");
-		for(Map.Entry<String, Object> entry:params.entrySet()) {
+		for (Map.Entry<String, Object> entry : params.entrySet()) {
 			sql.append(entry.getKey()).append(" = ");
-			if(entry.getValue() instanceof String) {
+			if (entry.getValue() instanceof String) {
 				sql.append("'").append(entry.getValue()).append("', ");
-			} else if(entry.getValue() instanceof Integer) {
+			} else if (entry.getValue() instanceof Integer) {
 				sql.append(entry.getValue()).append(", ");
 			} else {
 				throw new SQLException("Uncaught type.");

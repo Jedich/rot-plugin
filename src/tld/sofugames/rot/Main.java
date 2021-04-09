@@ -22,21 +22,16 @@ import java.util.*;
 
 public class Main extends JavaPlugin {
 
-	final String username = "root"; // Enter in your db username
-	final String password = ""; // Enter your password for the db
-	final String url = "jdbc:mysql://localhost:3306/rotr"; // Enter URL with db name
-	//Connection vars
-	static Connection connection; //This is the variable we will use to connect to database
-	
+	final String username = "root";
+	final String password = "";
+	final String url = "jdbc:mysql://localhost:3306/rotr";
+	final String ip = "localhost";
+	final String db = "rotr";
+	static Connection connection;
+
 	@Override
 	public void onEnable() {
-		//TODO: db tables and checking for new data
-		try {
-			connection = (Connection) DriverManager.getConnection(url, username, password);
-			Data.getInstance().connection = connection;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		connection = Data.getInstance().getConnection();
 		ResultSet results;
 		World world;
 		world = Bukkit.getWorlds().get(0);
@@ -57,7 +52,7 @@ public class Main extends JavaPlugin {
 			results = stmt.executeQuery();
 			while (results.next()) {
 				Data.getInstance().kingData.put(results.getString("name"), new King(results.getInt("id"),
-						Objects.requireNonNull(Bukkit.getOfflinePlayer(UUID.fromString(results.getString("name"))).getPlayer()),
+						Bukkit.getPlayer(UUID.fromString(results.getString("name"))),
 						results.getString("kingdom_name"),
 						Data.getInstance().claimData.get(results.getString("home_chunk")),
 						results.getInt("kingdom_level"),
@@ -131,8 +126,8 @@ public class Main extends JavaPlugin {
 	}
 
 	public void checkIncomes() {
-		for(King king : Data.getInstance().kingData.values()) {
-			if(Bukkit.getPlayerExact(king.nickname) != null) {
+		for (King king : Data.getInstance().kingData.values()) {
+			if (Bukkit.getPlayerExact(king.nickname) != null) {
 				king.calculateFee();
 				king.goldBalance += Math.round(king.income) - Math.round(king.fee);
 
@@ -140,7 +135,7 @@ public class Main extends JavaPlugin {
 				king.assignedPlayer.sendMessage("Income: " + ChatColor.GREEN + Math.round(king.income) + "ing. " +
 						ChatColor.WHITE + "Charge: " + ChatColor.RED + Math.round(king.fee) + "ing.");
 				king.assignedPlayer.sendMessage("Your balance: " + ChatColor.GOLD + king.goldBalance + "ing.");
-				if(king.goldBalance < -5) {
+				if (king.goldBalance < -5) {
 					king.assignedPlayer.sendMessage(ChatColor.DARK_RED + "The treasury is empty, my lord! " +
 							"We should take a foreign aid before it's not too late!");
 				}

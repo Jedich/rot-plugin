@@ -14,7 +14,10 @@ import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.House;
 import tld.sofugames.models.King;
 
-import java.sql.Connection;
+import com.mysql.jdbc.Connection;
+
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,11 +31,35 @@ public class Data {
 	public HashMap<String, King> kingData = new HashMap<>();
 	//key bedBlock.toString()
 	public HashMap<String, House> houseData = new HashMap<>();
-	public Connection connection;
+
+	final String username = "root";
+	final String password = "";
+	final String ip = "localhost";
+	final String db = "rotr";
+
+	public Connection getConnection() {
+		try {
+			if (connection == null || connection.isClosed() || !connection.isValid(5000)) {
+				System.out.println("connecting to db...");
+				if (connection != null) connection.close();
+				final Properties prop = new Properties();
+				prop.setProperty("user", username);
+				prop.setProperty("password", password);
+				prop.setProperty("useSSL", "false"); //Set to true if you have a SSL installed to your database (?)
+				prop.setProperty("autoReconnect", "true");
+				connection = (com.mysql.jdbc.Connection) DriverManager.getConnection("jdbc:mysql://" + ip + "/" + db, prop);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return connection;
+	}
+
+	private Connection connection;
 	public int lastClaim = 1, lastKing = 1, lastHouse = 1;
 
 	public static Data getInstance() {
-		if(instance == null) {
+		if (instance == null) {
 			instance = new Data();
 		}
 		return instance;
@@ -50,6 +77,9 @@ public class Data {
 	}
 
 	public void giveBed(Player player) {
+		for (Material bed:Tag.BEDS.getValues()) {
+			if(player.getInventory().contains(bed)) return;
+		}
 		ItemStack bed = new ItemStack(Tag.BEDS.getValues().
 				stream()
 				.skip(new Random().nextInt(
