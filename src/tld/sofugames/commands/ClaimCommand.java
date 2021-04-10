@@ -1,6 +1,7 @@
 package tld.sofugames.commands;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -54,17 +55,24 @@ public class ClaimCommand implements CommandExecutor {
 						sender.sendMessage(ChatColor.RED + "Internal server error.");
 					}
 				} else {
-					//TODO: Check for neighboring chunks
-
 					try {
-						King king = Data.getInstance().kingData.get(uuid);
-						king.updateInDb(Data.getInstance().getConnection(), Collections.singletonMap("chunk_number", king.chunkNumber));
 						ClaimedChunk claim = new ClaimedChunk(Data.getInstance().getLastClaim(), chunkName,
 								((Player) sender).getUniqueId(), ChunkType.Default, player.getLocation().getChunk());
-						Data.getInstance().claimData.put(player.getLocation().getChunk().toString(), claim);
-						claim.pushToDb(Data.getInstance().getConnection());
-						king.chunkNumber++;
-						sender.sendMessage("Chunk successfully claimed!");
+						King king = Data.getInstance().kingData.get(uuid);
+						System.out.println(king.homeChunk.distance(claim));
+						if(isNear(claim)) {
+							if (king.homeChunk.distance(claim) < 5 * king.kingdomLevel) {
+								king.updateInDb(Data.getInstance().getConnection(), Collections.singletonMap("chunk_number", king.chunkNumber));
+								Data.getInstance().claimData.put(player.getLocation().getChunk().toString(), claim);
+								claim.pushToDb(Data.getInstance().getConnection());
+								king.chunkNumber++;
+								sender.sendMessage("Chunk successfully claimed!");
+							} else {
+								sender.sendMessage(ChatColor.RED + "Strip claiming is forbidden!");
+							}
+						} else {
+							sender.sendMessage(ChatColor.RED + "This chunk is not connected to your mainland!");
+						}
 					} catch (SQLException e) {
 						e.printStackTrace();
 						sender.sendMessage(ChatColor.RED + "Internal server error.");
@@ -76,5 +84,37 @@ public class ClaimCommand implements CommandExecutor {
 			return true;
 		}
 		return false;
+	}
+
+	public boolean isNear(ClaimedChunk init/*, int depth, int initDepth*/) {
+		for (Chunk ch : init.getRelatives()) {
+			if (Data.getInstance().claimData.containsKey(ch.toString())) {
+				return true;
+			}
+		}
+		return false;
+		//following shit is too harmful for server memory
+//		if (depth < 0) return false;
+//		if (initDepth == depth && init.getRelativeNumber(init.world) > 1) {
+//			System.out.println("aoo here are " + init.getRelativeNumber(init.world) + " neighbors");
+//			return true;
+//		}
+//		for (Chunk ch : init.getRelatives()) {
+//			if (Data.getInstance().claimData.containsKey(ch.toString())) {
+//				ClaimedChunk claimNeighbor = Data.getInstance().claimData.get(ch.toString());
+//				if (claimNeighbor.type == ChunkType.Home) {
+//					return true;
+//				}
+//				int relNumber = claimNeighbor.getRelativeNumber(init.world);
+//				System.out.println("here are " + relNumber + " neighbors");
+//				if (relNumber > 1) {
+//					return true;
+//				} else {
+//					System.out.println("deeper, to " + (depth - 1) + ", rel: " + relNumber);
+//					return isNear(claimNeighbor, depth - 1, initDepth);
+//				}
+//			}
+//		}
+//		return false;
 	}
 }

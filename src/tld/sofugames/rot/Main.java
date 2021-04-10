@@ -36,30 +36,34 @@ public class Main extends JavaPlugin {
 		World world;
 		world = Bukkit.getWorlds().get(0);
 		try {
-			PreparedStatement stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM user_claims");
-			results = stmt.executeQuery();
-			while (results.next()) {
-				Data.getInstance().claimData.put(results.getString("name"),
-						new ClaimedChunk(results.getInt("id"),
-								results.getString("name"),
-								UUID.fromString(results.getString("owner")),
-								ChunkType.valueOf(results.getString("type")),
-								world.getChunkAt(results.getInt("chunk_x"),
-										results.getInt("chunk_y"))));
-				Data.getInstance().lastClaim = results.getInt("id");
-			}
-			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM kings");
+			PreparedStatement stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM kings");
 			results = stmt.executeQuery();
 			while (results.next()) {
 				Data.getInstance().kingData.put(results.getString("name"), new King(results.getInt("id"),
 						Bukkit.getPlayer(UUID.fromString(results.getString("name"))),
 						results.getString("kingdom_name"),
-						Data.getInstance().claimData.get(results.getString("home_chunk")),
 						results.getInt("kingdom_level"),
-						results.getInt("chunk_number"),
 						results.getFloat("balance")
 				));
 				Data.getInstance().lastKing = results.getInt("id");
+			}
+			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM user_claims");
+			results = stmt.executeQuery();
+			while (results.next()) {
+				ClaimedChunk newChunk = new ClaimedChunk(results.getInt("id"),
+						results.getString("name"),
+						UUID.fromString(results.getString("owner")),
+						ChunkType.valueOf(results.getString("type")),
+						world.getChunkAt(results.getInt("chunk_x"),
+								results.getInt("chunk_y")));
+
+				Data.getInstance().claimData.put(results.getString("name"), newChunk);
+				King owner = Data.getInstance().kingData.get(newChunk.owner.toString());
+				if(newChunk.type == ChunkType.Home) {
+					owner.homeChunk = newChunk;
+				}
+				owner.chunkNumber++;
+				Data.getInstance().lastClaim = results.getInt("id");
 			}
 			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM houses");
 			results = stmt.executeQuery();

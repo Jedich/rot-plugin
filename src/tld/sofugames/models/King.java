@@ -29,14 +29,12 @@ public class King implements Model {
 		this.homeChunk = homeChunk;
 	}
 
-	public King(int id, Player player, String kingdomName, ClaimedChunk homeChunk,
-				int kingdomLevel, int chunkNumber, float goldBalance) {
+	public King(int id, Player player, String kingdomName,
+				int kingdomLevel, float goldBalance) {
 		this.id = id;
 		this.assignedPlayer = player;
 		this.kingdomName = kingdomName;
-		this.homeChunk = homeChunk;
 		this.kingdomLevel = kingdomLevel;
-		this.chunkNumber = chunkNumber;
 		this.income = 0;
 		this.goldBalance = goldBalance;
 	}
