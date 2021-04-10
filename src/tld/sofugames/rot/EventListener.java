@@ -28,6 +28,7 @@ public class EventListener implements Listener {
 					try {
 						event.getPlayer().sendMessage("Bed was destroyed");
 						Data.getInstance().houseData.get(Data.getInstance().getBedHash(event.getBlock())).delete(Data.getInstance().getConnection());
+						event.setDropItems(false);
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
@@ -51,17 +52,18 @@ public class EventListener implements Listener {
 			Block start = event.getBlock();
 			if (start.getBlockData() instanceof org.bukkit.block.data.type.Bed) {
 				if (hasCeiling(start, 0)) {
-					House newHouse = new House(Data.getInstance().getLastHouse(), event.getPlayer().getUniqueId(), Data.getInstance().getBedHash(start));
+					House newHouse = new House(Data.getInstance().getLastHouse(),
+							event.getPlayer().getUniqueId(), Data.getInstance().getBedHash(start));
 					try {
 						newHouse = allDirectionSearch(start, new HashMap<>(), newHouse, null);
 
 						event.getPlayer().sendMessage(ChatColor.GOLD + "House claimed!");
 
-						Data.getInstance().giveBed(event.getPlayer());
-
 						newHouse.pushToDb(Data.getInstance().getConnection());
 
 						Data.getInstance().houseData.put(newHouse.bedBlock, newHouse);
+
+						Data.getInstance().giveBed(event.getPlayer(), false);
 					} catch (HousingOutOfBoundsException | SQLException e) {
 						event.getPlayer().sendMessage(ChatColor.RED + e.getMessage());
 						event.setCancelled(true);

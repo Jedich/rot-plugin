@@ -57,7 +57,7 @@ public class Main extends JavaPlugin {
 						Data.getInstance().claimData.get(results.getString("home_chunk")),
 						results.getInt("kingdom_level"),
 						results.getInt("chunk_number"),
-						results.getInt("balance")
+						results.getFloat("balance")
 				));
 				Data.getInstance().lastKing = results.getInt("id");
 			}
@@ -69,7 +69,7 @@ public class Main extends JavaPlugin {
 						results.getString("bed_block"),
 						results.getInt("area"),
 						results.getInt("benefits"),
-						results.getInt("income")
+						results.getFloat("income")
 				));
 				Data.getInstance().lastHouse = results.getInt("id");
 				Data.getInstance().kingData.get(results.getString("owner")).changeIncome(results.getInt("income"));
@@ -128,18 +128,22 @@ public class Main extends JavaPlugin {
 
 	public void checkIncomes() {
 		for (King king : Data.getInstance().kingData.values()) {
-			if(king.assignedPlayer != null) {
+			if (king.assignedPlayer != null) {
 				if (Bukkit.getPlayerExact(king.assignedPlayer.getName()) != null) {
-					king.calculateFee();
-					king.goldBalance += Math.round(king.income) - Math.round(king.fee);
+					try {
+						king.goldBalance += (king.income - king.getFee());
+						king.updateInDb(Data.getInstance().getConnection(), Collections.singletonMap("balance", king.goldBalance));
 
-					king.assignedPlayer.sendMessage(ChatColor.GOLD + "Good morning, my honor!");
-					king.assignedPlayer.sendMessage("Income: " + ChatColor.GREEN + Math.round(king.income) + "ing. " +
-							ChatColor.WHITE + "Charge: " + ChatColor.RED + Math.round(king.fee) + "ing.");
-					king.assignedPlayer.sendMessage("Your balance: " + ChatColor.GOLD + king.goldBalance + "ing.");
-					if (king.goldBalance < -5) {
-						king.assignedPlayer.sendMessage(ChatColor.DARK_RED + "The treasury is empty, my lord! " +
-								"We should take a foreign aid before it's not too late!");
+						king.assignedPlayer.sendMessage(ChatColor.GOLD + "Good morning, my honor!");
+						king.assignedPlayer.sendMessage("Income: " + ChatColor.GREEN + String.format(Locale.US, "%.1f", king.income) + "ing. " +
+								ChatColor.WHITE + "Charge: " + ChatColor.RED + String.format(Locale.US, "%.1f", king.getFee()) + "ing.");
+						king.assignedPlayer.sendMessage("Your balance: " + ChatColor.GOLD + String.format(Locale.US, "%.1f", king.goldBalance) + "ing.");
+						if (king.goldBalance < -5) {
+							king.assignedPlayer.sendMessage(ChatColor.DARK_RED + "The treasury is empty, my lord! " +
+									"We should take a foreign aid before it's not too late!");
+						}
+					} catch (SQLException e) {
+						e.printStackTrace();
 					}
 				}
 			}

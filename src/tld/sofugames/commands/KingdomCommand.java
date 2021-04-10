@@ -14,11 +14,11 @@ import tld.sofugames.models.King;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 public class KingdomCommand implements CommandExecutor {
-	Connection connection;
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -26,16 +26,13 @@ public class KingdomCommand implements CommandExecutor {
 			Player player = (Player) sender;
 			String uuid = player.getUniqueId().toString();
 			String chunkName = player.getLocation().getChunk().toString();
-			if (connection == null) {
-				connection = Data.getInstance().getConnection();
-			}
 			if (args[0].equalsIgnoreCase("setname")) {
 				String name = StringUtils.join(args, ' ', 1, args.length);
 				Pattern regex = Pattern.compile("[$%&+,'\":;=?@#|]");
 				if (!regex.matcher(name).find()){
 					Data.getInstance().kingData.get(uuid).kingdomName = name;
 					try {
-						Data.getInstance().kingData.get(uuid).updateInDb(connection, Collections.singletonMap("kingdom_name", name));
+						Data.getInstance().kingData.get(uuid).updateInDb(Data.getInstance().getConnection(), Collections.singletonMap("kingdom_name", name));
 					} catch (SQLException e) {
 						sender.sendMessage("Database update execution error");
 						e.printStackTrace();
@@ -57,9 +54,9 @@ public class KingdomCommand implements CommandExecutor {
 					if (chunkName.equals(thisKing.homeChunk.chunkId)) {
 						sender.sendMessage("This is the ruler's home chunk.");
 					}
-					sender.sendMessage("Income: " + ChatColor.GREEN + Math.round(thisKing.income) + "ing. " +
-							ChatColor.WHITE + "Charge: " + ChatColor.RED + Math.round(thisKing.fee) + "ing.");
-					sender.sendMessage("Your balance: " + ChatColor.GOLD + thisKing.goldBalance + "ing.");
+					sender.sendMessage("Income: " + ChatColor.GREEN + String.format(Locale.US,"%.1f", thisKing.income) + "ing. " +
+							ChatColor.WHITE + "Charge: " + ChatColor.RED + String.format(Locale.US,"%.1f", thisKing.getFee()) + "ing.");
+					sender.sendMessage("Your balance: " + ChatColor.GOLD + String.format(Locale.US,"%.1f", thisKing.goldBalance) + "ing.");
 					if (thisKing.goldBalance < -5) {
 						sender.sendMessage(ChatColor.DARK_RED + "The treasury is empty, my lord! " +
 								"We should take a foreign aid before it's not too late!");
@@ -78,7 +75,8 @@ public class KingdomCommand implements CommandExecutor {
 								for (int z = 0; z < 16; z++) {
 									World world = player.getWorld();
 									player.spawnParticle(Particle.VILLAGER_HAPPY,
-											new Location(world, a + x + 0.5f, world.getHighestBlockAt(a + x, b + z).getY() + 1, b + z + 0.5f),
+											new Location(world, a + x + 0.5f,
+													world.getHighestBlockAt(a + x, b + z).getY() + 1, b + z + 0.5f),
 											1, 0, 0, 0);
 								}
 							}

@@ -18,21 +18,19 @@ public class King implements Model {
 	public String kingdomName = "Unnamed Kingdom";
 	public Player assignedPlayer;
 	public ClaimedChunk homeChunk;
-	public int kingdomLevel;
-	public int goldBalance = 0;
-	public int income;
-	public int fee = 0;
-	public int chunkNumber;
+	public int kingdomLevel = 1;
+	public float goldBalance = 0;
+	public float income;
+	public int chunkNumber = 0;
 
 	public King(int id, Player player, ClaimedChunk homeChunk) {
 		this.id = id;
 		this.assignedPlayer = player;
 		this.homeChunk = homeChunk;
-		kingdomLevel = 1;
-		chunkNumber = 1;
 	}
 
-	public King(int id, Player player, String kingdomName, ClaimedChunk homeChunk, int kingdomLevel, int chunkNumber, int goldBalance) {
+	public King(int id, Player player, String kingdomName, ClaimedChunk homeChunk,
+				int kingdomLevel, int chunkNumber, float goldBalance) {
 		this.id = id;
 		this.assignedPlayer = player;
 		this.kingdomName = kingdomName;
@@ -43,11 +41,11 @@ public class King implements Model {
 		this.goldBalance = goldBalance;
 	}
 
-	public void calculateFee() {
-		fee = (int) Math.floor((0.5f * chunkNumber) * Math.log(chunkNumber));
+	public float getFee() {
+		return (float) ((1.3f * chunkNumber) * Math.log(chunkNumber));
 	}
 
-	public void changeIncome(int income) {
+	public void changeIncome(float income) {
 		this.income += income;
 	}
 
@@ -60,7 +58,7 @@ public class King implements Model {
 		pstmt.setString(4, homeChunk.chunkId);
 		pstmt.setInt(5, kingdomLevel);
 		pstmt.setInt(6, chunkNumber);
-		pstmt.setInt(7, goldBalance);
+		pstmt.setFloat(7, goldBalance);
 		pstmt.executeUpdate();
 		return true;
 	}
@@ -71,7 +69,7 @@ public class King implements Model {
 			sql.append(entry.getKey()).append(" = ");
 			if (entry.getValue() instanceof String) {
 				sql.append("'").append(entry.getValue()).append("', ");
-			} else if (entry.getValue() instanceof Integer) {
+			} else if (entry.getValue() instanceof Integer || entry.getValue() instanceof Float) {
 				sql.append(entry.getValue()).append(", ");
 			} else {
 				throw new SQLException("Uncaught type.");

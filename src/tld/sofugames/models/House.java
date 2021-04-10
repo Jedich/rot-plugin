@@ -16,7 +16,7 @@ public class House implements Model {
 	private int level = 1;
 	public int area;
 	public int benefits;
-	public int income;
+	public float income;
 
 	public House(int id, UUID owner, String bedBlock) {
 		this.id = id;
@@ -24,7 +24,7 @@ public class House implements Model {
 		this.bedBlock = bedBlock;
 	}
 
-	public House(int id, UUID owner, String bedBlock, int area, int benefits, int income) {
+	public House(int id, UUID owner, String bedBlock, int area, int benefits, float income) {
 		this.id = id;
 		this.owner = owner;
 		this.bedBlock = bedBlock;
@@ -35,7 +35,7 @@ public class House implements Model {
 
 	private void calculateIncome() {
 		float a = 1 + benefits * 0.025f;
-		income = (int) Math.ceil(4 * a * Math.sin(0.024 * area - 7.9) + 4 * a);
+		income = (float)(4 * a * Math.sin(0.024 * area - 7.9) + 4 * a);
 		Data.getInstance().kingData.get(owner.toString()).changeIncome(income);
 	}
 
@@ -50,7 +50,7 @@ public class House implements Model {
 		pstmt.setInt(4, level);
 		pstmt.setInt(5, area);
 		pstmt.setInt(6, benefits);
-		pstmt.setInt(7, income);
+		pstmt.setFloat(7, income);
 		pstmt.executeUpdate();
 		return true;
 	}
@@ -58,7 +58,6 @@ public class House implements Model {
 	public void delete(Connection connection) throws SQLException {
 		PreparedStatement pstmt = connection.prepareStatement("DELETE FROM houses WHERE id = ?");
 		pstmt.setInt(1, id);
-		System.out.println("delete id " + id);
 		pstmt.executeUpdate();
 		Data.getInstance().houseData.remove(bedBlock);
 		Data.getInstance().kingData.get(owner.toString()).changeIncome(-income);

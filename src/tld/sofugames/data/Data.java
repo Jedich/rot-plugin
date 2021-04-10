@@ -76,9 +76,11 @@ public class Data {
 		return "BedBlock{x=" + res.getX() + ",y=" + res.getY() + ",z=" + res.getZ() + "}";
 	}
 
-	public void giveBed(Player player) {
-		for (Material bed:Tag.BEDS.getValues()) {
-			if(player.getInventory().contains(bed)) return;
+	public void giveBed(Player player, boolean toCheck) {
+		if(toCheck) {
+			for (Material bed : Tag.BEDS.getValues()) {
+				if (player.getInventory().contains(bed)) return;
+			}
 		}
 		ItemStack bed = new ItemStack(Tag.BEDS.getValues().
 				stream()
