@@ -1,54 +1,25 @@
-package tld.sofugames.rot;
+package tld.sofugames.listeners;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Player;
-import org.bukkit.event.*;
-import org.bukkit.event.block.*;
-import org.bukkit.event.player.PlayerJoinEvent;
-import tld.sofugames.data.*;
-import tld.sofugames.models.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockMultiPlaceEvent;
+import tld.sofugames.data.Data;
+import tld.sofugames.models.House;
+import tld.sofugames.rot.HousingOutOfBoundsException;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
 
-public class EventListener implements Listener {
-
-	@EventHandler(priority = EventPriority.NORMAL)
-	public void onBlockBreak(BlockBreakEvent event) {
-		if (!checkOwnership(event.getPlayer(), event.getBlock())) {
-			event.setCancelled(true);
-			event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
-		} else {
-			if (Tag.BEDS.getValues().contains(event.getBlock().getType())) {
-				if (Data.getInstance().houseData.containsKey(Data.getInstance().getBedHash(event.getBlock()))) {
-					try {
-						event.getPlayer().sendMessage("Bed was destroyed");
-						Data.getInstance().houseData.get(Data.getInstance().getBedHash(event.getBlock())).delete(Data.getInstance().getConnection());
-						event.setDropItems(false);
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onBlockPlace(BlockPlaceEvent event) {
-		if (!checkOwnership(event.getPlayer(), event.getBlock())) {
-			event.setCancelled(true);
-			event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
-		}
-	}
-
-
+public class MultiBlockPlaceListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onMultiBlockPlace(BlockMultiPlaceEvent event) {
-		if (checkOwnership(event.getPlayer(), event.getBlock())) {
+		if (EventListener.checkOwnership(event.getPlayer(), event.getBlock())) {
 			Block start = event.getBlock();
 			if (start.getBlockData() instanceof org.bukkit.block.data.type.Bed) {
 				if (hasCeiling(start, 0)) {
@@ -79,28 +50,7 @@ public class EventListener implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onJoin(PlayerJoinEvent event) {
-		Player player = event.getPlayer();
-		if(Data.getInstance().kingData.containsKey(player.getUniqueId().toString())) {
-			Data.getInstance().kingData.get(player.getUniqueId().toString()).assignedPlayer = player;
-		}
-	}
 
-	public boolean checkOwnership(Player player, Block block) {
-		UUID senderUUID = player.getUniqueId();
-		ClaimedChunk chunk = Data.getInstance().claimData.get(block.getChunk().toString());
-		if (block.getY() > 40) {
-			if (chunk != null) {
-				if (!chunk.owner.equals(senderUUID)) {
-					return false;
-				}
-			} else {
-				return false;
-			}
-		}
-		return true;
-	}
 
 	public boolean hasCeiling(Block current, int counter) {
 		if (counter > 15) return false;

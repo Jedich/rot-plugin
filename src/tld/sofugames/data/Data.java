@@ -1,5 +1,6 @@
 package tld.sofugames.data;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
@@ -109,6 +110,30 @@ public class Data {
 			.flatMap(Set::stream)
 			.collect(Collectors.toCollection(() -> EnumSet.noneOf(Material.class)));
 
+	Stream<String> titleStream = Stream.of("Kind", "Bastard", "Hunter", "Fearless", "Terrible", "Bold", "Brave",
+			"Gracious", "Ruthless", "Headless", "Evil", "Abomination", "Trader", "Tiny", "Gentle", "Bald",
+			"java.lang.TooMuchEvilException", "Wise", "Bear", "Legendary", "Architect", "Builder");
+	public String[] titles = titleStream.map(name -> ", " + ChatColor.GOLD + "the " + name).toArray(String[]::new);
+
+	public String getRomanNumber(int number) {
+		StringBuilder iChars = new StringBuilder();
+		for (int i = 0; i < number; i++) {
+			iChars.append("I");
+		}
+		return String.join("", iChars.toString())
+				.replace("IIIII", "V")
+				.replace("IIII", "IV")
+				.replace("VV", "X")
+				.replace("VIV", "IX")
+				.replace("XXXXX", "L")
+				.replace("XXXX", "XL")
+				.replace("LL", "C")
+				.replace("LXL", "XC")
+				.replace("CCCCC", "D")
+				.replace("CCCC", "CD")
+				.replace("DD", "M")
+				.replace("DCD", "CM");
+	}
 
 	public int getLastClaim() {
 		return ++lastClaim;

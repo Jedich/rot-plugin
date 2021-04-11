@@ -9,12 +9,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import tld.sofugames.commands.*;
 import tld.sofugames.data.Data;
+import tld.sofugames.listeners.EventListener;
+import tld.sofugames.listeners.MultiBlockPlaceListener;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.House;
 import tld.sofugames.models.King;
-import org.bukkit.event.EventHandler;
 
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -41,8 +41,10 @@ public class Main extends JavaPlugin {
 			while (results.next()) {
 				Data.getInstance().kingData.put(results.getString("name"), new King(results.getInt("id"),
 						Bukkit.getPlayer(UUID.fromString(results.getString("name"))),
+						results.getString("title"),
 						results.getString("kingdom_name"),
 						results.getInt("kingdom_level"),
+						results.getInt("current_gen"),
 						results.getFloat("balance")
 				));
 				Data.getInstance().lastKing = results.getInt("id");
@@ -85,8 +87,8 @@ public class Main extends JavaPlugin {
 		getCommand("claim").setExecutor(new ClaimCommand());
 		getCommand("kingdom").setExecutor(new KingdomCommand());
 
-
 		getServer().getPluginManager().registerEvents(new EventListener(), this);
+		getServer().getPluginManager().registerEvents(new MultiBlockPlaceListener(), this);
 
 		Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "time set 0");
 		BukkitScheduler scheduler = getServer().getScheduler();
@@ -128,6 +130,7 @@ public class Main extends JavaPlugin {
 			e.printStackTrace();
 		}
 		HandlerList.unregisterAll();
+		getServer().getScheduler().cancelTasks(this);
 	}
 
 	public void checkIncomes() {

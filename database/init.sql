@@ -13,10 +13,11 @@ CREATE TABLE IF NOT EXISTS rotr.kings
 (
     id            INT(11) NOT NULL AUTO_INCREMENT,
     name          VARCHAR(64)   DEFAULT NULL,
+    title         VARCHAR(64)   DEFAULT NULL,
     kingdom_name  VARCHAR(64)   DEFAULT NULL,
     home_chunk    VARCHAR(64)   DEFAULT NULL,
     kingdom_level INT(11)       DEFAULT NULL,
-    chunk_number  INT(11)       DEFAULT NULL,
+    current_gen   INT(11)       DEFAULT NULL,
     balance       DECIMAL(9, 3) DEFAULT NULL,
     PRIMARY KEY (id)
 );

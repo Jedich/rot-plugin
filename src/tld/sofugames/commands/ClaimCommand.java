@@ -2,6 +2,7 @@ package tld.sofugames.commands;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -48,6 +49,9 @@ public class ClaimCommand implements CommandExecutor {
 							thisKing.chunkNumber++;
 							sender.sendMessage("Chunk successfully claimed!" + ChatColor.GOLD + " You are now a King.");
 							sender.sendMessage("Please, name your kingdom with /kingdom setname [NAME]");
+							thisKing.changeGen();
+							((Player) sender).sendTitle("Glory to a new kingdom!", thisKing.fullTitle, 20, 100 ,20);
+							player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1, 1);
 							Data.getInstance().giveBed((Player) sender, true);
 						}
 					} catch (SQLException e) {
