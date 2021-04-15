@@ -3,10 +3,13 @@ package tld.sofugames.listeners;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.block.*;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -20,17 +23,17 @@ public class EventListener implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockBreak(BlockBreakEvent event) {
-		if (!checkOwnership(event.getPlayer(), event.getBlock())) {
+		if(!checkOwnership(event.getPlayer(), event.getBlock())) {
 			event.setCancelled(true);
 			event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
 		} else {
-			if (Tag.BEDS.getValues().contains(event.getBlock().getType())) {
-				if (Data.getInstance().houseData.containsKey(Data.getInstance().getBedHash(event.getBlock()))) {
+			if(Tag.BEDS.getValues().contains(event.getBlock().getType())) {
+				if(Data.getInstance().houseData.containsKey(Data.getInstance().getBedHash(event.getBlock()))) {
 					try {
 						event.getPlayer().sendMessage("Bed was destroyed");
 						Data.getInstance().houseData.get(Data.getInstance().getBedHash(event.getBlock())).delete(Data.getInstance().getConnection());
 						event.setDropItems(false);
-					} catch (SQLException e) {
+					} catch(SQLException e) {
 						e.printStackTrace();
 					}
 				}
@@ -40,7 +43,7 @@ public class EventListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockPlace(BlockPlaceEvent event) {
-		if (!checkOwnership(event.getPlayer(), event.getBlock())) {
+		if(!checkOwnership(event.getPlayer(), event.getBlock())) {
 			event.setCancelled(true);
 			event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
 		}
@@ -50,7 +53,9 @@ public class EventListener implements Listener {
 	public void onJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
 		if(Data.getInstance().kingData.containsKey(player.getUniqueId().toString())) {
-			Data.getInstance().kingData.get(player.getUniqueId().toString()).assignedPlayer = player;
+			King king = Data.getInstance().kingData.get(player.getUniqueId().toString());
+			king.assignedPlayer = player;
+			king.setBossBar();
 		}
 	}
 
@@ -70,16 +75,32 @@ public class EventListener implements Listener {
 			deceasedPlayer.stopSound(Sound.MUSIC_CREATIVE);
 			deceasedPlayer.stopSound(Sound.MUSIC_GAME);
 			Location musicLoc = deceasedPlayer.getLocation();
-			musicLoc.setY(150);
-			if (randomSong > 90) {
+			musicLoc.setY(151);
+			if(randomSong > 90) {
+				deceasedPlayer.sendMessage(rainbowText("hardbassss"));
 				deceasedPlayer.playSound(musicLoc, Sound.MUSIC_DISC_PIGSTEP, 1, 1);
-			} else if (randomSong < 5) {
+			} else if(randomSong < 5) {
 				deceasedPlayer.sendMessage(ChatColor.ITALIC + "" + ChatColor.AQUA + "lmao get stal'd");
 				deceasedPlayer.playSound(musicLoc, Sound.MUSIC_DISC_STAL, 1, 1);
 			} else {
 				deceasedPlayer.playSound(musicLoc, Sound.MUSIC_DISC_STRAD, 1, 1);
 			}
 		}
+	}
+
+	public String rainbowText(String text) {
+		ChatColor[] rainbow = new ChatColor[] {ChatColor.RED, ChatColor.GOLD, ChatColor.YELLOW, ChatColor.GREEN,
+		ChatColor.AQUA, ChatColor.BLUE, ChatColor.DARK_PURPLE};
+		int rainbowIndex = 0;
+		StringBuilder rainbowText = new StringBuilder();
+		for(String i: text.split("")) {
+			rainbowText.append(rainbow[rainbowIndex]).append(i);
+			rainbowIndex++;
+			if(rainbowIndex == rainbow.length) {
+				rainbowIndex = 0;
+			}
+		}
+		return rainbowText.toString();
 	}
 
 	public void rebirth(King deceasedKing) {
@@ -97,9 +118,9 @@ public class EventListener implements Listener {
 	public static boolean checkOwnership(Player player, Block block) {
 		UUID senderUUID = player.getUniqueId();
 		ClaimedChunk chunk = Data.getInstance().claimData.get(block.getChunk().toString());
-		if (block.getY() > 40) {
-			if (chunk != null) {
-				if (!chunk.owner.equals(senderUUID)) {
+		if(block.getY() > 40) {
+			if(chunk != null) {
+				if(!chunk.owner.equals(senderUUID)) {
 					return false;
 				}
 			} else {

@@ -11,6 +11,7 @@ import tld.sofugames.commands.*;
 import tld.sofugames.data.Data;
 import tld.sofugames.listeners.EventListener;
 import tld.sofugames.listeners.MultiBlockPlaceListener;
+import tld.sofugames.listeners.PlayerMoveListener;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.House;
 import tld.sofugames.models.King;
@@ -78,7 +79,7 @@ public class Main extends JavaPlugin {
 						results.getFloat("income")
 				));
 				Data.getInstance().lastHouse = results.getInt("id");
-				Data.getInstance().kingData.get(results.getString("owner")).changeIncome(results.getInt("income"));
+				Data.getInstance().kingData.get(results.getString("owner")).changeIncome(results.getFloat("income"));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -89,6 +90,7 @@ public class Main extends JavaPlugin {
 
 		getServer().getPluginManager().registerEvents(new EventListener(), this);
 		getServer().getPluginManager().registerEvents(new MultiBlockPlaceListener(), this);
+		getServer().getPluginManager().registerEvents(new PlayerMoveListener(), this);
 
 		Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "time set 0");
 		BukkitScheduler scheduler = getServer().getScheduler();

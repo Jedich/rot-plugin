@@ -67,6 +67,11 @@ public class ClaimedChunk implements Model {
 	}
 
 	@Override
+	public boolean readFromDb(Connection connection) throws SQLException {
+		return false;
+	}
+
+	@Override
 	public String toString() {
 		return "ClaimedChunk{" +
 				"id=" + id +

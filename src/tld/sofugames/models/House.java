@@ -55,6 +55,11 @@ public class House implements Model {
 		return true;
 	}
 
+	@Override
+	public boolean readFromDb(Connection connection) throws SQLException {
+		return false;
+	}
+
 	public void delete(Connection connection) throws SQLException {
 		PreparedStatement pstmt = connection.prepareStatement("DELETE FROM houses WHERE id = ?");
 		pstmt.setInt(1, id);

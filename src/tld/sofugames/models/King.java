@@ -2,6 +2,9 @@ package tld.sofugames.models;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import tld.sofugames.data.Data;
 
@@ -25,6 +28,8 @@ public class King implements Model {
 	public float income;
 	public int chunkNumber = 0;
 	private int currentGen = 0;
+	public BossBar kingdomBar;
+	public boolean barSetToCancel;
 
 	public King(int id, Player player, ClaimedChunk homeChunk) {
 		this.id = id;
@@ -45,6 +50,12 @@ public class King implements Model {
 		if(currentGen != 0) {
 			generateGen();
 		}
+		setBossBar();
+	}
+
+	public void setBossBar() {
+		kingdomBar = Bukkit.createBossBar(kingdomName, BarColor.PURPLE, BarStyle.SOLID);
+		kingdomBar.addPlayer(assignedPlayer);
 	}
 
 	public void generateGen() {
@@ -53,12 +64,12 @@ public class King implements Model {
 		} else {
 			title = Data.getInstance().titles[new Random().nextInt(Data.getInstance().titles.length)];
 		}
-		fullTitle = assignedPlayer.getDisplayName() + " " + Data.getInstance().getRomanNumber(currentGen) + title;
+		fullTitle = assignedPlayer.getName() + " " + Data.getInstance().getRomanNumber(currentGen) + title;
 		try {
 			updateInDb(Data.getInstance().getConnection(),
 					Stream.of(new Object[][]{{"title", title}, {"current_gen", currentGen}})
 							.collect(Collectors.toMap(data -> (String) data[0], data -> data[1])));
-		} catch (SQLException e) {
+		} catch(SQLException e) {
 			e.printStackTrace();
 		}
 	}
@@ -91,13 +102,18 @@ public class King implements Model {
 		return true;
 	}
 
+	@Override
+	public boolean readFromDb(Connection connection) throws SQLException {
+		return false;
+	}
+
 	public boolean updateInDb(Connection connection, Map<String, Object> params) throws SQLException {
 		StringBuilder sql = new StringBuilder("UPDATE kings SET ");
-		for (Map.Entry<String, Object> entry : params.entrySet()) {
+		for(Map.Entry<String, Object> entry : params.entrySet()) {
 			sql.append(entry.getKey()).append(" = ");
-			if (entry.getValue() instanceof String) {
+			if(entry.getValue() instanceof String) {
 				sql.append("'").append(entry.getValue()).append("', ");
-			} else if (entry.getValue() instanceof Integer || entry.getValue() instanceof Float) {
+			} else if(entry.getValue() instanceof Integer || entry.getValue() instanceof Float) {
 				sql.append(entry.getValue()).append(", ");
 			} else {
 				throw new SQLException("Uncaught type.");
