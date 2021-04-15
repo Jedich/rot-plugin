@@ -78,12 +78,12 @@ public class EventListener implements Listener {
 			musicLoc.setY(151);
 			if(randomSong > 90) {
 				deceasedPlayer.sendMessage(rainbowText("hardbassss"));
-				deceasedPlayer.playSound(musicLoc, Sound.MUSIC_DISC_PIGSTEP, 1, 1);
+				deceasedPlayer.playSound(musicLoc, Sound.MUSIC_DISC_PIGSTEP, 0.7f, 1);
 			} else if(randomSong < 5) {
 				deceasedPlayer.sendMessage(ChatColor.ITALIC + "" + ChatColor.AQUA + "lmao get stal'd");
-				deceasedPlayer.playSound(musicLoc, Sound.MUSIC_DISC_STAL, 1, 1);
+				deceasedPlayer.playSound(musicLoc, Sound.MUSIC_DISC_STAL, 0.7f, 1);
 			} else {
-				deceasedPlayer.playSound(musicLoc, Sound.MUSIC_DISC_STRAD, 1, 1);
+				deceasedPlayer.playSound(musicLoc, Sound.MUSIC_DISC_STRAD, 0.7f, 1);
 			}
 		}
 	}
