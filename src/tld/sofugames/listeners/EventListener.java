@@ -74,8 +74,7 @@ public class EventListener implements Listener {
 			int randomSong = new Random().nextInt(101);
 			deceasedPlayer.stopSound(Sound.MUSIC_CREATIVE);
 			deceasedPlayer.stopSound(Sound.MUSIC_GAME);
-			Location musicLoc = deceasedPlayer.getLocation();
-			musicLoc.setY(151);
+			Location musicLoc = king.homeChunk.world.getBlock(7, 150, 7).getLocation();
 			if(randomSong > 90) {
 				deceasedPlayer.sendMessage(rainbowText("hardbassss"));
 				deceasedPlayer.playSound(musicLoc, Sound.MUSIC_DISC_PIGSTEP, 0.7f, 1);

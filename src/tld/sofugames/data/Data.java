@@ -7,6 +7,9 @@ import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Bed;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -17,6 +20,8 @@ import tld.sofugames.models.King;
 
 import com.mysql.jdbc.Connection;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
@@ -33,10 +38,13 @@ public class Data {
 	//key bedBlock.toString()
 	public HashMap<String, House> houseData = new HashMap<>();
 
-	final String username = "root";
-	final String password = "";
-	final String ip = "localhost";
-	final String db = "rotr";
+	public String username = "";
+	public String password = "";
+	public String host = "";
+	public String port = "";
+	public String db = "";
+
+
 
 	public Connection getConnection() {
 		try {
@@ -48,7 +56,7 @@ public class Data {
 				prop.setProperty("password", password);
 				prop.setProperty("useSSL", "false"); //Set to true if you have a SSL installed to your database (?)
 				prop.setProperty("autoReconnect", "true");
-				connection = (com.mysql.jdbc.Connection) DriverManager.getConnection("jdbc:mysql://" + ip + "/" + db, prop);
+				connection = (com.mysql.jdbc.Connection) DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + db, prop);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

@@ -35,6 +35,7 @@ public class King implements Model {
 		this.id = id;
 		this.assignedPlayer = player;
 		this.homeChunk = homeChunk;
+		setBossBar();
 	}
 
 	public King(int id, Player player, String title, String kingdomName,

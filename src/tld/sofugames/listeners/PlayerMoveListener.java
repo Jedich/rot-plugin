@@ -19,9 +19,11 @@ public class PlayerMoveListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onMove(PlayerMoveEvent event) {
-		King king = Data.getInstance().kingData.get(event.getPlayer().getUniqueId().toString());
-		if(isChanged(king)) {
-			onChunkChange(king);
+		if(Data.getInstance().kingData.containsKey(event.getPlayer().getUniqueId().toString())) {
+			King king = Data.getInstance().kingData.get(event.getPlayer().getUniqueId().toString());
+			if(isChanged(king)) {
+				onChunkChange(king);
+			}
 		}
 	}
 
