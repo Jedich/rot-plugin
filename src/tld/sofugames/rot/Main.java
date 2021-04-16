@@ -61,7 +61,7 @@ public class Main extends JavaPlugin {
 		data.host = getCustomConfig().getString("database.host");
 		data.port = getCustomConfig().getString("database.port");
 		data.db = getCustomConfig().getString("database.db");
-		if(!data.host.equals("") || !Objects.equals(data.db, "")) {
+		if(data.host != null) {
 			connection = Data.getInstance().getConnection();
 			ResultSet results;
 			World world;
@@ -116,6 +116,7 @@ public class Main extends JavaPlugin {
 			}
 
 			getCommand("claim").setExecutor(new ClaimCommand());
+			getCommand("unclaim").setExecutor(new UnclaimCommand());
 			getCommand("kingdom").setExecutor(new KingdomCommand());
 
 			getServer().getPluginManager().registerEvents(new EventListener(), this);

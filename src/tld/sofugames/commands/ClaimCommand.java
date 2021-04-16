@@ -63,10 +63,8 @@ public class ClaimCommand implements CommandExecutor {
 						ClaimedChunk claim = new ClaimedChunk(Data.getInstance().getLastClaim(), chunkName,
 								((Player) sender).getUniqueId(), ChunkType.Default, player.getLocation().getChunk());
 						King king = Data.getInstance().kingData.get(uuid);
-						System.out.println(king.homeChunk.distance(claim));
 						if(isNear(claim)) {
 							if(king.homeChunk.distance(claim) < 5 * king.kingdomLevel) {
-								king.updateInDb(Data.getInstance().getConnection(), Collections.singletonMap("chunk_number", king.chunkNumber));
 								Data.getInstance().claimData.put(player.getLocation().getChunk().toString(), claim);
 								claim.pushToDb(Data.getInstance().getConnection());
 								king.chunkNumber++;

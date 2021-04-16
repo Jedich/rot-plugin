@@ -2,5 +2,5 @@ database:
   username:
   password:
   host:
-  post:
+  port:
   db:

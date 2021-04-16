@@ -53,7 +53,7 @@ public class Data {
 				if (connection != null) connection.close();
 				final Properties prop = new Properties();
 				prop.setProperty("user", username);
-				prop.setProperty("password", password);
+				prop.setProperty("password", (password == null ? "" : password));
 				prop.setProperty("useSSL", "false"); //Set to true if you have a SSL installed to your database (?)
 				prop.setProperty("autoReconnect", "true");
 				connection = (com.mysql.jdbc.Connection) DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + db, prop);

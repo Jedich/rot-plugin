@@ -71,6 +71,14 @@ public class ClaimedChunk implements Model {
 		return false;
 	}
 
+	public void delete() throws SQLException {
+		PreparedStatement pstmt = Data.getInstance().getConnection().prepareStatement("DELETE FROM user_claims WHERE id = ?");
+		pstmt.setInt(1, id);
+		pstmt.executeUpdate();
+		Data.getInstance().claimData.remove(world.toString());
+		Data.getInstance().kingData.get(owner.toString()).chunkNumber--;
+	}
+
 	@Override
 	public String toString() {
 		return "ClaimedChunk{" +

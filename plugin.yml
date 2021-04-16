@@ -1,6 +1,6 @@
 main: tld.sofugames.rot.Main
 name: RoT-Reloaded
-version: 0.01-alpha
+version: 0.1-beta
 api-version: 1.16
 author: jedichchch
 description: Roots of Ternaria Reloaded!
@@ -8,6 +8,11 @@ commands:
   claim:
     description: Claims a chunk as your kingdom property for daily charge
     usage: /claim
+    permission: rot.king
+    permission-message: You don't have the rot.king permission.
+  unclaim:
+    description: Unclaims a previously claimed chunk
+    usage: /unclaim
     permission: rot.king
     permission-message: You don't have the rot.king permission.
   reset:
