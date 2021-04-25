@@ -19,34 +19,36 @@ import java.util.HashMap;
 public class MultiBlockPlaceListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onMultiBlockPlace(BlockMultiPlaceEvent event) {
-		if (EventListener.checkOwnership(event.getPlayer(), event.getBlock())) {
-			Block start = event.getBlock();
-			if (start.getBlockData() instanceof org.bukkit.block.data.type.Bed) {
-				if (hasCeiling(start, 0)) {
-					House newHouse = new House(Data.getInstance().getLastHouse(),
-							event.getPlayer().getUniqueId(), Data.getInstance().getBedHash(start));
-					try {
-						newHouse = allDirectionSearch(start, new HashMap<>(), newHouse, null);
+		if(EventListener.isWorld(event.getPlayer())) {
+			if(EventListener.checkOwnership(event.getPlayer(), event.getBlock())) {
+				Block start = event.getBlock();
+				if(start.getBlockData() instanceof org.bukkit.block.data.type.Bed) {
+					if(hasCeiling(start, 0)) {
+						House newHouse = new House(Data.getInstance().getLastHouse(),
+								event.getPlayer().getUniqueId(), Data.getInstance().getBedHash(start));
+						try {
+							newHouse = allDirectionSearch(start, new HashMap<>(), newHouse, null);
 
-						event.getPlayer().sendMessage(ChatColor.GOLD + "House claimed!");
+							event.getPlayer().sendMessage(ChatColor.GOLD + "House claimed!");
 
-						newHouse.pushToDb(Data.getInstance().getConnection());
+							newHouse.pushToDb(Data.getInstance().getConnection());
 
-						Data.getInstance().houseData.put(newHouse.bedBlock, newHouse);
+							Data.getInstance().houseData.put(newHouse.bedBlock, newHouse);
 
-						Data.getInstance().giveBed(event.getPlayer(), false);
-					} catch (HousingOutOfBoundsException | SQLException e) {
-						event.getPlayer().sendMessage(ChatColor.RED + e.getMessage());
+							Data.getInstance().giveBed(event.getPlayer(), false);
+						} catch(HousingOutOfBoundsException | SQLException e) {
+							event.getPlayer().sendMessage(ChatColor.RED + e.getMessage());
+							event.setCancelled(true);
+						}
+					} else {
+						event.getPlayer().sendMessage(ChatColor.RED + "This house can't match the rules!");
 						event.setCancelled(true);
 					}
-				} else {
-					event.getPlayer().sendMessage(ChatColor.RED + "This house can't match the rules!");
-					event.setCancelled(true);
 				}
+			} else {
+				event.setCancelled(true);
+				event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
 			}
-		} else {
-			event.setCancelled(true);
-			event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
 		}
 	}
 

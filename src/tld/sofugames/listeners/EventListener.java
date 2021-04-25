@@ -23,18 +23,20 @@ public class EventListener implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockBreak(BlockBreakEvent event) {
-		if(!checkOwnership(event.getPlayer(), event.getBlock())) {
-			event.setCancelled(true);
-			event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
-		} else {
-			if(Tag.BEDS.getValues().contains(event.getBlock().getType())) {
-				if(Data.getInstance().houseData.containsKey(Data.getInstance().getBedHash(event.getBlock()))) {
-					try {
-						event.getPlayer().sendMessage("Bed was destroyed");
-						Data.getInstance().houseData.get(Data.getInstance().getBedHash(event.getBlock())).delete(Data.getInstance().getConnection());
-						event.setDropItems(false);
-					} catch(SQLException e) {
-						e.printStackTrace();
+		if(isWorld(event.getPlayer())) {
+			if(!checkOwnership(event.getPlayer(), event.getBlock())) {
+				event.setCancelled(true);
+				event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
+			} else {
+				if(Tag.BEDS.getValues().contains(event.getBlock().getType())) {
+					if(Data.getInstance().houseData.containsKey(Data.getInstance().getBedHash(event.getBlock()))) {
+						try {
+							event.getPlayer().sendMessage("Bed was destroyed");
+							Data.getInstance().houseData.get(Data.getInstance().getBedHash(event.getBlock())).delete(Data.getInstance().getConnection());
+							event.setDropItems(false);
+						} catch(SQLException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -43,10 +45,18 @@ public class EventListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockPlace(BlockPlaceEvent event) {
-		if(!checkOwnership(event.getPlayer(), event.getBlock())) {
-			event.setCancelled(true);
-			event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
+		Player player = event.getPlayer();
+		if(isWorld(player)) {
+			if(!checkOwnership(event.getPlayer(), event.getBlock())) {
+				event.setCancelled(true);
+				event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
+			}
 		}
+	}
+	
+	public static boolean isWorld(Player player) {
+		World.Environment env = player.getWorld().getEnvironment();
+		return env != World.Environment.NETHER && env != World.Environment.THE_END;
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
