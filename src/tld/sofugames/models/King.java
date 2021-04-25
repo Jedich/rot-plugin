@@ -75,6 +75,10 @@ public class King implements Model {
 		}
 	}
 
+	public void loadGen() {
+
+	}
+
 	public void changeGen() {
 		currentGen++;
 		generateGen();

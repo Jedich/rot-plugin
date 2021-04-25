@@ -30,5 +30,18 @@
         <jarDirectory url="file://$MODULE_DIR$/../pluginWorks" recursive="false" type="SOURCES" />
       </library>
     </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/../libs/sqlite-jdbc-3.34.0" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="file://$MODULE_DIR$/../libs/sqlite-jdbc-3.34.0/demo" />
+          <root url="file://$MODULE_DIR$/../libs/sqlite-jdbc-3.34.0/src/main/java" />
+          <root url="file://$MODULE_DIR$/../libs/sqlite-jdbc-3.34.0/src/test/java" />
+        </SOURCES>
+      </library>
+    </orderEntry>
   </component>
 </module>

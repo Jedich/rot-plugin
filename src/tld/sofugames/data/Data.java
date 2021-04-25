@@ -2,14 +2,11 @@ package tld.sofugames.data;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Bed;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
+
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -18,12 +15,15 @@ import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.House;
 import tld.sofugames.models.King;
 
-import com.mysql.jdbc.Connection;
-
-import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -37,6 +37,7 @@ public class Data {
 	public HashMap<String, King> kingData = new HashMap<>();
 	//key bedBlock.toString()
 	public HashMap<String, House> houseData = new HashMap<>();
+	public static final String UTF8_BOM = "п»ї";
 
 	public String username = "";
 	public String password = "";
@@ -52,13 +53,28 @@ public class Data {
 				System.out.println("connecting to db...");
 				if (connection != null) connection.close();
 				final Properties prop = new Properties();
-				prop.setProperty("user", username);
-				prop.setProperty("password", (password == null ? "" : password));
 				prop.setProperty("useSSL", "false"); //Set to true if you have a SSL installed to your database (?)
 				prop.setProperty("autoReconnect", "true");
-				connection = (com.mysql.jdbc.Connection) DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + db, prop);
+				connection = DriverManager.getConnection("jdbc:sqlite:plugins/RoT-Reloaded/rotr.db", prop);
+				BufferedReader bufferedReader = new BufferedReader(
+						new InputStreamReader(getClass().getResourceAsStream("/database/init.sql")));
+				StringBuilder lines = new StringBuilder();
+				String strLines;
+				String line;
+				while ((line = bufferedReader.readLine()) != null) {
+					lines.append(line);
+				}
+				if (lines.toString().startsWith(UTF8_BOM)) {
+					strLines = lines.substring(3);
+				} else {
+					strLines = lines.toString();
+				}
+				Statement statement = connection.createStatement();
+				statement.setQueryTimeout(30);  // set timeout to 30 sec.
+				statement.executeUpdate(strLines);
+				return connection;
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | IOException e) {
 			e.printStackTrace();
 		}
 		return connection;

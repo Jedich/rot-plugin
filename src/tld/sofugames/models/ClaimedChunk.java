@@ -54,7 +54,7 @@ public class ClaimedChunk implements Model {
 
 	@Override
 	public boolean pushToDb(Connection connection) throws SQLException {
-		PreparedStatement pstmt = (PreparedStatement) connection.prepareStatement(
+		PreparedStatement pstmt = Data.getInstance().getConnection().prepareStatement(
 				"INSERT INTO user_claims VALUES(?, ?, ?, ?, ?, ?)");
 		pstmt.setInt(1, id);
 		pstmt.setString(2, chunkId);

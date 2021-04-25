@@ -1,4 +1,4 @@
-﻿CREATE TABLE IF NOT EXISTS rotr.user_claims
+﻿CREATE TABLE IF NOT EXISTS user_claims
 (
     id      INT(11) NOT NULL AUTO_INCREMENT,
     name    VARCHAR(64) DEFAULT NULL,
@@ -9,7 +9,7 @@
     PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS rotr.kings
+CREATE TABLE IF NOT EXISTS kings
 (
     id            INT(11) NOT NULL AUTO_INCREMENT,
     name          VARCHAR(64)   DEFAULT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS rotr.kings
     PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS rotr.houses
+CREATE TABLE IF NOT EXISTS houses
 (
     id        INT(11) NOT NULL AUTO_INCREMENT,
     owner     VARCHAR(64)   DEFAULT NULL,
