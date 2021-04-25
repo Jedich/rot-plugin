@@ -63,6 +63,7 @@ public class ClaimedChunk implements Model {
 		pstmt.setString(5, owner.toString());
 		pstmt.setString(6, type.name());
 		pstmt.executeUpdate();
+		System.out.println(pstmt.toString());
 		return true;
 	}
 

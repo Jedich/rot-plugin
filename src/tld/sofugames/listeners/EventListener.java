@@ -66,6 +66,7 @@ public class EventListener implements Listener {
 			King king = Data.getInstance().kingData.get(player.getUniqueId().toString());
 			king.assignedPlayer = player;
 			king.setBossBar();
+			king.loadGen();
 		}
 	}
 
@@ -79,7 +80,7 @@ public class EventListener implements Listener {
 			king.changeGen();
 			event.setRespawnLocation(king.homeChunk.world.getBlock(7, 150, 7).getLocation());
 			scheduler.scheduleSyncDelayedTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugins()[0]),
-					() -> rebirth(king), 6000L);
+					() -> rebirth(king), 4200L);
 			deceasedPlayer.sendMessage(ChatColor.RED + "Waiting for your resurrection...");
 			int randomSong = new Random().nextInt(101);
 			deceasedPlayer.stopSound(Sound.MUSIC_CREATIVE);

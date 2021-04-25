@@ -48,10 +48,10 @@ public class King implements Model {
 		this.income = 0;
 		this.goldBalance = goldBalance;
 		this.currentGen = currentGen;
-		if(currentGen != 0) {
-			generateGen();
+		if(player != null) {
+			loadGen();
+			setBossBar();
 		}
-		setBossBar();
 	}
 
 	public void setBossBar() {
@@ -76,7 +76,11 @@ public class King implements Model {
 	}
 
 	public void loadGen() {
-
+		if(!title.equals("")) {
+		fullTitle = assignedPlayer.getName() + " " + Data.getInstance().getRomanNumber(currentGen) + title;
+		} else {
+			generateGen();
+		}
 	}
 
 	public void changeGen() {
