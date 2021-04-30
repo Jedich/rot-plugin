@@ -32,4 +32,22 @@ CREATE TABLE IF NOT EXISTS houses
     benefits  INT(11)       DEFAULT NULL,
     income    DECIMAL(5, 3) DEFAULT NULL,
     PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS house_blocks
+(
+    id   INTEGER NOT NULL,
+    name VARCHAR(64) DEFAULT NULL,
+    x    INT(11)     DEFAULT 0,
+    y    INT(11)     DEFAULT 0,
+    z    INT(11)     DEFAULT 0,
+    PRIMARY KEY("id" AUTOINCREMENT)
+);
+
+CREATE TABLE IF NOT EXISTS war_claims
+(
+    id         INT(11) NOT NULL,
+    by_king    VARCHAR(64) DEFAULT NULL,
+    chunk_name VARCHAR(64) DEFAULT NULL,
+    PRIMARY KEY (id)
 )

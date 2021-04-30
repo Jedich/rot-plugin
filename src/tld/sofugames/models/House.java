@@ -1,5 +1,6 @@
 package tld.sofugames.models;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
@@ -10,7 +11,7 @@ import tld.sofugames.rot.HousingOutOfBoundsException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Collections;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -18,28 +19,31 @@ public class House implements Model {
 
 	public int id;
 	public UUID owner;
-	public String bedBlock;
+	public String bedBlockId;
 	private int level = 1;
 	public int area;
 	public int benefits;
 	public float income;
+	public Block bedBlock;
 
-	public House(int id, UUID owner, String bedBlock) {
+	public House(int id, UUID owner, String bedBlockId, Block bedBlock) {
 		this.id = id;
 		this.owner = owner;
+		this.bedBlockId = bedBlockId;
 		this.bedBlock = bedBlock;
 	}
 
-	public House(int id, UUID owner, String bedBlock, int area, int benefits, float income) {
+	public House(int id, UUID owner, String bedBlockId, Block bedBlock, int area, int benefits, float income) {
 		this.id = id;
 		this.owner = owner;
-		this.bedBlock = bedBlock;
+		this.bedBlockId = bedBlockId;
 		this.area = area;
 		this.benefits = benefits;
 		this.income = income;
+		this.bedBlock = bedBlock;
 	}
 
-	public boolean hasCeiling(Block current, int counter) {
+	private boolean hasCeiling(Block current, int counter) {
 		if(counter > 15) return false;
 
 		if(current.getRelative(BlockFace.UP).getType() == Material.AIR) {
@@ -50,17 +54,25 @@ public class House implements Model {
 		}
 	}
 
-	public boolean isEnclosed(Block bedBlock) throws HousingOutOfBoundsException {
-		if(hasCeiling(bedBlock, 0)) {
-			return allDirectionSearch(bedBlock, new HashMap<>());
+	public boolean isEnclosed() throws HousingOutOfBoundsException {
+		if(hasCeiling(this.bedBlock, 0)) {
+			this.area = 0;
+			if(allDirectionSearch(this.bedBlock, new HashMap<>())) {
+				if(this.area > 2) {
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				return false;
+			}
 		} else {
 			return false;
 		}
 	}
 
-	public boolean allDirectionSearch(Block currentBlock, HashMap<String, Block> visitedList)
+	private boolean allDirectionSearch(Block currentBlock, HashMap<String, Block> visitedList)
 			throws HousingOutOfBoundsException {
-		//if (startBed == null) startBed = currentBlock;
 		for(BlockFace face : Data.getInstance().faces) {
 			Block rel = currentBlock.getRelative(face);
 			if(!visitedList.containsKey(rel.toString())) {
@@ -69,27 +81,22 @@ public class House implements Model {
 						|| Data.getInstance().ignoreList.contains(rel.getType())) {
 					if(Tag.BEDS.getValues().contains(rel.getType())) {
 						if(Data.getInstance().houseData.containsKey(Data.getInstance().getBedHash(rel))) {
-							throw new HousingOutOfBoundsException("House is already claimed!");
+							if(Data.getInstance().houseData.get(Data.getInstance().getBedHash(rel)) != this) {
+								throw new HousingOutOfBoundsException("House is already claimed!");
+							}
 						}
 					}
-					this.area++;
 					if(this.area > 150) {
 						return false;
-						//throw new HousingOutOfBoundsException("House area doesn't match the rules: Size can't be > 150");
 					}
+					this.area++;
 					allDirectionSearch(rel, visitedList);
-//					House tempHouse = allDirectionSearch(rel, visitedList, thisHouse, startBed);
-//					if (tempHouse.area == 0) {
-//						throw new HousingOutOfBoundsException("House area doesn't match the rules: Size can't be > 150");
-//					} else {
-//						thisHouse.area = tempHouse.area;
-//					}
 				} else if(Data.getInstance().benefitList.contains(rel.getType())) {
 					this.benefits++;
 				}
 			}
 		}
-		return this.area > 2;
+		return this.area <= 150;
 	}
 
 	private void calculateIncome() {
@@ -105,13 +112,22 @@ public class House implements Model {
 				"INSERT INTO houses VALUES(?, ?, ?, ?, ?, ?, ?)");
 		pstmt.setInt(1, id);
 		pstmt.setString(2, owner.toString());
-		pstmt.setString(3, bedBlock);
+		pstmt.setString(3, this.bedBlockId);
 		pstmt.setInt(4, level);
 		pstmt.setInt(5, area);
 		pstmt.setInt(6, benefits);
 		pstmt.setFloat(7, income);
 		pstmt.executeUpdate();
+
 		System.out.println(pstmt.toString());
+
+		pstmt = (PreparedStatement) connection.prepareStatement(
+				"INSERT INTO house_blocks(name, x, y, z) VALUES(?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+		pstmt.setString(1, bedBlockId);
+		pstmt.setInt(2, bedBlock.getX());
+		pstmt.setInt(3, bedBlock.getY());
+		pstmt.setInt(4, bedBlock.getZ());
+		pstmt.executeUpdate();
 		return true;
 	}
 
@@ -121,10 +137,17 @@ public class House implements Model {
 	}
 
 	public void delete(Connection connection) throws SQLException {
+		deleteFromDb(connection);
+		Data.getInstance().houseData.remove(bedBlockId);
+	}
+
+	public void deleteFromDb(Connection connection) throws SQLException {
 		PreparedStatement pstmt = connection.prepareStatement("DELETE FROM houses WHERE id = ?");
 		pstmt.setInt(1, id);
 		pstmt.executeUpdate();
-		Data.getInstance().houseData.remove(bedBlock);
+		pstmt = connection.prepareStatement("DELETE FROM house_blocks WHERE name = ?");
+		pstmt.setString(1, bedBlockId);
+		pstmt.executeUpdate();
 		Data.getInstance().kingData.get(owner.toString()).changeIncome(-income);
 	}
 }

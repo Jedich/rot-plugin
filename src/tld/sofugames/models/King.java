@@ -24,12 +24,13 @@ public class King implements Model {
 	public Player assignedPlayer;
 	public ClaimedChunk homeChunk;
 	public int kingdomLevel = 1;
-	public float goldBalance = 0;
+	public float goldBalance = 10;
 	public float income;
 	public int chunkNumber = 0;
 	private int currentGen = 0;
 	public BossBar kingdomBar;
 	public boolean barSetToCancel;
+	public LinkedList<ClaimedChunk> warClaims = new LinkedList<>();
 
 	public King(int id, Player player, ClaimedChunk homeChunk) {
 		this.id = id;
@@ -89,7 +90,7 @@ public class King implements Model {
 	}
 
 	public float getFee() {
-		return (float) ((1.3f * chunkNumber) * Math.log(chunkNumber));
+		return (float) ((1.3f * (chunkNumber+0.5)) * Math.log(chunkNumber+0.5));
 	}
 
 	public void changeIncome(float income) {

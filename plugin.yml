@@ -1,6 +1,6 @@
 main: tld.sofugames.rot.Main
 name: RoT-Reloaded
-version: 0.1-beta
+version: 0.2-beta
 api-version: 1.16
 author: jedichchch
 description: Roots of Ternaria Reloaded!
@@ -23,6 +23,11 @@ commands:
   chunk-info:
     description: Gives information about chunks' ruler
     usage: /chunk-info
+    permission: rot.king
+    permission-message: You don't have the rot.king permission.
+  timeleft:
+    description: Shows time until respawn.
+    usage: /timeleft
     permission: rot.king
     permission-message: You don't have the rot.king permission.
   kingdom:

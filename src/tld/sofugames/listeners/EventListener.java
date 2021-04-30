@@ -70,6 +70,8 @@ public class EventListener implements Listener {
 		}
 	}
 
+
+
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onRespawn(PlayerRespawnEvent event) {
 		Player deceasedPlayer = event.getPlayer();
@@ -80,8 +82,10 @@ public class EventListener implements Listener {
 			king.changeGen();
 			event.setRespawnLocation(king.homeChunk.world.getBlock(7, 150, 7).getLocation());
 			scheduler.scheduleSyncDelayedTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugins()[0]),
-					() -> rebirth(king), 4200L);
-			deceasedPlayer.sendMessage(ChatColor.RED + "Waiting for your resurrection...");
+					() -> rebirth(king), 4800L);
+			Data.getInstance().timers.put(deceasedPlayer.getUniqueId(), System.currentTimeMillis() + (4*60*1000));
+			deceasedPlayer.sendMessage(ChatColor.AQUA + "Waiting for your resurrection...");
+			deceasedPlayer.sendMessage(ChatColor.AQUA + "Use /timeleft to check how much time you need to wait!");
 			int randomSong = new Random().nextInt(101);
 			deceasedPlayer.stopSound(Sound.MUSIC_CREATIVE);
 			deceasedPlayer.stopSound(Sound.MUSIC_GAME);

@@ -1,10 +1,7 @@
 package tld.sofugames.listeners;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Tag;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -14,7 +11,6 @@ import tld.sofugames.models.House;
 import tld.sofugames.rot.HousingOutOfBoundsException;
 
 import java.sql.SQLException;
-import java.util.HashMap;
 
 public class MultiBlockPlaceListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -24,14 +20,14 @@ public class MultiBlockPlaceListener implements Listener {
 				Block start = event.getBlock();
 				if(start.getBlockData() instanceof org.bukkit.block.data.type.Bed) {
 					House newHouse = new House(Data.getInstance().getLastHouse(),
-							event.getPlayer().getUniqueId(), Data.getInstance().getBedHash(start));
+							event.getPlayer().getUniqueId(), Data.getInstance().getBedHash(start), start);
 					try {
-						if(newHouse.isEnclosed(start)) {
+						if(newHouse.isEnclosed()) {
 							event.getPlayer().sendMessage(ChatColor.GOLD + "House claimed!");
 
 							newHouse.pushToDb(Data.getInstance().getConnection());
 
-							Data.getInstance().houseData.put(newHouse.bedBlock, newHouse);
+							Data.getInstance().houseData.put(newHouse.bedBlockId, newHouse);
 
 							Data.getInstance().giveBed(event.getPlayer(), false);
 						}

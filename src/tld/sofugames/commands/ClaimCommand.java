@@ -60,20 +60,27 @@ public class ClaimCommand implements CommandExecutor {
 					}
 				} else {
 					try {
-						ClaimedChunk claim = new ClaimedChunk(Data.getInstance().getLastClaim(), chunkName,
-								((Player) sender).getUniqueId(), ChunkType.Default, player.getLocation().getChunk());
 						King king = Data.getInstance().kingData.get(uuid);
-						if(isNear(claim)) {
-							if(king.homeChunk.distance(claim) < 5 * king.kingdomLevel) {
-								Data.getInstance().claimData.put(player.getLocation().getChunk().toString(), claim);
-								claim.pushToDb(Data.getInstance().getConnection());
-								king.chunkNumber++;
-								sender.sendMessage("Chunk successfully claimed!");
+						if(king.goldBalance >= 2) {
+							ClaimedChunk claim = new ClaimedChunk(Data.getInstance().getLastClaim(), chunkName,
+									((Player) sender).getUniqueId(), ChunkType.Default, player.getLocation().getChunk());
+							if(isNear(claim)) {
+								if(king.homeChunk.distance(claim) < 5 * king.kingdomLevel) {
+									Data.getInstance().claimData.put(player.getLocation().getChunk().toString(), claim);
+									claim.pushToDb(Data.getInstance().getConnection());
+									king.chunkNumber++;
+									king.goldBalance -= 2;
+									king.updateInDb(Data.getInstance().getConnection(),
+											Collections.singletonMap("balance", king.goldBalance));
+									sender.sendMessage("Chunk successfully claimed!");
+								} else {
+									sender.sendMessage(ChatColor.RED + "Strip claiming is forbidden!");
+								}
 							} else {
-								sender.sendMessage(ChatColor.RED + "Strip claiming is forbidden!");
+								sender.sendMessage(ChatColor.RED + "This chunk is not connected to your mainland!");
 							}
 						} else {
-							sender.sendMessage(ChatColor.RED + "This chunk is not connected to your mainland!");
+							sender.sendMessage(ChatColor.RED + "Not enough money to claim!");
 						}
 					} catch(SQLException e) {
 						e.printStackTrace();

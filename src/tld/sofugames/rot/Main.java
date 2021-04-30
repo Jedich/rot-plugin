@@ -72,15 +72,30 @@ public class Main extends JavaPlugin {
 			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM houses");
 			results = stmt.executeQuery();
 			while(results.next()) {
-				Data.getInstance().houseData.put(results.getString("bed_block"), new House(results.getInt("id"),
+				House newHouse = new House(results.getInt("id"),
 						UUID.fromString(results.getString("owner")),
 						results.getString("bed_block"),
+						null,
 						results.getInt("area"),
 						results.getInt("benefits"),
 						results.getFloat("income")
-				));
+				);
+				Data.getInstance().houseData.put(results.getString("bed_block"), newHouse);
 				Data.getInstance().lastHouse = results.getInt("id");
 				Data.getInstance().kingData.get(results.getString("owner")).changeIncome(results.getFloat("income"));
+			}
+			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM house_blocks");
+			results = stmt.executeQuery();
+			while(results.next()) {
+				Data.getInstance().houseData.get(results.getString("name")).bedBlock =
+						getServer().getWorlds().get(0).getBlockAt(results.getInt("x"),
+								results.getInt("y"), results.getInt("z"));
+			}
+			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM war_claims");
+			results = stmt.executeQuery();
+			while(results.next()) {
+				Data.getInstance().kingData.get(results.getString("by_king")).warClaims.add(
+						Data.getInstance().claimData.get(results.getString("chunk_name")));
 			}
 		} catch(SQLException e) {
 			e.printStackTrace();
@@ -88,7 +103,9 @@ public class Main extends JavaPlugin {
 
 		getCommand("claim").setExecutor(new ClaimCommand());
 		getCommand("unclaim").setExecutor(new UnclaimCommand());
-		getCommand("kingdom").setExecutor(new KingdomCommand());
+		KingdomCommand k = new KingdomCommand();
+		getCommand("kingdom").setExecutor(k);
+		getCommand("kingdom").setTabCompleter(k.new PluginTabCompleter());
 
 		getServer().getPluginManager().registerEvents(new EventListener(), this);
 		getServer().getPluginManager().registerEvents(new MultiBlockPlaceListener(), this);
@@ -96,7 +113,8 @@ public class Main extends JavaPlugin {
 
 		Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "time set 0");
 		BukkitScheduler scheduler = getServer().getScheduler();
-		scheduler.scheduleSyncRepeatingTask(this, this::checkIncomes, 0L, 24000L);
+		scheduler.scheduleSyncRepeatingTask(this, this::checkIncomes, 24000L, 24000L);
+		scheduler.scheduleSyncRepeatingTask(this, this::checkHouses, 0, 12000L);
 		//}
 //		else {
 //			System.out.println("Database not configured! Restarting...");
@@ -118,6 +136,20 @@ public class Main extends JavaPlugin {
 				sender.sendMessage("Current owner: " + Data.getInstance().claimData.get(chunkName).owner);
 			} else {
 				sender.sendMessage("The chunk is available for conquest!");
+			}
+			return true;
+		} else if(command.getName().equalsIgnoreCase("timeleft")) {
+			if(((Player)sender).getGameMode() == GameMode.SPECTATOR) {
+				long time = (Data.getInstance().timers.get(((Player) sender).getUniqueId())
+						- System.currentTimeMillis())/1000;
+				int minutes = 0;
+				while(time >= 60) {
+					time -= 60;
+					minutes++;
+				}
+				sender.sendMessage(ChatColor.AQUA + "" + minutes + "m " + time + "s left until respawn...");
+			} else {
+				sender.sendMessage(ChatColor.ITALIC + "You are alive... breathing, at least.");
 			}
 			return true;
 		}
@@ -144,6 +176,48 @@ public class Main extends JavaPlugin {
 		}
 		HandlerList.unregisterAll();
 		getServer().getScheduler().cancelTasks(this);
+	}
+
+	public void checkHouses() {
+		int incorrectTotal = 0;
+		HashMap<UUID, Integer> incorrectBeds = new HashMap<>();
+		Iterator iterator = Data.getInstance().houseData.entrySet().iterator();
+		while(iterator.hasNext()) {
+			Map.Entry houseSet = (Map.Entry)iterator.next();
+			House house = (House) houseSet.getValue();
+			if(Data.getInstance().kingData.get(house.owner.toString()).assignedPlayer != null) {
+				Player player = Data.getInstance().kingData.get(house.owner.toString()).assignedPlayer;
+				if(!player.isOnline()) {
+					continue;
+				}
+			} else {
+				continue;
+			}
+			try {
+				if(!house.isEnclosed()) {
+					if(incorrectBeds.containsKey(house.owner)) {
+						incorrectBeds.put(house.owner, incorrectBeds.get(house.owner) + 1);
+					} else {
+						incorrectBeds.put(house.owner, 1);
+					}
+					house.deleteFromDb(Data.getInstance().getConnection());
+					house.bedBlock.breakNaturally();
+					iterator.remove();
+					incorrectTotal++;
+				}
+			} catch(HousingOutOfBoundsException | SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		for(Map.Entry<UUID, Integer> entry : incorrectBeds.entrySet()) {
+			if(Data.getInstance().kingData.get(entry.getKey().toString()).assignedPlayer != null) {
+				Player player = Data.getInstance().kingData.get(entry.getKey().toString()).assignedPlayer;
+				if(player.isOnline()) {
+					player.sendMessage(ChatColor.RED + "Found " + entry.getValue() + " incorrect beds! They were destroyed.");
+				}
+			}
+		}
+		System.out.println("Found total " + incorrectTotal + " incorrect beds.");
 	}
 
 	public void checkIncomes() {
