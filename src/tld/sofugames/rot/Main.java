@@ -12,6 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import tld.sofugames.commands.*;
 import tld.sofugames.data.Data;
+import tld.sofugames.data.DataSource;
 import tld.sofugames.listeners.EventListener;
 import tld.sofugames.listeners.MultiBlockPlaceListener;
 import tld.sofugames.listeners.PlayerMoveListener;
@@ -33,7 +34,11 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		Data data = Data.getInstance();
-		connection = Data.getInstance().getConnection();
+		try {
+			connection = DataSource.getConnection();
+		} catch(SQLException throwables) {
+			throwables.printStackTrace();
+		}
 		ResultSet results;
 		World world;
 		world = Bukkit.getWorlds().get(0);
