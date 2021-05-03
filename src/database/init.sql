@@ -1,4 +1,5 @@
-﻿CREATE TABLE IF NOT EXISTS user_claims
+﻿
+CREATE TABLE IF NOT EXISTS user_claims
 (
     id      INT(11) NOT NULL,
     name    VARCHAR(64) DEFAULT NULL,

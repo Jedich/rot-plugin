@@ -57,6 +57,7 @@ public class House implements Model {
 	public boolean isEnclosed() throws HousingOutOfBoundsException {
 		if(hasCeiling(this.bedBlock, 0)) {
 			this.area = 0;
+			this.benefits = 0;
 			if(allDirectionSearch(this.bedBlock, new HashMap<>())) {
 				if(this.area > 2) {
 					return true;

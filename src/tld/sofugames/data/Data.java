@@ -61,14 +61,22 @@ public class Data {
 				StringBuilder lines = new StringBuilder();
 				String strLines;
 				String line;
+				int lineNum = 0;
 				while ((line = bufferedReader.readLine()) != null) {
+					if(lineNum == 0) {
+						if(line.length() < 15) {
+							continue;
+						}
+					}
 					lines.append(line);
+					lineNum++;
 				}
-				if (lines.toString().startsWith(UTF8_BOM)) {
-					strLines = lines.substring(3);
-				} else {
-					strLines = lines.toString();
-				}
+//				if (lines.toString().startsWith(UTF8_BOM)) {
+//					strLines = lines.substring(3);
+//				} else {
+//					strLines = lines.toString();
+//				}
+				strLines = lines.toString();
 				Statement statement = connection.createStatement();
 				statement.setQueryTimeout(30);  // set timeout to 30 sec.
 				statement.executeUpdate(strLines);
