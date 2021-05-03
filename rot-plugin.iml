@@ -11,36 +11,45 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="file://$MODULE_DIR$/../pluginWorks" />
+          <root url="file://$MODULE_DIR$/dependencies/spigot" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="file://$MODULE_DIR$/../pluginWorks" />
-          <root url="file://$MODULE_DIR$/../pluginWorks/Bukkit/src/main/java" />
-          <root url="file://$MODULE_DIR$/../pluginWorks/Bukkit/src/test/java" />
-          <root url="file://$MODULE_DIR$/../pluginWorks/CraftBukkit/src/main/java" />
-          <root url="file://$MODULE_DIR$/../pluginWorks/CraftBukkit/src/test/java" />
-          <root url="file://$MODULE_DIR$/../pluginWorks/Spigot/Spigot-API/src/main/java" />
-          <root url="file://$MODULE_DIR$/../pluginWorks/Spigot/Spigot-API/src/test/java" />
-          <root url="file://$MODULE_DIR$/../pluginWorks/Spigot/Spigot-Server/src/main/java" />
-          <root url="file://$MODULE_DIR$/../pluginWorks/Spigot/Spigot-Server/src/test/java" />
-          <root url="file://$MODULE_DIR$/../pluginWorks/work/decompile-d7866d9c" />
+          <root url="file://$MODULE_DIR$/dependencies/spigot" />
+          <root url="file://$MODULE_DIR$/dependencies/spigot/Bukkit/src/main/java" />
+          <root url="file://$MODULE_DIR$/dependencies/spigot/Bukkit/src/test/java" />
+          <root url="file://$MODULE_DIR$/dependencies/spigot/CraftBukkit/src/main/java" />
+          <root url="file://$MODULE_DIR$/dependencies/spigot/CraftBukkit/src/test/java" />
+          <root url="file://$MODULE_DIR$/dependencies/spigot/Spigot/Spigot-API/src/main/java" />
+          <root url="file://$MODULE_DIR$/dependencies/spigot/Spigot/Spigot-API/src/test/java" />
+          <root url="file://$MODULE_DIR$/dependencies/spigot/Spigot/Spigot-Server/src/main/java" />
+          <root url="file://$MODULE_DIR$/dependencies/spigot/Spigot/Spigot-Server/src/test/java" />
+          <root url="file://$MODULE_DIR$/dependencies/spigot/work/decompile-d7866d9c" />
         </SOURCES>
-        <jarDirectory url="file://$MODULE_DIR$/../pluginWorks" recursive="false" />
-        <jarDirectory url="file://$MODULE_DIR$/../pluginWorks" recursive="false" type="SOURCES" />
+        <jarDirectory url="file://$MODULE_DIR$/dependencies/spigot" recursive="false" />
+        <jarDirectory url="file://$MODULE_DIR$/dependencies/spigot" recursive="false" type="SOURCES" />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="file://$MODULE_DIR$/../libs/sqlite-jdbc-3.34.0" />
+          <root url="file://$MODULE_DIR$/dependencies/sqlite-jdbc-3.34.0" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="file://$MODULE_DIR$/../libs/sqlite-jdbc-3.34.0/demo" />
-          <root url="file://$MODULE_DIR$/../libs/sqlite-jdbc-3.34.0/src/main/java" />
-          <root url="file://$MODULE_DIR$/../libs/sqlite-jdbc-3.34.0/src/test/java" />
+          <root url="file://$MODULE_DIR$/dependencies/sqlite-jdbc-3.34.0/demo" />
+          <root url="file://$MODULE_DIR$/dependencies/sqlite-jdbc-3.34.0/src/main/java" />
+          <root url="file://$MODULE_DIR$/dependencies/sqlite-jdbc-3.34.0/src/test/java" />
         </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/dependencies/HikariCP-4.0.3.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
       </library>
     </orderEntry>
   </component>
