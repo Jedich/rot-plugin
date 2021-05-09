@@ -11,7 +11,6 @@ import tld.sofugames.data.Data;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.King;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -53,14 +52,14 @@ public class KingdomCommand implements CommandExecutor {
 						sender.sendMessage((ChatColor.GOLD + thisKing.kingdomName) +
 								ChatColor.WHITE + ", the kingdom of " + ChatColor.GOLD + sender.getName());
 						//sender.sendMessage("Kingdom level: " + thisKing.kingdomLevel);
-						sender.sendMessage("Total chunks: " + thisKing.chunkNumber);
+						sender.sendMessage("Total chunks: " + thisKing.getChunkNumber());
 						if(chunkName.equals(thisKing.homeChunk.chunkId)) {
 							sender.sendMessage("This is the ruler's home chunk.");
 						}
-						sender.sendMessage("Income: " + ChatColor.GREEN + String.format(Locale.US, "%.1f", thisKing.income) + "ing. " +
+						sender.sendMessage("Income: " + ChatColor.GREEN + String.format(Locale.US, "%.1f", thisKing.getIncome()) + "ing. " +
 								ChatColor.WHITE + "Charge: " + ChatColor.RED + String.format(Locale.US, "%.1f", thisKing.getFee()) + "ing.");
-						sender.sendMessage("Your balance: " + ChatColor.GOLD + String.format(Locale.US, "%.1f", thisKing.goldBalance) + "ing.");
-						if(thisKing.goldBalance < -5) {
+						sender.sendMessage("Your balance: " + ChatColor.GOLD + String.format(Locale.US, "%.1f", thisKing.getGoldBalance()) + "ing.");
+						if(thisKing.getGoldBalance() < -5) {
 							sender.sendMessage(ChatColor.DARK_RED + "The treasury is empty, my lord! " +
 									"We should take a foreign aid before it's not too late!");
 						}

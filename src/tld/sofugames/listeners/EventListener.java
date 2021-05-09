@@ -2,16 +2,11 @@ package tld.sofugames.listeners;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.block.*;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitScheduler;
 import tld.sofugames.data.*;
 import tld.sofugames.models.*;
@@ -67,7 +62,7 @@ public class EventListener implements Listener {
 			king.assignedPlayer = player;
 			king.setBossBar();
 			king.loadGen();
-			king.uuid = player.getUniqueId();
+			king.setUuid(player.getUniqueId());
 		}
 	}
 

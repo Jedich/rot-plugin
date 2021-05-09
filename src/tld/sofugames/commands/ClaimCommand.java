@@ -12,7 +12,6 @@ import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.King;
 import tld.sofugames.rot.ChunkType;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
 
@@ -46,7 +45,7 @@ public class ClaimCommand implements CommandExecutor {
 						King thisKing = new King(Data.getInstance().getLastKing(), player, homeChunk);
 						Data.getInstance().kingData.put(uuid, thisKing);
 						if(thisKing.pushToDb(Data.getInstance().getConnection())) {
-							thisKing.chunkNumber++;
+							thisKing.setChunkNumber(thisKing.getChunkNumber() + 1);
 							sender.sendMessage("Chunk successfully claimed!" + ChatColor.GOLD + " You are now a King.");
 							sender.sendMessage("Please, name your kingdom with /kingdom setname <name>");
 							thisKing.changeGen();
@@ -61,17 +60,17 @@ public class ClaimCommand implements CommandExecutor {
 				} else {
 					try {
 						King king = Data.getInstance().kingData.get(uuid);
-						if(king.goldBalance >= 2) {
+						if(king.getGoldBalance() >= 2) {
 							ClaimedChunk claim = new ClaimedChunk(Data.getInstance().getLastClaim(), chunkName,
 									((Player) sender).getUniqueId(), ChunkType.Default, player.getLocation().getChunk());
 							if(isNear(claim)) {
 								if(king.homeChunk.distance(claim) < 200 * king.kingdomLevel) {
 									Data.getInstance().claimData.put(player.getLocation().getChunk().toString(), claim);
 									claim.pushToDb(Data.getInstance().getConnection());
-									king.chunkNumber++;
-									king.goldBalance -= 2;
+									king.setChunkNumber(king.getChunkNumber() + 1);
+									king.setGoldBalance(-2);
 									king.updateInDb(Data.getInstance().getConnection(),
-											Collections.singletonMap("balance", king.goldBalance));
+											Collections.singletonMap("balance", king.getGoldBalance()));
 									sender.sendMessage("Chunk successfully claimed!");
 								} else {
 									sender.sendMessage(ChatColor.RED + "Strip claiming is forbidden!");

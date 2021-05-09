@@ -37,8 +37,8 @@ public class DiploCommand implements CommandExecutor {
 							return true;
 						}
 						sender.sendMessage("Relations with " + ChatColor.GOLD + otherKing.assignedPlayer.getDisplayName() + ":\n"
-								+ "Your opinion: " + ChatColor.WHITE + thisKing.relations.get(otherKing.uuid) + "\n" +
-								ChatColor.GOLD + "Their opinion: " + ChatColor.WHITE + otherKing.relations.get(thisKing.uuid));
+								+ "Your opinion: " + ChatColor.WHITE + thisKing.relations.get(otherKing.getUuid()) + "\n" +
+								ChatColor.GOLD + "Their opinion: " + ChatColor.WHITE + otherKing.relations.get(thisKing.getUuid()));
 					} else {
 						sender.sendMessage(ChatColor.RED + "Incorrect arguments: /diplomacy info <king_name>");
 					}
@@ -65,17 +65,17 @@ public class DiploCommand implements CommandExecutor {
 							sender.sendMessage(ChatColor.RED + "You can't aid yourself.");
 							return true;
 						}
-						if(thisKing.goldBalance < cost) {
+						if(thisKing.getGoldBalance() < cost) {
 							sender.sendMessage(ChatColor.RED + "Not enough money to perform this operation.");
 							return true;
 						}
 						thisKing.contact(otherKing);
-						otherKing.goldBalance += cost;
-						thisKing.goldBalance -= cost;
+						otherKing.setGoldBalance(cost);
+						thisKing.setGoldBalance(-cost);
 						otherKing.assignedPlayer.sendMessage(thisKing.assignedPlayer.getDisplayName() + ChatColor.WHITE
 								+ " sent a gift: " + ChatColor.GREEN + "" + cost + "g.");
 						thisKing.assignedPlayer.sendMessage("Aid sent successfully.");
-						otherKing.changeRelations(thisKing.uuid, 15);
+						otherKing.changeMeaning(thisKing.getUuid(), 15);
 					} else {
 						sender.sendMessage(ChatColor.RED + "Incorrect arguments: /diplomacy aid <king_name> <value>");
 					}

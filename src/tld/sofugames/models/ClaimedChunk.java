@@ -77,7 +77,7 @@ public class ClaimedChunk implements Model {
 		pstmt.setInt(1, id);
 		pstmt.executeUpdate();
 		Data.getInstance().claimData.remove(world.toString());
-		Data.getInstance().kingData.get(owner.toString()).chunkNumber--;
+		Data.getInstance().kingData.get(owner.toString()).setChunkNumber(Data.getInstance().kingData.get(owner.toString()).getChunkNumber() - 1);
 	}
 
 	@Override

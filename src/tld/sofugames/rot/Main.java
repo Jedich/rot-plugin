@@ -1,18 +1,15 @@
 package tld.sofugames.rot;
 
 import java.sql.*;
+
 import org.bukkit.*;
 import org.bukkit.command.*;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import tld.sofugames.commands.*;
 import tld.sofugames.data.Data;
-import tld.sofugames.data.DataSource;
 import tld.sofugames.listeners.EventListener;
 import tld.sofugames.listeners.MultiBlockPlaceListener;
 import tld.sofugames.listeners.PlayerMoveListener;
@@ -20,8 +17,6 @@ import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.House;
 import tld.sofugames.models.King;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -67,7 +62,7 @@ public class Main extends JavaPlugin {
 				if(newChunk.type == ChunkType.Home) {
 					owner.homeChunk = newChunk;
 				}
-				owner.chunkNumber++;
+				owner.setChunkNumber(owner.getChunkNumber() + 1);
 				Data.getInstance().lastClaim = results.getInt("id");
 			}
 			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM houses");
@@ -97,6 +92,13 @@ public class Main extends JavaPlugin {
 			while(results.next()) {
 				Data.getInstance().kingData.get(results.getString("by_king")).warClaims.add(
 						Data.getInstance().claimData.get(results.getString("chunk_name")));
+			}
+			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM relations");
+			results = stmt.executeQuery();
+			while(results.next()) {
+				Data.getInstance().kingData.get(results.getString("name")).relations
+						.put(Data.getInstance().kingData.get(results.getString("meaning_of")).getUuid(),
+								results.getInt("value"));
 			}
 		} catch(SQLException e) {
 			e.printStackTrace();
@@ -143,9 +145,9 @@ public class Main extends JavaPlugin {
 			}
 			return true;
 		} else if(command.getName().equalsIgnoreCase("timeleft")) {
-			if(((Player)sender).getGameMode() == GameMode.SPECTATOR) {
+			if(((Player) sender).getGameMode() == GameMode.SPECTATOR) {
 				long time = (Data.getInstance().timers.get(((Player) sender).getUniqueId())
-						- System.currentTimeMillis())/1000;
+						- System.currentTimeMillis()) / 1000;
 				int minutes = 0;
 				while(time >= 60) {
 					time -= 60;
@@ -187,7 +189,7 @@ public class Main extends JavaPlugin {
 		HashMap<UUID, Integer> incorrectBeds = new HashMap<>();
 		Iterator iterator = Data.getInstance().houseData.entrySet().iterator();
 		while(iterator.hasNext()) {
-			Map.Entry houseSet = (Map.Entry)iterator.next();
+			Map.Entry houseSet = (Map.Entry) iterator.next();
 			House house = (House) houseSet.getValue();
 			if(Data.getInstance().kingData.get(house.owner.toString()).assignedPlayer != null) {
 				Player player = Data.getInstance().kingData.get(house.owner.toString()).assignedPlayer;
@@ -228,20 +230,15 @@ public class Main extends JavaPlugin {
 		for(King king : Data.getInstance().kingData.values()) {
 			if(king.assignedPlayer != null) {
 				if(Bukkit.getPlayerExact(king.assignedPlayer.getName()) != null) {
-					try {
-						king.goldBalance += (king.income - king.getFee());
-						king.updateInDb(Data.getInstance().getConnection(), Collections.singletonMap("balance", king.goldBalance));
+					king.setGoldBalance(king.getIncome() - king.getFee());
 
-						king.assignedPlayer.sendMessage(ChatColor.GOLD + "Good morning, my honor!");
-						king.assignedPlayer.sendMessage("Income: " + ChatColor.GREEN + String.format(Locale.US, "%.1f", king.income) + "ing. " +
-								ChatColor.WHITE + "Charge: " + ChatColor.RED + String.format(Locale.US, "%.1f", king.getFee()) + "ing.");
-						king.assignedPlayer.sendMessage("Your balance: " + ChatColor.GOLD + String.format(Locale.US, "%.1f", king.goldBalance) + "ing.");
-						if(king.goldBalance < -5) {
-							king.assignedPlayer.sendMessage(ChatColor.DARK_RED + "The treasury is empty, my lord! " +
-									"We should take a foreign aid before it's not too late!");
-						}
-					} catch(SQLException e) {
-						e.printStackTrace();
+					king.assignedPlayer.sendMessage(ChatColor.GOLD + "Good morning, my honor!");
+					king.assignedPlayer.sendMessage("Income: " + ChatColor.GREEN + String.format(Locale.US, "%.1f", king.getIncome()) + "ing. " +
+							ChatColor.WHITE + "Charge: " + ChatColor.RED + String.format(Locale.US, "%.1f", king.getFee()) + "ing.");
+					king.assignedPlayer.sendMessage("Your balance: " + ChatColor.GOLD + String.format(Locale.US, "%.1f", king.getGoldBalance()) + "ing.");
+					if(king.getGoldBalance() < -5) {
+						king.assignedPlayer.sendMessage(ChatColor.DARK_RED + "The treasury is empty, my lord! " +
+								"We should take a foreign aid before it's not too late!");
 					}
 				}
 			}

@@ -60,13 +60,13 @@ public class PlayerMoveListener implements Listener {
 			if(Data.getInstance().claimData.containsKey(chunk.toString())) {
 				lastCountry.put(king.assignedPlayer.getUniqueId(), Data.getInstance().kingData
 						.get(Data.getInstance().claimData.get(chunk.toString()).owner.toString()).kingdomName);
-				king.kingdomBar.setColor(BarColor.PURPLE);
-				king.kingdomBar.setTitle(Data.getInstance().kingData
+				king.getKingdomBar().setColor(BarColor.PURPLE);
+				king.getKingdomBar().setTitle(Data.getInstance().kingData
 						.get(Data.getInstance().claimData.get(chunk.toString()).owner.toString()).kingdomName);
 			} else {
 				lastCountry.put(king.assignedPlayer.getUniqueId(), "Unclaimed");
-				king.kingdomBar.setColor(BarColor.GREEN);
-				king.kingdomBar.setTitle("Unclaimed");
+				king.getKingdomBar().setColor(BarColor.GREEN);
+				king.getKingdomBar().setTitle("Unclaimed");
 			}
 			showBar(king);
 		}
@@ -77,7 +77,7 @@ public class PlayerMoveListener implements Listener {
 	}
 
 	public void showBar(King king) {
-		king.kingdomBar.setVisible(true);
+		king.getKingdomBar().setVisible(true);
 		if(!king.barSetToCancel) {
 			king.barSetToCancel = true;
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugins()[0]),
@@ -87,6 +87,6 @@ public class PlayerMoveListener implements Listener {
 
 	public void hideBar(King king) {
 		king.barSetToCancel = false;
-		king.kingdomBar.setVisible(false);
+		king.getKingdomBar().setVisible(false);
 	}
 }
