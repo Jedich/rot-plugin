@@ -90,7 +90,7 @@ public class KingdomCommand implements CommandExecutor {
 				return true;
 			} else {
 				sender.sendMessage(ChatColor.GOLD + "Kingdom command:");
-				sender.sendMessage(ChatColor.GOLD + "setname <name>" + ChatColor.WHITE + ": sets a kingdom name.");
+				sender.sendMessage(ChatColor.GOLD + "setname <name>" + ChatColor.WHITE + ": sets a kingdom name (spaces allowed).");
 				sender.sendMessage(ChatColor.GOLD + "info" + ChatColor.WHITE + ": gives an important information about your kingdom.");
 				sender.sendMessage(ChatColor.GOLD + "show" + ChatColor.WHITE + ": visualizes claimed chunks.");
 				return true;

@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 public class King implements Model {
 
 	public int id;
+	public UUID uuid;
 	public String kingdomName = "Unnamed Kingdom";
 	private String title;
 	public String fullTitle;
@@ -31,6 +32,7 @@ public class King implements Model {
 	public BossBar kingdomBar;
 	public boolean barSetToCancel;
 	public LinkedList<ClaimedChunk> warClaims = new LinkedList<>();
+	public HashMap<UUID, Integer> relations = new HashMap<>();
 
 	public King(int id, Player player, ClaimedChunk homeChunk) {
 		this.id = id;
@@ -87,6 +89,25 @@ public class King implements Model {
 	public void changeGen() {
 		currentGen++;
 		generateGen();
+		assignedPlayer.setDisplayName(fullTitle);
+	}
+
+	public void contact(King other) {
+		if(!relations.containsKey(other.uuid) && other.assignedPlayer != null && !other.equals(this)) {
+			if(other.assignedPlayer.isOnline()) {
+				relations.put(other.uuid, 50);
+				other.relations.put(uuid, 50);
+				assignedPlayer.sendMessage("First contact: " + kingdomName + " and " + other.kingdomName);
+				other.assignedPlayer.sendMessage("First contact: " + kingdomName + " and " + other.kingdomName);
+			}
+		}
+	}
+
+	public void changeRelations(UUID with, int value) {
+		relations.put(with, relations.get(with) + value);
+		if(relations.get(with) > 100) {
+			relations.put(with, 100);
+		}
 	}
 
 	public float getFee() {
@@ -136,5 +157,21 @@ public class King implements Model {
 		//pstmt.setString(1, kingdomName);
 		pstmt.executeUpdate();
 		return true;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if(this == o) return true;
+		if(!(o instanceof King)) return false;
+		King king = (King) o;
+		return id == king.id &&
+				currentGen == king.currentGen &&
+				Objects.equals(uuid, king.uuid) &&
+				Objects.equals(kingdomName, king.kingdomName);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, uuid, kingdomName, currentGen);
 	}
 }

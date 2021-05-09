@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS house_blocks
     x    INT(11)     DEFAULT 0,
     y    INT(11)     DEFAULT 0,
     z    INT(11)     DEFAULT 0,
-    PRIMARY KEY("id" AUTOINCREMENT)
+    PRIMARY KEY ("id" AUTOINCREMENT)
 );
 
 CREATE TABLE IF NOT EXISTS war_claims
@@ -51,4 +51,13 @@ CREATE TABLE IF NOT EXISTS war_claims
     by_king    VARCHAR(64) DEFAULT NULL,
     chunk_name VARCHAR(64) DEFAULT NULL,
     PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS relations
+(
+    id         INTEGER NOT NULL,
+    name       VARCHAR(64) DEFAULT NULL,
+    meaning_of VARCHAR(64) DEFAULT NULL,
+    value      INT(11)     DEFAULT 50,
+    PRIMARY KEY ("id" AUTOINCREMENT)
 )

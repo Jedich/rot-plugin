@@ -67,6 +67,7 @@ public class EventListener implements Listener {
 			king.assignedPlayer = player;
 			king.setBossBar();
 			king.loadGen();
+			king.uuid = player.getUniqueId();
 		}
 	}
 

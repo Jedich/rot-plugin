@@ -34,11 +34,7 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		Data data = Data.getInstance();
-		try {
-			connection = DataSource.getConnection();
-		} catch(SQLException throwables) {
-			throwables.printStackTrace();
-		}
+		connection = data.getConnection();
 		ResultSet results;
 		World world;
 		world = Bukkit.getWorlds().get(0);
@@ -111,6 +107,9 @@ public class Main extends JavaPlugin {
 		KingdomCommand k = new KingdomCommand();
 		getCommand("kingdom").setExecutor(k);
 		getCommand("kingdom").setTabCompleter(k.new PluginTabCompleter());
+		DiploCommand d = new DiploCommand();
+		getCommand("diplomacy").setExecutor(d);
+		getCommand("diplomacy").setTabCompleter(d.new PluginTabCompleter());
 
 		getServer().getPluginManager().registerEvents(new EventListener(), this);
 		getServer().getPluginManager().registerEvents(new MultiBlockPlaceListener(), this);

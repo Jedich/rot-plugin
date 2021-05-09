@@ -32,7 +32,12 @@ commands:
     permission-message: You don't have the rot.king permission.
   kingdom:
     description: Gives information about your kingdom and also lets you manage its parameters
-    usage: /kingdom [TASK] {NAME}
+    usage: /kingdom <task> [name]
+    permission: rot.king
+    permission-message: You don't have the rot.king permission.
+  diplomacy:
+    description: Gives info about your kingdom relations
+    usage: /diplomacy <task> <player_name> [action]
     permission: rot.king
     permission-message: You don't have the rot.king permission.
 permissions:

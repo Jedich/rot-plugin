@@ -44,8 +44,10 @@ public class PlayerMoveListener implements Listener {
 			return true;
 		}
 		if(Data.getInstance().claimData.containsKey(thisChunk.toString())) {
-			return !lastCountry.get(uuid).equals(Data.getInstance().kingData
-					.get(Data.getInstance().claimData.get(thisChunk.toString()).owner.toString()).kingdomName);
+			King other = Data.getInstance().kingData
+					.get(Data.getInstance().claimData.get(thisChunk.toString()).owner.toString());
+			king.contact(other);
+			return !lastCountry.get(uuid).equals(other.kingdomName);
 		} else {
 			return !lastCountry.get(uuid).equals("Unclaimed");
 		}
