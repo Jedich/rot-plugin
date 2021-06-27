@@ -4,15 +4,16 @@ import java.sql.*;
 
 import org.bukkit.*;
 import org.bukkit.command.*;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import tld.sofugames.commands.*;
 import tld.sofugames.data.Data;
+import tld.sofugames.gui.WarGui;
+import tld.sofugames.listeners.*;
 import tld.sofugames.listeners.EventListener;
-import tld.sofugames.listeners.MultiBlockPlaceListener;
-import tld.sofugames.listeners.PlayerMoveListener;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.House;
 import tld.sofugames.models.King;
@@ -116,6 +117,9 @@ public class Main extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new EventListener(), this);
 		getServer().getPluginManager().registerEvents(new MultiBlockPlaceListener(), this);
 		getServer().getPluginManager().registerEvents(new PlayerMoveListener(), this);
+		getServer().getPluginManager().registerEvents(new WarGuiListener(), this);
+		getServer().getPluginManager().registerEvents(new PlayerDeathListener(), this);
+
 
 		Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "time set 0");
 		BukkitScheduler scheduler = getServer().getScheduler();
@@ -233,12 +237,32 @@ public class Main extends JavaPlugin {
 					king.setGoldBalance(king.getIncome() - king.getFee());
 
 					king.assignedPlayer.sendMessage(ChatColor.GOLD + "Good morning, my honor!");
-					king.assignedPlayer.sendMessage("Income: " + ChatColor.GREEN + String.format(Locale.US, "%.1f", king.getIncome()) + "ing. " +
-							ChatColor.WHITE + "Charge: " + ChatColor.RED + String.format(Locale.US, "%.1f", king.getFee()) + "ing.");
-					king.assignedPlayer.sendMessage("Your balance: " + ChatColor.GOLD + String.format(Locale.US, "%.1f", king.getGoldBalance()) + "ing.");
-					if(king.getGoldBalance() < -5) {
+					king.assignedPlayer.sendMessage("Income: " + ChatColor.GREEN +
+							String.format(Locale.US, "%.1f", king.getIncome()) + "ing. " +
+							ChatColor.WHITE + "Charge: " + ChatColor.RED +
+							String.format(Locale.US, "%.1f", king.getFee()) + "ing.");
+					king.assignedPlayer.sendMessage("Your balance: " + ChatColor.GOLD +
+							String.format(Locale.US, "%.1f", king.getGoldBalance()) + "ing.");
+					if(king.getGoldBalance() < -5 && king.getGoldBalance() > -20) {
+						king.assignedPlayer.playSound(king.assignedPlayer.getLocation(),
+								Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 1, 1);
 						king.assignedPlayer.sendMessage(ChatColor.DARK_RED + "The treasury is empty, my lord! " +
 								"We should take a foreign aid before it's not too late!");
+					} else if(king.getGoldBalance() <= -20) {
+						king.assignedPlayer.sendMessage(ChatColor.DARK_RED + "Pillagers " +
+								ChatColor.RED + "have come to end your pathetic suffering.");
+						Location loc = king.homeChunk.world.getBlock(1, king.assignedPlayer.getWorld()
+								.getHighestBlockYAt(king.homeChunk.world.getX()*16+1,
+										king.homeChunk.world.getZ()*16+1), 1).getLocation();
+						World world = king.assignedPlayer.getWorld();
+						for(int i = 0; i < 20; i++) {
+							world.spawnEntity(loc, EntityType.PILLAGER);
+						}
+						king.assignedPlayer.playSound(king.assignedPlayer.getLocation(),
+								Sound.ENTITY_WITHER_HURT, 1, 1);
+					} else {
+						king.assignedPlayer.playSound(king.assignedPlayer.getLocation(),
+								Sound.BLOCK_NOTE_BLOCK_HAT, 1, 1);
 					}
 				}
 			}

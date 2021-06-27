@@ -1,5 +1,6 @@
 package tld.sofugames.data;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -14,6 +15,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.House;
 import tld.sofugames.models.King;
+import tld.sofugames.models.War;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -37,6 +39,8 @@ public class Data {
 	public HashMap<String, King> kingData = new HashMap<>();
 	//key bedBlock.toString()
 	public HashMap<String, House> houseData = new HashMap<>();
+	//key UUID.toString()
+	public HashMap<String, War> wars = new HashMap<>();
 	public static final String UTF8_BOM = "п»ї";
 
 	public String username = "";
@@ -167,6 +171,25 @@ public class Data {
 				.replace("CCCC", "CD")
 				.replace("DD", "M")
 				.replace("DCD", "CM");
+	}
+
+	public static boolean isKing(String username) {
+		UUID playerUuid;
+		try {
+			playerUuid = Bukkit.getPlayer(username).getUniqueId();
+		} catch(NullPointerException e) {
+			return false;
+		}
+		return Data.getInstance().kingData.containsKey(playerUuid.toString());
+	}
+
+	public void destroyWar(String atkUuid) {
+		War war = wars.get(atkUuid);
+		war.getAtk().setAtWar(false);
+		war.getDef().setAtWar(true);
+		war.getAtk().setCurrentWar(null);
+		war.getDef().setCurrentWar(null);
+		wars.remove(atkUuid);
 	}
 
 	public int getLastClaim() {

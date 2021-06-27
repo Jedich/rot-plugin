@@ -2,18 +2,21 @@ package tld.sofugames.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import tld.sofugames.data.Data;
+import tld.sofugames.gui.WarGui;
+import tld.sofugames.listeners.WarGuiListener;
 import tld.sofugames.models.King;
+import tld.sofugames.models.War;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DiploCommand implements CommandExecutor {
 
@@ -75,10 +78,39 @@ public class DiploCommand implements CommandExecutor {
 						otherKing.assignedPlayer.sendMessage(thisKing.assignedPlayer.getDisplayName() + ChatColor.WHITE
 								+ " sent a gift: " + ChatColor.GREEN + "" + cost + "g.");
 						thisKing.assignedPlayer.sendMessage("Aid sent successfully.");
+						thisKing.assignedPlayer.playSound(thisKing.assignedPlayer.getLocation(),
+								Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
+						otherKing.assignedPlayer.playSound(otherKing.assignedPlayer.getLocation(),
+								Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
 						otherKing.changeMeaning(thisKing.getUuid(), 15);
 					} else {
 						sender.sendMessage(ChatColor.RED + "Incorrect arguments: /diplomacy aid <king_name> <value>");
 					}
+				}
+				else if(args[0].equalsIgnoreCase("war")) {
+					if(!Data.isKing(args[1])) {
+						sender.sendMessage(ChatColor.RED + "No king with this username found.");
+						return true;
+					}
+					King thisKing = Data.getInstance().kingData.get(((Player)sender).getUniqueId().toString());
+					King otherKing = Data.getInstance().kingData.get(Bukkit.getPlayer(args[1]).getUniqueId().toString());
+					if(thisKing.isAtWar()) {
+						sender.sendMessage(ChatColor.RED + "You are already at war!");
+						return true;
+					}
+					War war = new War(thisKing, otherKing);
+					Data.getInstance().wars.put(((Player)sender).getUniqueId().toString(), war);
+					WarGui warGui = new WarGui();
+					warGui.openInventory((Player)sender);
+				}
+				else if(args[0].equalsIgnoreCase("currentwar")) {
+					King king = Data.getInstance().kingData.get(((Player)sender).getUniqueId().toString());
+					if(king.isAtWar()) {
+						War war = king.getCurrentWar();
+						sender.sendMessage(war.getWarType().getName() + " war:\nAttacker: " + war.getAtk().fullTitle +
+								" Defender: " + war.getDef().fullTitle + "\n Scrore: " + war.getScore()*10 + "%");
+					}
+					sender.sendMessage("You have peace on your grounds... for now.");
 				}
 			} else {
 				sender.sendMessage(ChatColor.GOLD + "Diplomacy command:");
@@ -98,9 +130,9 @@ public class DiploCommand implements CommandExecutor {
 		@Override
 		public List<String> onTabComplete(CommandSender sender, Command cde, String arg, String[] args) {
 			if(args.length < 2) {
-				return Arrays.asList("info", "aid", "ally", "war");
+				return Arrays.asList("info", "aid", "ally", "war", "currentwar");
 			}
-			return Collections.emptyList();
+			return Bukkit.getServer().getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
 		}
 	}
 }

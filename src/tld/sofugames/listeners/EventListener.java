@@ -48,7 +48,7 @@ public class EventListener implements Listener {
 			}
 		}
 	}
-	
+
 	public static boolean isWorld(Player player) {
 		World.Environment env = player.getWorld().getEnvironment();
 		return env != World.Environment.NETHER && env != World.Environment.THE_END;
@@ -67,19 +67,21 @@ public class EventListener implements Listener {
 	}
 
 
-
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onRespawn(PlayerRespawnEvent event) {
 		Player deceasedPlayer = event.getPlayer();
 		if(Data.getInstance().kingData.containsKey(deceasedPlayer.getUniqueId().toString())) {
+			King king = Data.getInstance().kingData.get(deceasedPlayer.getUniqueId().toString());
+			if(king.isAtWar()) {
+				return;
+			}
 			BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 			deceasedPlayer.setGameMode(GameMode.SPECTATOR);
-			King king = Data.getInstance().kingData.get(deceasedPlayer.getUniqueId().toString());
 			king.changeGen();
 			event.setRespawnLocation(king.homeChunk.world.getBlock(7, 150, 7).getLocation());
 			scheduler.scheduleSyncDelayedTask(Objects.requireNonNull(Bukkit.getPluginManager().getPlugins()[0]),
 					() -> rebirth(king), 4800L);
-			Data.getInstance().timers.put(deceasedPlayer.getUniqueId(), System.currentTimeMillis() + (4*60*1000));
+			Data.getInstance().timers.put(deceasedPlayer.getUniqueId(), System.currentTimeMillis() + (4 * 60 * 1000));
 			deceasedPlayer.sendMessage(ChatColor.AQUA + "Waiting for your resurrection...");
 			deceasedPlayer.sendMessage(ChatColor.AQUA + "Use /timeleft to check how much time you need to wait!");
 			int randomSong = new Random().nextInt(101);
@@ -99,11 +101,11 @@ public class EventListener implements Listener {
 	}
 
 	public String rainbowText(String text) {
-		ChatColor[] rainbow = new ChatColor[] {ChatColor.RED, ChatColor.GOLD, ChatColor.YELLOW, ChatColor.GREEN,
-		ChatColor.AQUA, ChatColor.BLUE, ChatColor.DARK_PURPLE};
+		ChatColor[] rainbow = new ChatColor[]{ChatColor.RED, ChatColor.GOLD, ChatColor.YELLOW, ChatColor.GREEN,
+				ChatColor.AQUA, ChatColor.BLUE, ChatColor.DARK_PURPLE};
 		int rainbowIndex = 0;
 		StringBuilder rainbowText = new StringBuilder();
-		for(String i: text.split("")) {
+		for(String i : text.split("")) {
 			rainbowText.append(rainbow[rainbowIndex]).append(i);
 			rainbowIndex++;
 			if(rainbowIndex == rainbow.length) {

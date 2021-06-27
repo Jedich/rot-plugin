@@ -34,6 +34,8 @@ public class King implements Model {
 	public boolean barSetToCancel;
 	public LinkedList<ClaimedChunk> warClaims = new LinkedList<>();
 	public HashMap<UUID, Integer> relations = new HashMap<>();
+	private boolean atWar = false;
+	private War currentWar;
 
 	public King(int id, Player player, ClaimedChunk homeChunk) {
 		this.id = id;
@@ -258,4 +260,22 @@ public class King implements Model {
 	public void setKingdomBar(BossBar kingdomBar) {
 		this.kingdomBar = kingdomBar;
 	}
+
+	public boolean isAtWar() {
+		return atWar;
+	}
+
+	public void setAtWar(boolean atWar) {
+		this.atWar = atWar;
+	}
+
+	public War getCurrentWar() {
+		return currentWar;
+	}
+
+	public void setCurrentWar(War currentWar) {
+		this.currentWar = currentWar;
+	}
+
+
 }
