@@ -30,6 +30,7 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		Data data = Data.getInstance();
+		data.setPlugin(this);
 		connection = data.getConnection();
 		ResultSet results;
 		World world;

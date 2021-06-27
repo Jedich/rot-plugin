@@ -12,6 +12,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.House;
 import tld.sofugames.models.King;
@@ -33,6 +34,7 @@ import java.util.stream.Stream;
 public class Data {
 	public static final int basicFee = 2;
 	private static Data instance = null;
+	public Plugin plugin;
 	//key Chunk.toString()
 	public HashMap<String, ClaimedChunk> claimData = new HashMap<>();
 	//key UUID.toString()
@@ -100,6 +102,10 @@ public class Data {
 			instance = new Data();
 		}
 		return instance;
+	}
+
+	public void setPlugin(Plugin plugin) {
+		getInstance().plugin = plugin;
 	}
 
 	public String getBedHash(Block bedBlock) {

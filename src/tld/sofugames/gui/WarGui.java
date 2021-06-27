@@ -1,5 +1,6 @@
 package tld.sofugames.gui;
 
+import com.sun.istack.internal.NotNull;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
@@ -20,7 +21,7 @@ public class WarGui implements InventoryHolder {
 
 	public WarGui() {
 		// Create a new inventory, with no owner (as this isn't a real inventory), a size of nine, called example
-		inv = Bukkit.createInventory(null, 9, "Choose a war type");
+		inv = Bukkit.createInventory(this, 9, "Choose a war type");
 		// Put the items into the inventory
 		initializeItems();
 	}
@@ -56,6 +57,6 @@ public class WarGui implements InventoryHolder {
 
 	@Override
 	public Inventory getInventory() {
-		return null;
+		return inv;
 	}
 }

@@ -17,7 +17,17 @@ public class War {
 		def.setCurrentWar(this);
 	}
 
-	public void changeWarScore(boolean isAtk) {}
+	public void changeWarScore(boolean hasAtkWon) {
+		int sign = hasAtkWon ? 1 : -1;
+		float value;
+		King target = hasAtkWon ? getAtk() : getDef();
+		if(target.getChunkNumber() < 4) {
+			value = 1/4f;
+		} else {
+			value = 1f/target.getChunkNumber();
+		}
+		addScore(value*sign);
+	}
 
 	public WarType getWarType() {
 		return warType;
@@ -49,5 +59,8 @@ public class War {
 
 	public void addScore(float score) {
 		this.score += score;
+		if(getScore() >= warType.getTargetScore()) {
+			getAtk().assignedPlayer.sendMessage("§aThe war goal is reached! You can finish it with /diplomacy endwar.");
+		}
 	}
 }

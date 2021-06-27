@@ -27,28 +27,34 @@ public class WarGuiListener implements Listener {
 	@EventHandler
 	public void onInventoryClick(final InventoryClickEvent e) {
 		if(e.getClickedInventory() == null) { return; }
-		if(e.getInventory() instanceof WarGui) {
+		if(e.getClickedInventory().getHolder() instanceof WarGui) {
 			e.setCancelled(true);
 			final ItemStack clickedItem = e.getCurrentItem();
 			if(clickedItem == null || clickedItem.getType().isAir()) return;
 			final Player p = (Player) e.getWhoClicked();
-			p.sendMessage("You clicked at slot " + e.getRawSlot());
+			//p.sendMessage("You clicked at slot " + e.getRawSlot());
 			War thisWar = Data.getInstance().wars.get(p.getUniqueId().toString());
 			thisWar.setWarType(WarType.types[e.getRawSlot() - 2]);
 			p.closeInventory();
-			thisWar.getAtk().assignedPlayer.sendTitle(ChatColor.RED + "WAR!", "", 20, 70, 20);
+			thisWar.getAtk().assignedPlayer.sendTitle("§4WAR!", "", 20, 70, 20);
 			thisWar.getAtk().assignedPlayer.playSound(thisWar.getAtk().assignedPlayer.getLocation(),
-					Sound.ENTITY_PILLAGER_CELEBRATE, 1, 1);
-			thisWar.getDef().assignedPlayer.sendTitle(ChatColor.RED + "WAR!",
-					"King " + thisWar.getDef().fullTitle + " declares war on us!", 20, 70, 20);
+					Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1, 1);
+			thisWar.getDef().assignedPlayer.sendTitle("§4WAR!",
+					"King " + thisWar.getAtk().fullTitle + " §cdeclares war on us!", 20, 70, 20);
 			thisWar.getDef().assignedPlayer.playSound(thisWar.getDef().assignedPlayer.getLocation(),
 					Sound.EVENT_RAID_HORN, 1, 1);
+			thisWar.getDef().assignedPlayer.playSound(thisWar.getDef().assignedPlayer.getLocation(),
+					Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1, 1);
+			Data.getInstance().plugin.getServer().broadcastMessage("§cThe wind is rising...");
+			System.out.println(thisWar.getAtk().assignedPlayer.getName() + " declares war on "
+					+ thisWar.getDef().assignedPlayer.getName());
 		}
 	}
 
 	@EventHandler
 	public void onInventoryClose(final InventoryCloseEvent e) {
-		if(e.getInventory() instanceof WarGui) {
+		System.out.println(e.getInventory().getHolder());
+		if(e.getInventory().getHolder() instanceof WarGui) {
 			String atkUuid = e.getPlayer().getUniqueId().toString();
 			if(Data.getInstance().wars.containsKey(atkUuid)) {
 				War war = Data.getInstance().wars.get(atkUuid);

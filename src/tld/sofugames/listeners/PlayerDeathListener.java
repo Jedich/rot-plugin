@@ -23,19 +23,16 @@ public class PlayerDeathListener implements Listener {
 		HashMap<String, King> kingData = Data.getInstance().kingData;
 		if(!kingData.containsKey(event.getEntity().getUniqueId().toString())) return;
 		King victim = kingData.get(event.getEntity().getUniqueId().toString());
-		if(victim.isAtWar()) {
+		if(victim.isAtWar() && event.getEntity().getKiller() != null) {
 			event.setDroppedExp(20);
 			event.setKeepInventory(true);
+			event.getDrops().clear();
 			if(kingData.containsKey(event.getEntity().getKiller().getUniqueId().toString())) {
 				King killer = kingData.get(event.getEntity().getKiller().getUniqueId().toString());
 				if(!killer.isAtWar()) return;
 				War thisWar = killer.getCurrentWar();
 				if(victim.equals(thisWar.getDef()) || victim.equals(thisWar.getAtk())) {
-					if(killer.equals(thisWar.getDef())) {
-						thisWar.addScore(-0.1f);
-					} else {
-						thisWar.addScore(0.1f);
-					}
+					thisWar.changeWarScore(victim.equals(thisWar.getAtk()));
 					killer.assignedPlayer.sendTitle(ChatColor.GOLD + "Battle won!", "", 20, 70, 20);
 					killer.assignedPlayer.playSound(killer.assignedPlayer.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
 				}

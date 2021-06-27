@@ -88,6 +88,10 @@ public class DiploCommand implements CommandExecutor {
 					}
 				}
 				else if(args[0].equalsIgnoreCase("war")) {
+					if(args.length != 2) {
+						sender.sendMessage(ChatColor.RED + "Incorrect arguments: /diplomacy war <king_name>");
+						return true;
+					}
 					if(!Data.isKing(args[1])) {
 						sender.sendMessage(ChatColor.RED + "No king with this username found.");
 						return true;
@@ -101,16 +105,17 @@ public class DiploCommand implements CommandExecutor {
 					War war = new War(thisKing, otherKing);
 					Data.getInstance().wars.put(((Player)sender).getUniqueId().toString(), war);
 					WarGui warGui = new WarGui();
-					warGui.openInventory((Player)sender);
+					((Player)sender).openInventory(warGui.getInventory());
 				}
 				else if(args[0].equalsIgnoreCase("currentwar")) {
 					King king = Data.getInstance().kingData.get(((Player)sender).getUniqueId().toString());
 					if(king.isAtWar()) {
 						War war = king.getCurrentWar();
-						sender.sendMessage(war.getWarType().getName() + " war:\nAttacker: " + war.getAtk().fullTitle +
-								" Defender: " + war.getDef().fullTitle + "\n Scrore: " + war.getScore()*10 + "%");
+						sender.sendMessage("§e" + war.getWarType().getName() + " war.\n§6Attacker:§f " + war.getAtk().fullTitle +
+								"\n§6Defender:§f " + war.getDef().fullTitle + "\n§fScore: " + war.getScore()*100 + "%");
+					} else {
+						sender.sendMessage("You have peace on your grounds... for now.");
 					}
-					sender.sendMessage("You have peace on your grounds... for now.");
 				}
 			} else {
 				sender.sendMessage(ChatColor.GOLD + "Diplomacy command:");
@@ -120,6 +125,7 @@ public class DiploCommand implements CommandExecutor {
 						"foreign aid to support allies with money.");
 				sender.sendMessage(ChatColor.GOLD + "ally" + ChatColor.WHITE + ": sends alliance request to another kingdom.");
 				sender.sendMessage(ChatColor.GOLD + "war" + ChatColor.WHITE + ": gives a possibility to declare a war on another kingdom.");
+				sender.sendMessage(ChatColor.GOLD + "currentwar" + ChatColor.WHITE + ": shows info about your current war, if there's any.");
 			}
 			return true;
 		}
