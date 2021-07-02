@@ -32,7 +32,7 @@ public class PlayerDeathListener implements Listener {
 				if(!killer.isAtWar()) return;
 				War thisWar = killer.getCurrentWar();
 				if(victim.equals(thisWar.getDef()) || victim.equals(thisWar.getAtk())) {
-					thisWar.changeWarScore(victim.equals(thisWar.getAtk()));
+					thisWar.changeWarScore(victim.equals(thisWar.getDef()));
 					killer.assignedPlayer.sendTitle(ChatColor.GOLD + "Battle won!", "", 20, 70, 20);
 					killer.assignedPlayer.playSound(killer.assignedPlayer.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
 				}

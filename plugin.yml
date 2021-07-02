@@ -15,11 +15,6 @@ commands:
     usage: /unclaim
     permission: rot.king
     permission-message: You don't have the rot.king permission.
-  reset:
-    description: Resets all claimed chunks
-    usage: /reset
-    permission: rot.god
-    permission-message: You don't have the rot.god permission.
   chunk-info:
     description: Gives information about chunks' ruler
     usage: /chunk-info
@@ -31,19 +26,34 @@ commands:
     permission: rot.king
     permission-message: You don't have the rot.king permission.
   kingdom:
-    description: Gives information about your kingdom and also lets you manage its parameters
-    usage: /kingdom <task> [name]
+    description: Gives info about your kingdom
+    usage: /kingdom <task> {name}
     permission: rot.king
     permission-message: You don't have the rot.king permission.
   diplomacy:
     description: Gives info about your kingdom relations
-    usage: /diplomacy <task> <player_name> [action]
+    usage: /diplomacy <task> <player_name> {action}
     permission: rot.king
     permission-message: You don't have the rot.king permission.
+  war:
+    description: Gives you control over military actions on enemies
+    usage: /war <task> {player_name}
+    permission: rot.king
+    permission-message: You don't have the rot.king permission.
+  reset:
+    description: Resets all claimed chunks
+    usage: /reset
+    permission: rot.god
+    permission-message: You don't have the rot.god permission.
+  givegold:
+    description: Gives gold to a player
+    usage: /gibegold <player_name>
+    permission: rot.god
+    permission-message: You don't have the rot.god permission.
 permissions:
   rot.king:
-    description: Allows foo command
+    description: Allows king commands
     default: op
   rot.god:
-    description: Allows foo command
+    description: Allows god commands
     default: op

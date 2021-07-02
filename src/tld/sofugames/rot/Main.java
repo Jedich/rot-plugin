@@ -114,6 +114,10 @@ public class Main extends JavaPlugin {
 		DiploCommand d = new DiploCommand();
 		getCommand("diplomacy").setExecutor(d);
 		getCommand("diplomacy").setTabCompleter(d.new PluginTabCompleter());
+		WarCommand w = new WarCommand();
+		getCommand("war").setExecutor(w);
+		getCommand("war").setTabCompleter(w.new PluginTabCompleter());
+
 
 		getServer().getPluginManager().registerEvents(new EventListener(), this);
 		getServer().getPluginManager().registerEvents(new MultiBlockPlaceListener(), this);

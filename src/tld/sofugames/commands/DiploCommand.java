@@ -87,36 +87,6 @@ public class DiploCommand implements CommandExecutor {
 						sender.sendMessage(ChatColor.RED + "Incorrect arguments: /diplomacy aid <king_name> <value>");
 					}
 				}
-				else if(args[0].equalsIgnoreCase("war")) {
-					if(args.length != 2) {
-						sender.sendMessage(ChatColor.RED + "Incorrect arguments: /diplomacy war <king_name>");
-						return true;
-					}
-					if(!Data.isKing(args[1])) {
-						sender.sendMessage(ChatColor.RED + "No king with this username found.");
-						return true;
-					}
-					King thisKing = Data.getInstance().kingData.get(((Player)sender).getUniqueId().toString());
-					King otherKing = Data.getInstance().kingData.get(Bukkit.getPlayer(args[1]).getUniqueId().toString());
-					if(thisKing.isAtWar()) {
-						sender.sendMessage(ChatColor.RED + "You are already at war!");
-						return true;
-					}
-					War war = new War(thisKing, otherKing);
-					Data.getInstance().wars.put(((Player)sender).getUniqueId().toString(), war);
-					WarGui warGui = new WarGui();
-					((Player)sender).openInventory(warGui.getInventory());
-				}
-				else if(args[0].equalsIgnoreCase("currentwar")) {
-					King king = Data.getInstance().kingData.get(((Player)sender).getUniqueId().toString());
-					if(king.isAtWar()) {
-						War war = king.getCurrentWar();
-						sender.sendMessage("§e" + war.getWarType().getName() + " war.\n§6Attacker:§f " + war.getAtk().fullTitle +
-								"\n§6Defender:§f " + war.getDef().fullTitle + "\n§fScore: " + war.getScore()*100 + "%");
-					} else {
-						sender.sendMessage("You have peace on your grounds... for now.");
-					}
-				}
 			} else {
 				sender.sendMessage(ChatColor.GOLD + "Diplomacy command:");
 				sender.sendMessage(ChatColor.GOLD + "info" + ChatColor.WHITE + ": gives information about your kingdom " +
@@ -124,8 +94,6 @@ public class DiploCommand implements CommandExecutor {
 				sender.sendMessage(ChatColor.GOLD + "aid" + ChatColor.WHITE + ": gives a possibility to give a " +
 						"foreign aid to support allies with money.");
 				sender.sendMessage(ChatColor.GOLD + "ally" + ChatColor.WHITE + ": sends alliance request to another kingdom.");
-				sender.sendMessage(ChatColor.GOLD + "war" + ChatColor.WHITE + ": gives a possibility to declare a war on another kingdom.");
-				sender.sendMessage(ChatColor.GOLD + "currentwar" + ChatColor.WHITE + ": shows info about your current war, if there's any.");
 			}
 			return true;
 		}
@@ -136,7 +104,7 @@ public class DiploCommand implements CommandExecutor {
 		@Override
 		public List<String> onTabComplete(CommandSender sender, Command cde, String arg, String[] args) {
 			if(args.length < 2) {
-				return Arrays.asList("info", "aid", "ally", "war", "currentwar");
+				return Arrays.asList("info", "aid", "ally");
 			}
 			return Bukkit.getServer().getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
 		}

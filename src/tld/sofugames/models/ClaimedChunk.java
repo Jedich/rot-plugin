@@ -52,6 +52,7 @@ public class ClaimedChunk implements Model {
 		return (float)Math.sqrt(Math.pow(toChunk.x - x, 2) + Math.pow(toChunk.z - z, 2));
 	}
 
+
 	@Override
 	public boolean pushToDb(Connection connection) throws SQLException {
 		PreparedStatement pstmt = Data.getInstance().getConnection().prepareStatement(

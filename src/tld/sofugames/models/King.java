@@ -33,6 +33,7 @@ public class King implements Model {
 	private BossBar kingdomBar;
 	public boolean barSetToCancel;
 	public LinkedList<ClaimedChunk> warClaims = new LinkedList<>();
+	public HashSet<UUID> hasClaimsOn = new HashSet<>();
 	public HashMap<UUID, Integer> relations = new HashMap<>();
 	private boolean atWar = false;
 	private War currentWar;
@@ -85,7 +86,8 @@ public class King implements Model {
 		} else {
 			title = Data.getInstance().titles[new Random().nextInt(Data.getInstance().titles.length)];
 		}
-		fullTitle = assignedPlayer.getName() + " " + Data.getInstance().getRomanNumber(getCurrentGen()) + title;
+		fullTitle = assignedPlayer.getName() + " " + Data.getInstance().getRomanNumber(getCurrentGen()) + title + ChatColor.WHITE;
+		assignedPlayer.setDisplayName(fullTitle);
 		try {
 			updateInDb(Data.getInstance().getConnection(),
 					Stream.of(new Object[][]{{"title", title}, {"current_gen", getCurrentGen()}})
@@ -97,10 +99,11 @@ public class King implements Model {
 
 	public void loadGen() {
 		if(!title.equals("")) {
-		fullTitle = assignedPlayer.getName() + " " + Data.getInstance().getRomanNumber(getCurrentGen()) + title;
+			fullTitle = assignedPlayer.getName() + " " + Data.getInstance().getRomanNumber(getCurrentGen()) + title;
 		} else {
 			generateGen();
 		}
+		assignedPlayer.setDisplayName(fullTitle);
 	}
 
 	public void changeGen() {

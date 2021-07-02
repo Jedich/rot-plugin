@@ -43,6 +43,8 @@ public class Data {
 	public HashMap<String, House> houseData = new HashMap<>();
 	//key UUID.toString()
 	public HashMap<String, War> wars = new HashMap<>();
+
+	public HashMap<String, King> requests = new HashMap<>();
 	public static final String UTF8_BOM = "п»ї";
 
 	public String username = "";
@@ -192,7 +194,7 @@ public class Data {
 	public void destroyWar(String atkUuid) {
 		War war = wars.get(atkUuid);
 		war.getAtk().setAtWar(false);
-		war.getDef().setAtWar(true);
+		war.getDef().setAtWar(false);
 		war.getAtk().setCurrentWar(null);
 		war.getDef().setCurrentWar(null);
 		wars.remove(atkUuid);
