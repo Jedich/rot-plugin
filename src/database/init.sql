@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS war_claims
     id         INT(11) NOT NULL,
     by_king    VARCHAR(64) DEFAULT NULL,
     chunk_name VARCHAR(64) DEFAULT NULL,
-    PRIMARY KEY (id)
+    PRIMARY KEY ("id" AUTOINCREMENT)
 );
 
 CREATE TABLE IF NOT EXISTS relations

@@ -112,6 +112,26 @@ public class King implements Model {
 		assignedPlayer.setDisplayName(fullTitle);
 	}
 
+	public void addWarClaim(ClaimedChunk chunk) throws SQLException {
+		PreparedStatement pstmt = (PreparedStatement) Data.getInstance().getConnection().prepareStatement(
+				"INSERT INTO war_claims(by_king, chunk_name) VALUES(?, ?)", Statement.RETURN_GENERATED_KEYS);
+		pstmt.setString(1, getUuid().toString());
+		pstmt.setString(2, chunk.world.toString());
+		pstmt.executeUpdate();
+		warClaims.add(chunk);
+		hasClaimsOn.add(chunk.owner);
+	}
+
+	public void deleteWarClaim(ClaimedChunk chunk) throws SQLException {
+		PreparedStatement pstmt = (PreparedStatement) Data.getInstance().getConnection().prepareStatement(
+				"DELETE FROM war_claims WHERE by_king = ? AND chunk_name = ?");
+		pstmt.setString(1, getUuid().toString());
+		pstmt.setString(2, chunk.world.toString());
+		pstmt.executeUpdate();
+		warClaims.remove(chunk);
+		hasClaimsOn.remove(chunk.owner);
+	}
+
 	public void contact(King other) {
 		if(!relations.containsKey(other.getUuid()) && other.assignedPlayer != null && !other.equals(this)) {
 			if(other.assignedPlayer.isOnline()) {
@@ -151,6 +171,9 @@ public class King implements Model {
 		relations.put(with, relations.get(with) + value);
 		if(relations.get(with) > 100) {
 			relations.put(with, 100);
+		}
+		if(relations.get(with) < -100) {
+			relations.put(with, -100);
 		}
 		try {
 			updateRelationsInDb(this, Data.getInstance().kingData.get(with.toString()));
