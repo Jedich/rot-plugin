@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashSet;
 
 public class War implements Model {
 	private WarType warType;
@@ -15,6 +16,7 @@ public class War implements Model {
 	private float score;
 	private int battleNum;
 	private long startTime;
+	public HashSet<King> atkAllies = new HashSet<>(), defAllies = new HashSet<>();
 
 	public War(King atk, King def) {
 		this.atk = atk;
@@ -35,6 +37,17 @@ public class War implements Model {
 		this.score = score;
 		this.battleNum = exhaustion;
 		this.startTime = startTime;
+	}
+
+	public void addAlly(King king, King ally) {
+		if(getDef().equals(king)) {
+			defAllies.add(ally);
+		} else {
+			atkAllies.add(ally);
+		}
+		ally.setAtWar(true);
+		ally.setCurrentWar(this);
+		ally.setWarAlly(true);
 	}
 
 	public void changeWarScore(boolean hasAtkWon) {

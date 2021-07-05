@@ -34,6 +34,7 @@ public class King extends RotPlayer implements Model {
 	public HashSet<UUID> hasClaimsOn = new HashSet<>();
 	public HashMap<UUID, Integer> relations = new HashMap<>();
 	public HashSet<UUID> advisors = new HashSet<>();
+	public HashSet<King> allies = new HashSet<>();
 
 
 	public King(int id, Player player, ClaimedChunk homeChunk) {
@@ -145,6 +146,51 @@ public class King extends RotPlayer implements Model {
 				}
 			}
 		}
+	}
+
+	public void addAlly(King ally) throws IllegalArgumentException {
+		if(allies.size() > 1 || ally.allies.size() > 1) {
+			throw new IllegalArgumentException("one of the sides has too much alliances.");
+		}
+		allies.add(ally);
+		ally.allies.add(this);
+		try {
+			allianceDb(this, ally);
+		} catch(SQLException e) {
+			throw new IllegalArgumentException("db error.");
+		}
+	}
+
+	public void deleteAlly(King ally) throws IllegalArgumentException {
+		allies.remove(ally);
+		ally.allies.remove(this);
+		try {
+			deleteAllianceDb(this, ally);
+		} catch(SQLException e) {
+			throw new IllegalArgumentException("db error.");
+		}
+	}
+
+	private void allianceDb(King thisKing, King other) throws SQLException {
+		PreparedStatement pstmt = (PreparedStatement) Data.getInstance().getConnection().prepareStatement(
+				"INSERT INTO alliances(king1, king2) VALUES(?, ?)", Statement.RETURN_GENERATED_KEYS);
+		pstmt.setString(1, thisKing.getUuid().toString());
+		pstmt.setString(2, other.getUuid().toString());
+		pstmt.executeUpdate();
+		pstmt.setString(1, other.getUuid().toString());
+		pstmt.setString(2, thisKing.getUuid().toString());
+		pstmt.executeUpdate();
+	}
+
+	private void deleteAllianceDb(King thisKing, King other) throws SQLException {
+		PreparedStatement pstmt = (PreparedStatement) Data.getInstance().getConnection().prepareStatement(
+				"DELETE FROM alliances WHERE king1 = ?, king2 = ?");
+		pstmt.setString(1, thisKing.getUuid().toString());
+		pstmt.setString(2, other.getUuid().toString());
+		pstmt.executeUpdate();
+		pstmt.setString(1, other.getUuid().toString());
+		pstmt.setString(2, thisKing.getUuid().toString());
+		pstmt.executeUpdate();
 	}
 
 	private void setRelationsDb(King thisKing, King other) throws SQLException {
@@ -296,6 +342,4 @@ public class King extends RotPlayer implements Model {
 	public void setCurrentWar(War currentWar) {
 		this.currentWar = currentWar;
 	}
-
-
 }

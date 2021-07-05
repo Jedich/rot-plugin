@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import tld.sofugames.data.Data;
 import tld.sofugames.gui.WarGui;
+import tld.sofugames.models.King;
 import tld.sofugames.models.War;
 import tld.sofugames.rot.WarType;
 
@@ -48,6 +49,12 @@ public class WarGuiListener implements Listener {
 			Data.getInstance().plugin.getServer().broadcastMessage("§cThe wind is rising...");
 			System.out.println(thisWar.getAtk().assignedPlayer.getName() + " declares war on "
 					+ thisWar.getDef().assignedPlayer.getName());
+			for(King ally : thisWar.getDef().allies) {
+				ally.assignedPlayer.sendMessage("One of your allies is now fighting in a defensive war! You can join with §6/war join");
+			}
+			for(King ally : thisWar.getAtk().allies) {
+				ally.assignedPlayer.sendMessage("One of your allies is now fighting in an aggressive war! You can join with §6/war join");
+			}
 		}
 	}
 

@@ -43,8 +43,6 @@ public class Data {
 	public HashMap<String, House> houseData = new HashMap<>();
 	//key UUID.toString()
 	public HashMap<String, War> wars = new HashMap<>();
-
-	public HashMap<String, King> requests = new HashMap<>();
 	public static final String UTF8_BOM = "п»ї";
 
 	public String username = "";
@@ -197,6 +195,15 @@ public class Data {
 		war.getDef().setAtWar(false);
 		war.getAtk().setCurrentWar(null);
 		war.getDef().setCurrentWar(null);
+		for(King ally : war.atkAllies) {
+			ally.setCurrentWar(null);
+			ally.setAtWar(false);
+		}
+		for(King ally : war.defAllies) {
+			ally.setCurrentWar(null);
+			ally.setAtWar(false);
+			ally.setWarAlly(false);
+		}
 		wars.remove(atkUuid);
 	}
 

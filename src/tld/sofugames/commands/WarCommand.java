@@ -21,11 +21,12 @@ import tld.sofugames.rot.ChunkType;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class WarCommand implements CommandExecutor {
-
+	public HashMap<String, King> requests = new HashMap<>();
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(command.getName().equalsIgnoreCase("war")) {
@@ -74,6 +75,10 @@ public class WarCommand implements CommandExecutor {
 						sender.sendMessage("§cYou must be at war to end it!");
 						return true;
 					}
+					if(king.isWarAlly()) {
+						sender.sendMessage("§cAllies can't sign peace.");
+						return true;
+					}
 					King enemy = king.getCurrentWar().getDef().equals(king) ?
 							king.getCurrentWar().getAtk() : king.getCurrentWar().getDef();
 					boolean canBeFinished;
@@ -87,11 +92,11 @@ public class WarCommand implements CommandExecutor {
 							enemy.assignedPlayer.sendMessage("§6Enemy offers to sign a white peace.\n" +
 									"§fUse §a/war acceptpeace §fto answer, otherwise ignore this message.\n" +
 									"You hase 3 minutes to choose.");
-							Data.getInstance().requests.put(king.getUuid().toString(), enemy);
+							requests.put(king.getUuid().toString(), enemy);
 							BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 							scheduler.scheduleSyncDelayedTask(Data.getInstance().plugin, () -> {
-								if(Data.getInstance().requests.containsKey(king.getUuid().toString())) {
-									Data.getInstance().requests.remove(king.getUuid().toString());
+								if(requests.containsKey(king.getUuid().toString())) {
+									requests.remove(king.getUuid().toString());
 									king.assignedPlayer.sendMessage("§cPeace offer was rejected.");
 								}
 							}, 3600L);
@@ -110,7 +115,11 @@ public class WarCommand implements CommandExecutor {
 						sender.sendMessage("§cYou must be at war to end it!");
 						return true;
 					}
-					Data.getInstance().requests.remove(king.getUuid().toString());
+					if(!requests.containsKey(king.getUuid().toString())) {
+						sender.sendMessage("You have no pending requests.");
+						return true;
+					}
+					requests.remove(king.getUuid().toString());
 					King enemy = king.getCurrentWar().getDef().equals(king) ?
 							king.getCurrentWar().getAtk() : king.getCurrentWar().getDef();
 
@@ -119,6 +128,10 @@ public class WarCommand implements CommandExecutor {
 				} else if(args[0].equalsIgnoreCase("claim")) {
 					Player player = (Player) sender;
 					King king = Data.getInstance().kingData.get(player.getUniqueId().toString());
+					if(king.isAtWar()) {
+						sender.sendMessage(ChatColor.RED + "You cannot unclaim war claims during wars!");
+						return true;
+					}
 					Chunk targetChunk = player.getLocation().getChunk();
 					if(isNeighboring(targetChunk, king)) {
 						ClaimedChunk chunk = Data.getInstance().claimData.get(targetChunk.toString());
@@ -141,6 +154,10 @@ public class WarCommand implements CommandExecutor {
 				} else if(args[0].equalsIgnoreCase("unclaim")) {
 					Player player = (Player) sender;
 					King king = Data.getInstance().kingData.get(player.getUniqueId().toString());
+					if(king.isAtWar()) {
+						sender.sendMessage(ChatColor.RED + "You cannot change war claims during wars!");
+						return true;
+					}
 					Chunk targetChunk = player.getLocation().getChunk();
 					if(Data.getInstance().claimData.containsKey(targetChunk.toString())) {
 						ClaimedChunk chunk = Data.getInstance().claimData.get(targetChunk.toString());
@@ -161,6 +178,34 @@ public class WarCommand implements CommandExecutor {
 							king.assignedPlayer.sendMessage("You don't have any war claim on this land.");
 						}
 					}
+				} else if(args[0].equalsIgnoreCase("join")) {
+					if(args.length != 2) {
+						sender.sendMessage(ChatColor.RED + "Incorrect arguments: /war join <player_of_side>");
+						return true;
+					}
+					if(!Data.isKing(args[1])) {
+						sender.sendMessage(ChatColor.RED + "Player is not a king.");
+						return true;
+					}
+					King thisKing = Data.getInstance().kingData.get(((Player) sender).getUniqueId().toString());
+					if(thisKing.isAtWar()) {
+						sender.sendMessage(ChatColor.RED + "You are already at war!");
+						return true;
+					}
+					King otherKing = Data.getInstance().kingData.get(Bukkit.getPlayer(args[1]).getUniqueId().toString());
+					if(thisKing.equals(otherKing)) {
+						sender.sendMessage(ChatColor.RED + "Can't declare war on yourself!");
+						return true;
+					}
+					if(!thisKing.allies.contains(otherKing)) {
+						sender.sendMessage(ChatColor.RED + "You are not allied with this king!");
+						return true;
+					}
+					if(!otherKing.isAtWar()) {
+						sender.sendMessage(ChatColor.RED + "Your ally is not at war!");
+						return true;
+					}
+					otherKing.getCurrentWar().addAlly(otherKing, thisKing);
 				}
 			} else {
 				sender.sendMessage(ChatColor.GOLD + "War command commands:");
@@ -181,7 +226,7 @@ public class WarCommand implements CommandExecutor {
 		@Override
 		public List<String> onTabComplete(CommandSender sender, Command cde, String arg, String[] args) {
 			if(args.length < 2) {
-				return Arrays.asList("claim", "declare", "info", "end", "whitepeace", "acceptpeace");
+				return Arrays.asList("claim", "declare", "info", "end", "whitepeace", "acceptpeace", "join");
 			} else if(args.length == 2) {
 				return Bukkit.getServer().getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
 			} else return Collections.emptyList();

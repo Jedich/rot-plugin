@@ -50,6 +50,12 @@ public class Main extends JavaPlugin {
 				));
 				Data.getInstance().lastKing = results.getInt("id");
 			}
+			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM alliances");
+			results = stmt.executeQuery();
+			while(results.next()) {
+				King king = Data.getInstance().kingData.get(UUID.fromString(results.getString("king1")).toString());
+				king.allies.add(Data.getInstance().kingData.get(UUID.fromString(results.getString("king2")).toString()));
+			}
 			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM kingdom_helpers");
 			results = stmt.executeQuery();
 			while(results.next()) {
@@ -59,7 +65,6 @@ public class Main extends JavaPlugin {
 						parent.homeChunk, parent
 				);
 				parent.advisors.add(UUID.fromString(results.getString("name")));
-				Data.getInstance().lastKing = results.getInt("id");
 			}
 			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM user_claims");
 			results = stmt.executeQuery();

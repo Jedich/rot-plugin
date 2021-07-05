@@ -8,7 +8,7 @@ public class RotPlayer {
 	protected UUID uuid;
 	public ClaimedChunk homeChunk;
 	public Player assignedPlayer;
-	protected boolean atWar = false;
+	protected boolean atWar = false, warAlly = false;
 	protected War currentWar;
 
 	public RotPlayer(Player player, ClaimedChunk homeChunk) {
@@ -19,5 +19,13 @@ public class RotPlayer {
 
 	public UUID getUuid() {
 		return uuid;
+	}
+
+	public boolean isWarAlly() {
+		return warAlly;
+	}
+
+	public void setWarAlly(boolean warAlly) {
+		this.warAlly = warAlly;
 	}
 }
