@@ -14,6 +14,7 @@ import tld.sofugames.data.Data;
 import tld.sofugames.gui.WarGui;
 import tld.sofugames.listeners.*;
 import tld.sofugames.listeners.EventListener;
+import tld.sofugames.models.Advisor;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.House;
 import tld.sofugames.models.King;
@@ -47,6 +48,17 @@ public class Main extends JavaPlugin {
 						results.getInt("current_gen"),
 						results.getFloat("balance")
 				));
+				Data.getInstance().lastKing = results.getInt("id");
+			}
+			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM kingdom_helpers");
+			results = stmt.executeQuery();
+			while(results.next()) {
+				King parent = Data.getInstance().kingData.get(UUID.fromString(results.getString("of_king")).toString());
+				new Advisor(
+						Bukkit.getPlayer(UUID.fromString(results.getString("name"))),
+						parent.homeChunk, parent
+				);
+				parent.advisors.add(UUID.fromString(results.getString("name")));
 				Data.getInstance().lastKing = results.getInt("id");
 			}
 			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM user_claims");

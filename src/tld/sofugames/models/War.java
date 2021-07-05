@@ -4,11 +4,16 @@ import org.bukkit.Bukkit;
 import tld.sofugames.data.Data;
 import tld.sofugames.rot.WarType;
 
-public class War {
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class War implements Model {
 	private WarType warType;
 	private final King atk, def;
 	private float score;
-	private float battleNum;
+	private int battleNum;
 	private long startTime;
 
 	public War(King atk, King def) {
@@ -21,6 +26,15 @@ public class War {
 		atk.setCurrentWar(this);
 		def.setCurrentWar(this);
 		Bukkit.getWorlds().get(0).getFullTime();
+	}
+
+	public War(WarType warType, King atk, King def, float score, int exhaustion, long startTime) {
+		this.warType = warType;
+		this.atk = atk;
+		this.def = def;
+		this.score = score;
+		this.battleNum = exhaustion;
+		this.startTime = startTime;
 	}
 
 	public void changeWarScore(boolean hasAtkWon) {
@@ -88,5 +102,23 @@ public class War {
 		} else if(score <= -warType.getTargetScore()) {
 			getDef().assignedPlayer.sendMessage("Our enemies totally lost! You can sign a white peace now.");
 		}
+	}
+
+	@Override
+	public boolean pushToDb(Connection connection) throws SQLException {
+		PreparedStatement pstmt = (PreparedStatement) connection.prepareStatement(
+				"INSERT INTO wars VALUES(?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+		pstmt.setString(1, atk.getUuid().toString());
+		pstmt.setString(2, def.getUuid().toString());
+		pstmt.setFloat(3, score);
+		pstmt.setInt(4, battleNum);
+		pstmt.setLong(5, startTime);
+		pstmt.executeUpdate();
+		return true;
+	}
+
+	@Override
+	public boolean readFromDb(Connection connection) throws SQLException {
+		return true;
 	}
 }

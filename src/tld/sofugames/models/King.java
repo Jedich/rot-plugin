@@ -16,15 +16,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class King implements Model {
+public class King extends RotPlayer implements Model {
 
 	public int id;
-	private UUID uuid;
+
 	public String kingdomName = "Unnamed Kingdom";
 	private String title;
 	public String fullTitle;
-	public Player assignedPlayer;
-	public ClaimedChunk homeChunk;
 	public int kingdomLevel = 1;
 	private float goldBalance = 10;
 	private float income;
@@ -35,18 +33,18 @@ public class King implements Model {
 	public LinkedList<ClaimedChunk> warClaims = new LinkedList<>();
 	public HashSet<UUID> hasClaimsOn = new HashSet<>();
 	public HashMap<UUID, Integer> relations = new HashMap<>();
-	private boolean atWar = false;
-	private War currentWar;
+	public HashSet<UUID> advisors = new HashSet<>();
+
 
 	public King(int id, Player player, ClaimedChunk homeChunk) {
+		super(player, homeChunk);
 		this.id = id;
-		this.assignedPlayer = player;
-		this.homeChunk = homeChunk;
 		setBossBar();
 	}
 
 	public King(int id, Player player, String title, String kingdomName,
 				int kingdomLevel, int currentGen, float goldBalance) {
+		super(player, null);
 		this.id = id;
 		this.assignedPlayer = player;
 		this.title = title;
@@ -58,7 +56,7 @@ public class King implements Model {
 		if(player != null) {
 			loadGen();
 			setBossBar();
-			uuid = player.getUniqueId();
+			this.uuid = player.getUniqueId();
 		}
 	}
 
@@ -245,10 +243,6 @@ public class King implements Model {
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, getUuid(), kingdomName, getCurrentGen());
-	}
-
-	public UUID getUuid() {
-		return uuid;
 	}
 
 	public void setUuid(UUID uuid) {

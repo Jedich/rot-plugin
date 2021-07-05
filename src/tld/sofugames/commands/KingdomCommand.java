@@ -1,22 +1,22 @@
 package tld.sofugames.commands;
 
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.command.*;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import tld.sofugames.data.Data;
+import tld.sofugames.models.Advisor;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.King;
 
 import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class KingdomCommand implements CommandExecutor {
-
+	private HashMap<UUID, King> invites = new HashMap<>();
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(command.getName().equalsIgnoreCase("kingdom")) {
@@ -85,13 +85,49 @@ public class KingdomCommand implements CommandExecutor {
 							}
 						}
 					}
+				} else if(args[0].equalsIgnoreCase("invite")) {
+					if(args.length != 2) {
+						sender.sendMessage(ChatColor.RED + "Incorrect arguments: /kingdom invite <player_name>");
+						return true;
+					}
+					if(Data.isKing(args[1])) {
+						sender.sendMessage(ChatColor.RED + "Player has his own lands to rule.");
+						return true;
+					}
+					King thisKing = Data.getInstance().kingData.get(((Player) sender).getUniqueId().toString());
+					Player invitedPlayer = Bukkit.getPlayer(args[1]);
+					invites.put(invitedPlayer.getUniqueId(), thisKing);
+					invitedPlayer.sendMessage("An invite to join kingdom as an advisor\nfrom " + thisKing.fullTitle +
+							"\nUse §a/kingdom join§f to accept invitation.");
+					sender.sendMessage("Invite sent.");
+				} else if(args[0].equalsIgnoreCase("join")) {
+					if(Data.getInstance().kingData.containsKey(((Player) sender).getUniqueId().toString())) {
+						sender.sendMessage("§cYou have your own lands to control!");
+						return true;
+					}
+					if(!invites.containsKey(((Player) sender).getUniqueId())) {
+						sender.sendMessage("You have no invites pending.");
+						return true;
+					}
+					King parent = invites.get(((Player) sender).getUniqueId());
+					Advisor advisor = new Advisor((Player) sender, parent.homeChunk, parent);
+					parent.advisors.add(advisor.getUuid());
+					try {
+						advisor.pushToDb(Data.getInstance().getConnection());
+					} catch(SQLException e) {
+						e.printStackTrace();
+					}
+					sender.sendMessage("§aYou have joined " + parent.kingdomName + "!");
+					sender.sendMessage("§aInvite accepted!");
 				}
 				return true;
 			} else {
-				sender.sendMessage(ChatColor.GOLD + "Kingdom command:");
-				sender.sendMessage(ChatColor.GOLD + "setname <name>" + ChatColor.WHITE + ": sets a kingdom name (spaces allowed).");
-				sender.sendMessage(ChatColor.GOLD + "info" + ChatColor.WHITE + ": gives an important information about your kingdom.");
-				sender.sendMessage(ChatColor.GOLD + "show" + ChatColor.WHITE + ": visualizes claimed chunks.");
+				sender.sendMessage("§6Kingdom command:");
+				sender.sendMessage("§6setname <name>§f: sets a kingdom name (spaces allowed).");
+				sender.sendMessage("§6info§f: gives an important information about your kingdom.");
+				sender.sendMessage("§6show§f: visualizes claimed chunks.");
+				sender.sendMessage("§6invite§f: invites an advisor to your kingdom.");
+				sender.sendMessage("§6join§f: lets you join as an advisor.");
 				return true;
 			}
 		}
@@ -102,9 +138,10 @@ public class KingdomCommand implements CommandExecutor {
 		@Override
 		public List<String> onTabComplete(CommandSender sender, Command cde, String arg, String[] args) {
 			if(args.length < 2) {
-				return Arrays.asList("setname", "info", "show");
-			}
-			return Collections.emptyList();
+				return Arrays.asList("setname", "info", "show", "invite", "join");
+			} else if(arg.equalsIgnoreCase("invite")) {
+				return Bukkit.getServer().getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
+			} else return Collections.emptyList();
 		}
 	}
 }

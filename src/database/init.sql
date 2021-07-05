@@ -1,5 +1,4 @@
-﻿
-CREATE TABLE IF NOT EXISTS user_claims
+﻿CREATE TABLE IF NOT EXISTS user_claims
 (
     id      INT(11) NOT NULL,
     name    VARCHAR(64) DEFAULT NULL,
@@ -59,5 +58,43 @@ CREATE TABLE IF NOT EXISTS relations
     name       VARCHAR(64) DEFAULT NULL,
     meaning_of VARCHAR(64) DEFAULT NULL,
     value      INT(11)     DEFAULT 50,
+    PRIMARY KEY ("id" AUTOINCREMENT)
+);
+
+CREATE TABLE IF NOT EXISTS wars
+(
+    id         INTEGER NOT NULL,
+    atk        VARCHAR(64)   DEFAULT NULL,
+    def        VARCHAR(64)   DEFAULT NULL,
+    score      FLOAT(5) DEFAULT 0,
+    exhaustion INT(11)       DEFAULT NULL,
+    start_time INT(11)       DEFAULT NULL,
+    PRIMARY KEY ("id" AUTOINCREMENT)
+);
+
+CREATE TABLE IF NOT EXISTS alliances
+(
+    id    INTEGER NOT NULL,
+    name  VARCHAR(64) DEFAULT NULL,
+    king1 VARCHAR(64) DEFAULT NULL,
+    king2 VARCHAR(64) DEFAULT NULL,
+    PRIMARY KEY ("id" AUTOINCREMENT)
+);
+
+CREATE TABLE IF NOT EXISTS kingdom_helpers
+(
+    id      INTEGER NOT NULL,
+    name    VARCHAR(64) DEFAULT NULL,
+    of_king VARCHAR(64) DEFAULT NULL,
+    PRIMARY KEY ("id" AUTOINCREMENT)
+);
+
+CREATE TABLE IF NOT EXISTS towns
+(
+    id           INTEGER NOT NULL,
+    name         VARCHAR(64) DEFAULT NULL,
+    owner        VARCHAR(64) DEFAULT NULL,
+    house_number INT(11)     DEFAULT 0,
+    level        INT(11)     DEFAULT 50,
     PRIMARY KEY ("id" AUTOINCREMENT)
 )

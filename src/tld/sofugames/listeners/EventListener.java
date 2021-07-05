@@ -5,6 +5,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.block.*;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -40,11 +41,19 @@ public class EventListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockPlace(BlockPlaceEvent event) {
-		Player player = event.getPlayer();
+		checkInteraction(event.getPlayer(), event.getBlock(), event);
+	}
+
+	@EventHandler
+	public void onInteract(PlayerInteractEvent e) {
+		checkInteraction(e.getPlayer(), e.getClickedBlock(), e);
+	}
+
+	public void checkInteraction(Player player, Block block, Cancellable event) {
 		if(isWorld(player)) {
-			if(!checkOwnership(event.getPlayer(), event.getBlock())) {
+			if(!checkOwnership(player, block)) {
+				player.sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
 				event.setCancelled(true);
-				event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
 			}
 		}
 	}
@@ -129,11 +138,10 @@ public class EventListener implements Listener {
 	public static boolean checkOwnership(Player player, Block block) {
 		UUID senderUUID = player.getUniqueId();
 		ClaimedChunk chunk = Data.getInstance().claimData.get(block.getChunk().toString());
-		if(block.getY() > 40) {
+		if(block.getY() <= 16 && block.getY() > 40) {
 			if(chunk != null) {
-				if(!chunk.owner.equals(senderUUID)) {
-					return false;
-				}
+				King owner = Data.getInstance().kingData.get(chunk.owner.toString());
+				return chunk.owner.equals(senderUUID) || owner.advisors.contains(senderUUID);
 			} else {
 				return false;
 			}
