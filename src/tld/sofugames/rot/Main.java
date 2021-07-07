@@ -33,66 +33,6 @@ public class Main extends JavaPlugin {
 		Data data = Data.getInstance();
 		data.setPlugin(this);
 		connection = data.getConnection();
-		ResultSet results;
-		World world;
-		world = Bukkit.getWorlds().get(0);
-		try {
-			PreparedStatement stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM kings");
-			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM alliances");
-			results = stmt.executeQuery();
-			while(results.next()) {
-				King king = Data.getInstance().kingData.get(UUID.fromString(results.getString("king1")).toString());
-				king.allies.add(Data.getInstance().kingData.get(UUID.fromString(results.getString("king2")).toString()));
-			}
-			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM kingdom_helpers");
-			results = stmt.executeQuery();
-			while(results.next()) {
-				King parent = Data.getInstance().kingData.get(UUID.fromString(results.getString("of_king")).toString());
-				new Advisor(
-						Bukkit.getPlayer(UUID.fromString(results.getString("name"))),
-						parent.homeChunk, parent
-				);
-				parent.advisors.add(UUID.fromString(results.getString("name")));
-			}
-
-			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM houses");
-			results = stmt.executeQuery();
-			while(results.next()) {
-				House newHouse = new House(results.getInt("id"),
-						UUID.fromString(results.getString("owner")),
-						results.getString("bed_block"),
-						null,
-						results.getInt("area"),
-						results.getInt("benefits"),
-						results.getFloat("income")
-				);
-				Data.getInstance().houseData.put(results.getString("bed_block"), newHouse);
-				Data.getInstance().lastHouse = results.getInt("id");
-				Data.getInstance().kingData.get(results.getString("owner")).changeIncome(results.getFloat("income"));
-			}
-			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM house_blocks");
-			results = stmt.executeQuery();
-			while(results.next()) {
-				Data.getInstance().houseData.get(results.getString("name")).bedBlock =
-						getServer().getWorlds().get(0).getBlockAt(results.getInt("x"),
-								results.getInt("y"), results.getInt("z"));
-			}
-			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM war_claims");
-			results = stmt.executeQuery();
-			while(results.next()) {
-				Data.getInstance().kingData.get(results.getString("by_king")).warClaims.add(
-						Data.getInstance().claimData.get(results.getString("chunk_name")));
-			}
-			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM relations");
-			results = stmt.executeQuery();
-			while(results.next()) {
-				Data.getInstance().kingData.get(results.getString("name")).relations
-						.put(Data.getInstance().kingData.get(results.getString("meaning_of")).getUuid(),
-								results.getInt("value"));
-			}
-		} catch(SQLException e) {
-			e.printStackTrace();
-		}
 
 		getCommand("claim").setExecutor(new ClaimCommand());
 		getCommand("unclaim").setExecutor(new UnclaimCommand());

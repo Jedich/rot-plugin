@@ -1,28 +1,24 @@
 package tld.sofugames.listeners;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import tld.sofugames.data.Data;
+import tld.sofugames.data.*;
 import tld.sofugames.gui.WarGui;
 import tld.sofugames.models.King;
 import tld.sofugames.models.War;
 import tld.sofugames.rot.WarType;
 
-import java.util.Arrays;
-
 public class WarGuiListener implements Listener {
+
+	DaoFactory daoFactory = new DaoFactory();
+	KingDao kingData = daoFactory.getKings();
+	ClaimDao claimData = daoFactory.getClaims();
+	WarDao wars = daoFactory.getWars();
 
 	// Check for clicks on items
 	@EventHandler
@@ -34,7 +30,7 @@ public class WarGuiListener implements Listener {
 			if(clickedItem == null || clickedItem.getType().isAir()) return;
 			final Player p = (Player) e.getWhoClicked();
 			//p.sendMessage("You clicked at slot " + e.getRawSlot());
-			War thisWar = Data.getInstance().wars.get(p.getUniqueId().toString());
+			War thisWar = wars.get(p.getUniqueId().toString()).get();
 			thisWar.setWarType(WarType.types[e.getRawSlot() - 2]);
 			p.closeInventory();
 			thisWar.getAtk().assignedPlayer.sendTitle("§4WAR!", "", 20, 70, 20);
@@ -49,6 +45,7 @@ public class WarGuiListener implements Listener {
 			Data.getInstance().plugin.getServer().broadcastMessage("§cThe wind is rising...");
 			System.out.println(thisWar.getAtk().assignedPlayer.getName() + " declares war on "
 					+ thisWar.getDef().assignedPlayer.getName());
+			wars.save(thisWar);
 			for(King ally : thisWar.getDef().allies) {
 				ally.assignedPlayer.sendMessage("One of your allies is now fighting in a defensive war! You can join with §6/war join");
 			}
@@ -63,20 +60,12 @@ public class WarGuiListener implements Listener {
 		System.out.println(e.getInventory().getHolder());
 		if(e.getInventory().getHolder() instanceof WarGui) {
 			String atkUuid = e.getPlayer().getUniqueId().toString();
-			if(Data.getInstance().wars.containsKey(atkUuid)) {
-				War war = Data.getInstance().wars.get(atkUuid);
+			if(wars.get(atkUuid).isPresent()) {
+				War war = wars.get(atkUuid).get();
 				if(war.getWarType() == null) {
-					Data.getInstance().destroyWar(atkUuid);
+					wars.deleteSoftly(war);
 				}
 			}
 		}
 	}
-//	// Cancel dragging in our inventory
-//	@EventHandler
-//	public void onInventoryClick(final InventoryDragEvent e) {
-//		if(e.get() == null) { return; }
-//		if(e.getInventory() instanceof WarGui) {
-//			e.setCancelled(true);
-//		}
-//	}
 }

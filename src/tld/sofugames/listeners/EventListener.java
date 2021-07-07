@@ -17,6 +17,10 @@ import java.util.*;
 
 public class EventListener implements Listener {
 
+	DaoFactory daoFactory = new DaoFactory();
+	KingDao kingData = daoFactory.getKings();
+	HouseDao houseData = daoFactory.getHouses();
+
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockBreak(BlockBreakEvent event) {
 		if(isWorld(event.getPlayer())) {
@@ -25,14 +29,10 @@ public class EventListener implements Listener {
 				event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
 			} else {
 				if(Tag.BEDS.getValues().contains(event.getBlock().getType())) {
-					if(Data.getInstance().houseData.containsKey(Data.getInstance().getBedHash(event.getBlock()))) {
-						try {
-							event.getPlayer().sendMessage("Bed was destroyed");
-							Data.getInstance().houseData.get(Data.getInstance().getBedHash(event.getBlock())).delete(Data.getInstance().getConnection());
-							event.setDropItems(false);
-						} catch(SQLException e) {
-							e.printStackTrace();
-						}
+					if(houseData.get(Data.getInstance().getBedHash(event.getBlock())).isPresent()) {
+						event.getPlayer().sendMessage("Bed was destroyed");
+						houseData.delete(houseData.get(Data.getInstance().getBedHash(event.getBlock())).get());
+						event.setDropItems(false);
 					}
 				}
 			}
@@ -66,8 +66,8 @@ public class EventListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
-		if(Data.getInstance().kingData.containsKey(player.getUniqueId().toString())) {
-			King king = Data.getInstance().kingData.get(player.getUniqueId().toString());
+		if(kingData.get(player.getUniqueId().toString()).isPresent()) {
+			King king = kingData.get(player.getUniqueId().toString()).get();
 			king.assignedPlayer = player;
 			king.setBossBar();
 			king.loadGen();
@@ -79,8 +79,8 @@ public class EventListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onRespawn(PlayerRespawnEvent event) {
 		Player deceasedPlayer = event.getPlayer();
-		if(Data.getInstance().kingData.containsKey(deceasedPlayer.getUniqueId().toString())) {
-			King king = Data.getInstance().kingData.get(deceasedPlayer.getUniqueId().toString());
+		if(kingData.get(deceasedPlayer.getUniqueId().toString()).isPresent()) {
+			King king = kingData.get(deceasedPlayer.getUniqueId().toString()).get();
 			if(king.isAtWar()) {
 				return;
 			}
@@ -137,10 +137,12 @@ public class EventListener implements Listener {
 
 	public static boolean checkOwnership(Player player, Block block) {
 		UUID senderUUID = player.getUniqueId();
-		ClaimedChunk chunk = Data.getInstance().claimData.get(block.getChunk().toString());
-		if(block.getY() <= 16 && block.getY() > 40) {
-			if(chunk != null) {
-				King owner = Data.getInstance().kingData.get(chunk.owner.toString());
+		ClaimDao claimData = new DaoFactory().getClaims();
+		ClaimedChunk chunk = claimData.get(block.getChunk().toString()).get();
+		if(block.getY() <= 16 || block.getY() >= 40) {
+			if(claimData.get(block.getChunk().toString()).isPresent()) {
+				//claimed chunk without owner is impossible
+				King owner = new DaoFactory().getKings().get(chunk.owner.toString()).orElse(new King());
 				return chunk.owner.equals(senderUUID) || owner.advisors.contains(senderUUID);
 			} else {
 				return false;

@@ -41,10 +41,10 @@ public class ClaimDao extends PersistentData implements Dao<ClaimedChunk> {
 					if(newChunk.type == ChunkType.Home) {
 						owner.homeChunk = newChunk;
 					}
-					owner.setChunkNumber(owner.getChunkNumber() + 1);
-					Data.getInstance().lastClaim = results.getInt("id");
+					owner.changeChunkNumber(1);
 				}
 			}
+			return PersistentData.getInstance().claimData;
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
@@ -62,7 +62,12 @@ public class ClaimDao extends PersistentData implements Dao<ClaimedChunk> {
 			pstmt.setString(4, chunk.owner.toString());
 			pstmt.setString(5, chunk.type.name());
 			pstmt.executeUpdate();
+			getAll().put(chunk.chunkId, chunk);
 			System.out.println(pstmt.toString());
+			ResultSet retrievedId = pstmt.getGeneratedKeys();
+			if(retrievedId.next()){
+				chunk.setId(retrievedId.getInt(1));
+			}
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
@@ -77,7 +82,7 @@ public class ClaimDao extends PersistentData implements Dao<ClaimedChunk> {
 	public void delete(ClaimedChunk chunk) {
 		try {
 			PreparedStatement pstmt = Data.getInstance().getConnection().prepareStatement("DELETE FROM user_claims WHERE id = ?");
-			pstmt.setInt(1, chunk.id);
+			pstmt.setInt(1, chunk.getId());
 			pstmt.executeUpdate();
 			getAll().remove(chunk.world.toString());
 			King owner = kingData.get(chunk.owner.toString());

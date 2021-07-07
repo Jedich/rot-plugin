@@ -32,11 +32,11 @@ public class ClaimCommand implements CommandExecutor {
 			String chunkName = player.getLocation().getChunk().toString();
 			if(!claimData.get(chunkName).isPresent()) {
 				if(!kingData.get(uuid).isPresent()) {
-					ClaimedChunk homeChunk = new ClaimedChunk(Data.getInstance().getLastClaim(), chunkName,
+					ClaimedChunk homeChunk = new ClaimedChunk(chunkName,
 							((Player) sender).getUniqueId(), ChunkType.Home, player.getLocation().getChunk());
 					claimData.save(homeChunk);
 					sender.sendMessage("Let your journey begin here.");
-					King thisKing = new King(Data.getInstance().getLastKing(), player, homeChunk);
+					King thisKing = new King(player, homeChunk);
 					kingData.save(thisKing);
 					thisKing.setChunkNumber(thisKing.getChunkNumber() + 1);
 					sender.sendMessage("Chunk successfully claimed!" + ChatColor.GOLD + " You are now a King.");
@@ -48,7 +48,7 @@ public class ClaimCommand implements CommandExecutor {
 				} else {
 					King king = kingData.get(uuid).get();
 					if(king.getGoldBalance() >= 2) {
-						ClaimedChunk claim = new ClaimedChunk(Data.getInstance().getLastClaim(), chunkName,
+						ClaimedChunk claim = new ClaimedChunk(chunkName,
 								((Player) sender).getUniqueId(), ChunkType.Default, player.getLocation().getChunk());
 						if(isNear(claim)) {
 							if(king.homeChunk.distance(claim) < 2000 * king.kingdomLevel) {

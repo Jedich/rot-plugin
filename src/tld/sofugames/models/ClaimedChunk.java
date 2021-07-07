@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class ClaimedChunk {
-	public int id;
+	private int id;
 	public UUID owner;
 	public String chunkId = "";
 	public ChunkType type = ChunkType.Default;
@@ -20,6 +20,15 @@ public class ClaimedChunk {
 
 	public ClaimedChunk(int id, String chunkId, UUID owner, ChunkType type, Chunk world) {
 		this.id = id;
+		this.owner = owner;
+		this.chunkId = chunkId;
+		this.type = type;
+		this.world = world;
+		this.x = world.getX();
+		this.z = world.getZ();
+	}
+
+	public ClaimedChunk(String chunkId, UUID owner, ChunkType type, Chunk world) {
 		this.owner = owner;
 		this.chunkId = chunkId;
 		this.type = type;
@@ -53,6 +62,14 @@ public class ClaimedChunk {
 				", world=" + world +
 				", income=" + income +
 				'}';
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 }
 

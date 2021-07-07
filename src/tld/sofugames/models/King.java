@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 public class King extends RotPlayer {
 
-	public int id;
+	private int id;
 
 	public String kingdomName = "Unnamed Kingdom";
 	private String title;
@@ -38,13 +38,13 @@ public class King extends RotPlayer {
 	public HashSet<King> allies = new HashSet<>();
 
 
-	public King(int id, Player player, ClaimedChunk homeChunk) {
+	public King(Player player, ClaimedChunk homeChunk) {
 		super(player, homeChunk);
-		this.id = id;
 		setBossBar();
 	}
 
-	public King() {}
+	public King() {
+	}
 
 	public King(int id, Player player, String title, String kingdomName,
 				int kingdomLevel, int currentGen, float goldBalance) {
@@ -70,11 +70,7 @@ public class King extends RotPlayer {
 
 	public void setGoldBalance(float valueToAdd) {
 		goldBalance += valueToAdd;
-		try {
-			updateInDb(Data.getInstance().getConnection(), Collections.singletonMap("balance", getGoldBalance()));
-		} catch(SQLException throwables) {
-			throwables.printStackTrace();
-		}
+		new DaoFactory().getKings().update(this, Collections.singletonMap("balance", getGoldBalance()));
 	}
 
 	public void setBossBar() {
@@ -90,13 +86,9 @@ public class King extends RotPlayer {
 		}
 		fullTitle = assignedPlayer.getName() + " " + Data.getInstance().getRomanNumber(getCurrentGen()) + title + ChatColor.WHITE;
 		assignedPlayer.setDisplayName(fullTitle);
-		try {
-			updateInDb(Data.getInstance().getConnection(),
-					Stream.of(new Object[][]{{"title", title}, {"current_gen", getCurrentGen()}})
-							.collect(Collectors.toMap(data -> (String) data[0], data -> data[1])));
-		} catch(SQLException e) {
-			e.printStackTrace();
-		}
+		new DaoFactory().getKings().update(this,
+				Stream.of(new Object[][]{{"title", title}, {"current_gen", getCurrentGen()}})
+						.collect(Collectors.toMap(data -> (String) data[0], data -> data[1])));
 	}
 
 	public void loadGen() {
@@ -175,14 +167,7 @@ public class King extends RotPlayer {
 	}
 
 	private void allianceDb(King thisKing, King other) throws SQLException {
-		PreparedStatement pstmt = (PreparedStatement) Data.getInstance().getConnection().prepareStatement(
-				"INSERT INTO alliances(king1, king2) VALUES(?, ?)", Statement.RETURN_GENERATED_KEYS);
-		pstmt.setString(1, thisKing.getUuid().toString());
-		pstmt.setString(2, other.getUuid().toString());
-		pstmt.executeUpdate();
-		pstmt.setString(1, other.getUuid().toString());
-		pstmt.setString(2, thisKing.getUuid().toString());
-		pstmt.executeUpdate();
+
 	}
 
 	private void deleteAllianceDb(King thisKing, King other) throws SQLException {
@@ -223,7 +208,7 @@ public class King extends RotPlayer {
 			relations.put(with, -100);
 		}
 		try {
-			updateRelationsInDb(this, new DaoFactory().getKings().get(with.toString()));
+			updateRelationsInDb(this, new DaoFactory().getKings().get(with.toString()).get());
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
@@ -311,5 +296,13 @@ public class King extends RotPlayer {
 
 	public String getTitle() {
 		return title;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 }

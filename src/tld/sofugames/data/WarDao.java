@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-public class WarDao extends PersistentData implements Dao<War> {
+public class WarDao extends PersistentData implements Dao<War>, AbstractWarDao {
 
 	Connection connection;
 
@@ -63,6 +63,10 @@ public class WarDao extends PersistentData implements Dao<War> {
 			pstmt.setLong(6, war.getStartTime());
 			pstmt.executeUpdate();
 			getAll().put(war.getAtk().getUuid().toString(), war);
+			ResultSet retrievedId = pstmt.getGeneratedKeys();
+			if(retrievedId.next()){
+				war.setId(retrievedId.getInt(1));
+			}
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
@@ -75,6 +79,19 @@ public class WarDao extends PersistentData implements Dao<War> {
 
 	@Override
 	public void delete(War war) {
+		deleteSoftly(war);
+		try {
+			PreparedStatement pstmt = Data.getInstance().getConnection().prepareStatement("DELETE FROM wars WHERE id = ?");
+			pstmt.setInt(1, war.getId());
+			pstmt.executeUpdate();
+			getAll().remove(war.getAtk().getUuid().toString());
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void deleteSoftly(War war) {
 		war.getAtk().setAtWar(false);
 		war.getDef().setAtWar(false);
 		war.getAtk().setCurrentWar(null);
@@ -87,14 +104,6 @@ public class WarDao extends PersistentData implements Dao<War> {
 			ally.setCurrentWar(null);
 			ally.setAtWar(false);
 			ally.setWarAlly(false);
-		}
-		try {
-			PreparedStatement pstmt = Data.getInstance().getConnection().prepareStatement("DELETE FROM wars WHERE id = ?");
-			pstmt.setInt(1, war.getId());
-			pstmt.executeUpdate();
-			getAll().remove(war.getAtk().getUuid().toString());
-		} catch(SQLException e) {
-			e.printStackTrace();
 		}
 	}
 }

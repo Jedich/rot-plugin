@@ -11,4 +11,7 @@ public class DaoFactory {
 	public WarDao getWars() {
 		return new WarDao();
 	}
+	public HouseDao getHouses() {
+		return new HouseDao();
+	}
 }

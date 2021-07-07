@@ -7,7 +7,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
+import tld.sofugames.data.DaoFactory;
 import tld.sofugames.data.Data;
+import tld.sofugames.data.HouseDao;
+import tld.sofugames.data.KingDao;
 import tld.sofugames.models.King;
 import tld.sofugames.models.War;
 
@@ -18,17 +21,22 @@ import java.util.Map;
 
 public class PlayerDeathListener implements Listener {
 
+	DaoFactory daoFactory = new DaoFactory();
+	KingDao kingData = daoFactory.getKings();
+
 	@EventHandler
 	public void onPlayerDeath(PlayerDeathEvent event) {
-		HashMap<String, King> kingData = Data.getInstance().kingData;
-		if(!kingData.containsKey(event.getEntity().getUniqueId().toString())) return;
-		King victim = kingData.get(event.getEntity().getUniqueId().toString());
+		if(!kingData.get(event.getEntity().getUniqueId().toString()).isPresent()) {
+			return;
+		}
+		King victim = kingData.get(event.getEntity().getUniqueId().toString()).get();
 		if(victim.isAtWar() && event.getEntity().getKiller() != null) {
 			event.setDroppedExp(20);
 			event.setKeepInventory(true);
 			event.getDrops().clear();
-			if(kingData.containsKey(event.getEntity().getKiller().getUniqueId().toString())) {
-				King killer = kingData.get(event.getEntity().getKiller().getUniqueId().toString());
+			String killerUuid = event.getEntity().getKiller().getUniqueId().toString();
+			if(kingData.get(killerUuid).isPresent()) {
+				King killer = kingData.get(killerUuid).get();
 				if(!killer.isAtWar()) return;
 				War thisWar = killer.getCurrentWar();
 				if(victim.equals(thisWar.getDef()) || victim.equals(thisWar.getAtk())) {

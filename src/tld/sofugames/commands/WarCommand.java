@@ -187,8 +187,11 @@ public class WarCommand implements CommandExecutor {
 						sender.sendMessage(ChatColor.RED + "Incorrect arguments: /war join <player_of_side>");
 						return true;
 					}
-					if(!Data.isKing(args[1])) {
-						sender.sendMessage(ChatColor.RED + "Player is not a king.");
+					King otherKing;
+					try {
+						otherKing = getAnotherKing(args[1]);
+					} catch(NullPointerException e) {
+						sender.sendMessage("No player or king with such username found.");
 						return true;
 					}
 					King thisKing = kingData.get(((Player) sender).getUniqueId().toString()).orElse(new King());
@@ -196,7 +199,6 @@ public class WarCommand implements CommandExecutor {
 						sender.sendMessage(ChatColor.RED + "You are already at war!");
 						return true;
 					}
-					King otherKing = kingData.get(Bukkit.getPlayer(args[1]).getUniqueId().toString()).orElse(new King());
 					if(thisKing.equals(otherKing)) {
 						sender.sendMessage(ChatColor.RED + "Can't declare war on yourself!");
 						return true;
@@ -270,6 +272,15 @@ public class WarCommand implements CommandExecutor {
 			}
 		}
 		return false;
+	}
+
+	public King getAnotherKing(String name) {
+		UUID otherUuid;
+		otherUuid = Objects.requireNonNull(Bukkit.getPlayer(name)).getUniqueId();
+		if(!kingData.get(otherUuid.toString()).isPresent()) {
+			return null;
+		}
+		return kingData.get(otherUuid.toString()).get();
 	}
 }
 

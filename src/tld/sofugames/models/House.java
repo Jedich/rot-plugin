@@ -17,20 +17,20 @@ import java.util.UUID;
 
 public class House {
 
-	public int id;
+	private int id;
 	public UUID owner;
 	public String bedBlockId;
-	private int level = 1;
+	public int level = 1;
 	public int area;
 	public int benefits;
 	public float income;
 	public Block bedBlock;
 
-	public House(int id, UUID owner, String bedBlockId, Block bedBlock) {
-		this.id = id;
+	public House(UUID owner, String bedBlockId, Block bedBlock) {
 		this.owner = owner;
 		this.bedBlockId = bedBlockId;
 		this.bedBlock = bedBlock;
+		calculateIncome();
 	}
 
 	public House(int id, UUID owner, String bedBlockId, Block bedBlock, int area, int benefits, float income) {
@@ -42,6 +42,8 @@ public class House {
 		this.income = income;
 		this.bedBlock = bedBlock;
 	}
+
+	public House() { }
 
 	private boolean hasCeiling(Block current, int counter) {
 		if(counter > 15) return false;
@@ -106,49 +108,11 @@ public class House {
 		Data.getInstance().kingData.get(owner.toString()).changeIncome(income);
 	}
 
-	@Override
-	public boolean pushToDb(Connection connection) throws SQLException {
-		calculateIncome();
-		PreparedStatement pstmt = (PreparedStatement) connection.prepareStatement(
-				"INSERT INTO houses VALUES(?, ?, ?, ?, ?, ?, ?)");
-		pstmt.setInt(1, id);
-		pstmt.setString(2, owner.toString());
-		pstmt.setString(3, this.bedBlockId);
-		pstmt.setInt(4, level);
-		pstmt.setInt(5, area);
-		pstmt.setInt(6, benefits);
-		pstmt.setFloat(7, income);
-		pstmt.executeUpdate();
-
-		System.out.println(pstmt.toString());
-
-		pstmt = (PreparedStatement) connection.prepareStatement(
-				"INSERT INTO house_blocks(name, x, y, z) VALUES(?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-		pstmt.setString(1, bedBlockId);
-		pstmt.setInt(2, bedBlock.getX());
-		pstmt.setInt(3, bedBlock.getY());
-		pstmt.setInt(4, bedBlock.getZ());
-		pstmt.executeUpdate();
-		return true;
+	public int getId() {
+		return id;
 	}
 
-	@Override
-	public boolean readFromDb(Connection connection) throws SQLException {
-		return false;
-	}
-
-	public void delete(Connection connection) throws SQLException {
-		deleteFromDb(connection);
-		Data.getInstance().houseData.remove(bedBlockId);
-	}
-
-	public void deleteFromDb(Connection connection) throws SQLException {
-		PreparedStatement pstmt = connection.prepareStatement("DELETE FROM houses WHERE id = ?");
-		pstmt.setInt(1, id);
-		pstmt.executeUpdate();
-		pstmt = connection.prepareStatement("DELETE FROM house_blocks WHERE name = ?");
-		pstmt.setString(1, bedBlockId);
-		pstmt.executeUpdate();
-		Data.getInstance().kingData.get(owner.toString()).changeIncome(-income);
+	public void setId(int id) {
+		this.id = id;
 	}
 }

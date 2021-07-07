@@ -73,7 +73,6 @@ public class Data {
 	}
 
 	private Connection connection;
-	public int lastClaim = 1, lastKing = 1, lastHouse = 1;
 
 	public static Data getInstance() {
 		if (instance == null) {
@@ -155,17 +154,5 @@ public class Data {
 				.replace("CCCC", "CD")
 				.replace("DD", "M")
 				.replace("DCD", "CM");
-	}
-
-	public int getLastClaim() {
-		return ++lastClaim;
-	}
-
-	public int getLastKing() {
-		return ++lastKing;
-	}
-
-	public int getLastHouse() {
-		return ++lastHouse;
 	}
 }
