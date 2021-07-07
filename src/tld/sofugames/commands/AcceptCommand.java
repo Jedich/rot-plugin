@@ -4,10 +4,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import tld.sofugames.data.ClaimDao;
-import tld.sofugames.data.DaoFactory;
+import tld.sofugames.dao.impl.ClaimDao;
+import tld.sofugames.dao.impl.DaoFactory;
 import tld.sofugames.data.Data;
-import tld.sofugames.data.KingDao;
+import tld.sofugames.dao.impl.KingDao;
 import tld.sofugames.models.Advisor;
 import tld.sofugames.models.King;
 

@@ -6,12 +6,13 @@ import org.bukkit.*;
 import org.bukkit.command.*;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import tld.sofugames.dao.impl.ClaimDao;
+import tld.sofugames.dao.impl.DaoFactory;
+import tld.sofugames.dao.impl.KingDao;
 import tld.sofugames.data.*;
-import tld.sofugames.models.Advisor;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.King;
 
-import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;

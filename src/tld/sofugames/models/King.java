@@ -6,10 +6,9 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
-import tld.sofugames.data.DaoFactory;
+import tld.sofugames.dao.impl.DaoFactory;
 import tld.sofugames.data.Data;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;

@@ -1,4 +1,4 @@
-package tld.sofugames.data;
+package tld.sofugames.dao.impl;
 
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.House;

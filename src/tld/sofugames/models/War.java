@@ -1,14 +1,9 @@
 package tld.sofugames.models;
 
 import org.bukkit.Bukkit;
-import tld.sofugames.data.DaoFactory;
-import tld.sofugames.data.Data;
+import tld.sofugames.dao.impl.DaoFactory;
 import tld.sofugames.rot.WarType;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashSet;
 
 public class War {

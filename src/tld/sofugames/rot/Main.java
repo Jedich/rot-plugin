@@ -10,17 +10,17 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import tld.sofugames.commands.*;
+import tld.sofugames.dao.impl.ClaimDao;
+import tld.sofugames.dao.impl.DaoFactory;
+import tld.sofugames.dao.impl.HouseDao;
+import tld.sofugames.dao.impl.KingDao;
+import tld.sofugames.dao.impl.WarDao;
 import tld.sofugames.data.*;
-import tld.sofugames.gui.WarGui;
 import tld.sofugames.listeners.*;
 import tld.sofugames.listeners.EventListener;
-import tld.sofugames.models.Advisor;
-import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.House;
 import tld.sofugames.models.King;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 

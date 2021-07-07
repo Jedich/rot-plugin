@@ -1,19 +1,14 @@
 package tld.sofugames.models;
 
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import tld.sofugames.data.DaoFactory;
+import tld.sofugames.dao.impl.DaoFactory;
 import tld.sofugames.data.Data;
-import tld.sofugames.data.HouseDao;
+import tld.sofugames.dao.impl.HouseDao;
 import tld.sofugames.rot.HousingOutOfBoundsException;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
 import java.util.UUID;
 

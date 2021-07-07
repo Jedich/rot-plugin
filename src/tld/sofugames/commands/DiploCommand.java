@@ -10,14 +10,11 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitScheduler;
-import tld.sofugames.data.ClaimDao;
-import tld.sofugames.data.DaoFactory;
+import tld.sofugames.dao.impl.ClaimDao;
+import tld.sofugames.dao.impl.DaoFactory;
 import tld.sofugames.data.Data;
-import tld.sofugames.data.KingDao;
-import tld.sofugames.gui.WarGui;
-import tld.sofugames.listeners.WarGuiListener;
+import tld.sofugames.dao.impl.KingDao;
 import tld.sofugames.models.King;
-import tld.sofugames.models.War;
 
 import java.util.*;
 import java.util.stream.Collectors;

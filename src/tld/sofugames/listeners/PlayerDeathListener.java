@@ -2,22 +2,13 @@ package tld.sofugames.listeners;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.inventory.ItemStack;
-import tld.sofugames.data.DaoFactory;
-import tld.sofugames.data.Data;
-import tld.sofugames.data.HouseDao;
-import tld.sofugames.data.KingDao;
+import tld.sofugames.dao.impl.DaoFactory;
+import tld.sofugames.dao.impl.KingDao;
 import tld.sofugames.models.King;
 import tld.sofugames.models.War;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 public class PlayerDeathListener implements Listener {
 

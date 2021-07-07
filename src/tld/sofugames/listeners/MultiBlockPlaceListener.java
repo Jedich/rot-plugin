@@ -6,11 +6,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockMultiPlaceEvent;
+import tld.sofugames.dao.impl.DaoFactory;
+import tld.sofugames.dao.impl.HouseDao;
 import tld.sofugames.data.*;
 import tld.sofugames.models.House;
 import tld.sofugames.rot.HousingOutOfBoundsException;
-
-import java.sql.SQLException;
 
 public class MultiBlockPlaceListener implements Listener {
 

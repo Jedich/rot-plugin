@@ -6,10 +6,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
-import tld.sofugames.data.ClaimDao;
-import tld.sofugames.data.DaoFactory;
-import tld.sofugames.data.Data;
-import tld.sofugames.data.KingDao;
+import tld.sofugames.dao.impl.ClaimDao;
+import tld.sofugames.dao.impl.DaoFactory;
+import tld.sofugames.dao.impl.KingDao;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.King;
 

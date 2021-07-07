@@ -1,4 +1,4 @@
-package tld.sofugames.data;
+package tld.sofugames.dao;
 
 import tld.sofugames.models.War;
 

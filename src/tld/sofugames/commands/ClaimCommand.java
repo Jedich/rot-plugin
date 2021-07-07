@@ -7,13 +7,13 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import tld.sofugames.dao.impl.ClaimDao;
+import tld.sofugames.dao.impl.DaoFactory;
+import tld.sofugames.dao.impl.KingDao;
 import tld.sofugames.data.*;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.King;
 import tld.sofugames.rot.ChunkType;
-
-import java.sql.SQLException;
-import java.util.Collections;
 
 public class ClaimCommand implements CommandExecutor {
 

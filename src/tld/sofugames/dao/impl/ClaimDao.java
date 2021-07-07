@@ -1,6 +1,9 @@
-package tld.sofugames.data;
+package tld.sofugames.dao.impl;
 
 import org.bukkit.Bukkit;
+import tld.sofugames.dao.Dao;
+import tld.sofugames.data.Data;
+import tld.sofugames.dao.impl.PersistentData;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.King;
 import tld.sofugames.rot.ChunkType;

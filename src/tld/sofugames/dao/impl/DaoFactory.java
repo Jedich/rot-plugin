@@ -1,4 +1,4 @@
-package tld.sofugames.data;
+package tld.sofugames.dao.impl;
 
 public class DaoFactory {
 	public KingDao getKings() {

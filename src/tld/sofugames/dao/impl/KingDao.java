@@ -1,7 +1,9 @@
-package tld.sofugames.data;
+package tld.sofugames.dao.impl;
 
 import org.bukkit.Bukkit;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import tld.sofugames.dao.Dao;
+import tld.sofugames.data.Data;
 import tld.sofugames.models.Advisor;
 import tld.sofugames.models.King;
 

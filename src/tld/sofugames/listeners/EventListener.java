@@ -9,10 +9,13 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.scheduler.BukkitScheduler;
+import tld.sofugames.dao.impl.ClaimDao;
+import tld.sofugames.dao.impl.DaoFactory;
+import tld.sofugames.dao.impl.HouseDao;
+import tld.sofugames.dao.impl.KingDao;
 import tld.sofugames.data.*;
 import tld.sofugames.models.*;
 
-import java.sql.SQLException;
 import java.util.*;
 
 public class EventListener implements Listener {

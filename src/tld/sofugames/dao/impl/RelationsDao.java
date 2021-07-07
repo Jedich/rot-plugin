@@ -1,5 +1,7 @@
-package tld.sofugames.data;
+package tld.sofugames.dao.impl;
 
+import tld.sofugames.dao.Dao;
+import tld.sofugames.data.Data;
 import tld.sofugames.models.Relation;
 
 import java.sql.*;

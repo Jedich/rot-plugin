@@ -1,16 +1,15 @@
-package tld.sofugames.data;
+package tld.sofugames.dao.impl;
 
-import org.bukkit.Bukkit;
-import tld.sofugames.models.ClaimedChunk;
+import tld.sofugames.dao.AbstractWarDao;
+import tld.sofugames.dao.Dao;
+import tld.sofugames.data.Data;
 import tld.sofugames.models.King;
 import tld.sofugames.models.War;
-import tld.sofugames.rot.ChunkType;
 import tld.sofugames.rot.WarType;
 
 import java.sql.*;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 public class WarDao extends PersistentData implements Dao<War>, AbstractWarDao {
 
