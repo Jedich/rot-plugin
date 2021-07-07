@@ -342,4 +342,8 @@ public class King extends RotPlayer implements Model {
 	public void setCurrentWar(War currentWar) {
 		this.currentWar = currentWar;
 	}
+
+	public String getTitle() {
+		return title;
+	}
 }
