@@ -23,8 +23,6 @@ public class ClaimCommand implements CommandExecutor {
 	DaoFactory daoFactory = new DaoFactory();
 	KingDao kingData = daoFactory.getKings();
 	ClaimDao claimData = daoFactory.getClaims();
-	WarDao wars = daoFactory.getWars();
-
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

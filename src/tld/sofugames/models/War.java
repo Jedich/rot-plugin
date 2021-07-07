@@ -126,4 +126,8 @@ public class War {
 			getDef().assignedPlayer.sendMessage("Our enemies totally lost! You can sign a white peace now.");
 		}
 	}
+
+	public int getId() {
+		return id;
+	}
 }

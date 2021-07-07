@@ -6,41 +6,49 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import tld.sofugames.data.ClaimDao;
+import tld.sofugames.data.DaoFactory;
 import tld.sofugames.data.Data;
+import tld.sofugames.data.KingDao;
 import tld.sofugames.models.ClaimedChunk;
+import tld.sofugames.models.King;
 import tld.sofugames.rot.ChunkType;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.UUID;
 
 public class UnclaimCommand implements CommandExecutor {
+
+	public HashMap<UUID, King> requests = new HashMap<>();
+	DaoFactory daoFactory = new DaoFactory();
+	KingDao kingData = daoFactory.getKings();
+	ClaimDao claimData = daoFactory.getClaims();
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(command.getName().equalsIgnoreCase("unclaim")) {
 			Player player = ((Player) sender);
-			if(Data.getInstance().kingData.containsKey(player.getUniqueId().toString())) {
-				Chunk targetChunk = player.getLocation().getChunk();
-				if(Data.getInstance().claimData.containsKey(targetChunk.toString())) {
-					ClaimedChunk claim = Data.getInstance().claimData.get(targetChunk.toString());
-					if(claim.owner.equals(player.getUniqueId())) {
-						if(claim.type != ChunkType.Home) {
-							try {
-								claim.delete();
-								sender.sendMessage("Chunk unclaimed.");
-							} catch(SQLException e) {
-								e.printStackTrace();
-							}
-						} else {
-							sender.sendMessage(ChatColor.RED + "Can't unclaim the home chunk!");
-						}
-					} else {
-						sender.sendMessage(ChatColor.RED + "This is not your kingdoms' chunk!");
-					}
-				} else {
-					sender.sendMessage(ChatColor.RED + "This chunk is not claimed.");
-				}
-			} else {
+			if(!kingData.get(player.getUniqueId().toString()).isPresent()) {
 				sender.sendMessage(ChatColor.RED + "You are not a king to perform this command.");
+				return true;
 			}
+			Chunk targetChunk = player.getLocation().getChunk();
+			if(!claimData.get(targetChunk.toString()).isPresent()) {
+				sender.sendMessage(ChatColor.RED + "This chunk is not claimed.");
+				return true;
+			}
+			ClaimedChunk claim = claimData.get(targetChunk.toString()).get();
+			if(!claim.owner.equals(player.getUniqueId())) {
+				sender.sendMessage(ChatColor.RED + "This is not your kingdoms' chunk!");
+				return true;
+			}
+			if(claim.type == ChunkType.Home) {
+				sender.sendMessage(ChatColor.RED + "Can't unclaim the home chunk!");
+				return true;
+			}
+			claimData.delete(claim);
+			sender.sendMessage("Chunk unclaimed.");
 			return true;
 		}
 		return false;

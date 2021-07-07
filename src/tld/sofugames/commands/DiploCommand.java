@@ -10,7 +10,10 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitScheduler;
+import tld.sofugames.data.ClaimDao;
+import tld.sofugames.data.DaoFactory;
 import tld.sofugames.data.Data;
+import tld.sofugames.data.KingDao;
 import tld.sofugames.gui.WarGui;
 import tld.sofugames.listeners.WarGuiListener;
 import tld.sofugames.models.King;
@@ -20,24 +23,30 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class DiploCommand implements CommandExecutor {
-	public HashMap<UUID, King> requests = new HashMap<>();
+	private final HashMap<UUID, King> requests = new HashMap<>();
+	DaoFactory daoFactory = new DaoFactory();
+	KingDao kingData = daoFactory.getKings();
+	ClaimDao claimData = daoFactory.getClaims();
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(command.getName().equalsIgnoreCase("diplomacy")) {
+			if(!kingData.get(((Player) sender).getUniqueId().toString()).isPresent()) {
+				sender.sendMessage(ChatColor.RED + "You are not a king to perform this command.");
+			}
+			King thisKing = kingData.get(((Player) sender).getUniqueId().toString()).get();
 			if(args != null && args.length != 0) {
 				if(args[0].equalsIgnoreCase("info")) {
 					if(args.length == 2) {
-						UUID otherUuid;
+						King otherKing;
 						try {
-							otherUuid = Bukkit.getPlayer(args[1]).getUniqueId();
+							otherKing = getAnotherKing(args[1]);
 						} catch(NullPointerException e) {
-							sender.sendMessage(ChatColor.RED + "No such player found.");
+							sender.sendMessage("No player or king with such username found.");
 							return true;
 						}
-						King thisKing = Data.getInstance().kingData.get(((Player) sender).getUniqueId().toString());
-						King otherKing =  Data.getInstance().kingData.get(otherUuid.toString());
 						if(thisKing.equals(otherKing)) {
-							sender.sendMessage(ChatColor.RED + "You can't aid yourself.");
+							sender.sendMessage(ChatColor.RED + "You can't have relations with yourself.");
 							return true;
 						}
 						sender.sendMessage("Relations with " + ChatColor.GOLD + otherKing.assignedPlayer.getDisplayName() + ":\n"
@@ -46,8 +55,7 @@ public class DiploCommand implements CommandExecutor {
 					} else {
 						sender.sendMessage(ChatColor.RED + "Incorrect arguments: /diplomacy info <king_name>");
 					}
-				}
-				else if(args[0].equalsIgnoreCase("aid")) {
+				} else if(args[0].equalsIgnoreCase("aid")) {
 					if(args.length == 3) {
 						float cost = 0;
 						try {
@@ -56,15 +64,13 @@ public class DiploCommand implements CommandExecutor {
 							sender.sendMessage(ChatColor.RED + "Please specify a correct number value!");
 							return true;
 						}
-						UUID otherUuid;
+						King otherKing;
 						try {
-							otherUuid = Bukkit.getPlayer(args[1]).getUniqueId();
+							otherKing = getAnotherKing(args[1]);
 						} catch(NullPointerException e) {
-							sender.sendMessage(ChatColor.RED + "No such player found.");
+							sender.sendMessage("No player or king with such username found");
 							return true;
 						}
-						King thisKing = Data.getInstance().kingData.get(((Player) sender).getUniqueId().toString());
-						King otherKing =  Data.getInstance().kingData.get(otherUuid.toString());
 						if(thisKing.equals(otherKing)) {
 							sender.sendMessage(ChatColor.RED + "You can't aid yourself.");
 							return true;
@@ -92,12 +98,14 @@ public class DiploCommand implements CommandExecutor {
 						sender.sendMessage(ChatColor.RED + "Incorrect arguments: /diplomacy ally <player_name>");
 						return true;
 					}
-					if(!Data.isKing(args[1])) {
-						sender.sendMessage(ChatColor.RED + "Player is not a king.");
+					King otherKing;
+					try {
+						otherKing = getAnotherKing(args[1]);
+					} catch(NullPointerException e) {
+						sender.sendMessage("No player or king with such username found.");
 						return true;
 					}
-					King thisKing = Data.getInstance().kingData.get(((Player) sender).getUniqueId().toString());
-					Player invitedPlayer = Bukkit.getPlayer(args[1]);
+					Player invitedPlayer = otherKing.assignedPlayer;
 					invitedPlayer.sendMessage(thisKing.fullTitle + "§6 offers to form an alliance.\n" +
 							"§fUse §a/diplomacy allyaccept §fto answer, otherwise ignore this message.\n" +
 							"You hase 3 minutes to answer.");
@@ -109,15 +117,14 @@ public class DiploCommand implements CommandExecutor {
 						}
 					}, 3600L);
 				} else if(args[0].equalsIgnoreCase("allyaccept")) {
-					King king = Data.getInstance().kingData.get(((Player) sender).getUniqueId().toString());
-					if(!requests.containsKey(king.getUuid())) {
+					if(!requests.containsKey(thisKing.getUuid())) {
 						sender.sendMessage("You have no pending requests.");
 						return true;
 					}
-					King otherKing = requests.get(king.getUuid());
-					requests.remove(king.getUuid());
+					King otherKing = requests.get(thisKing.getUuid());
+					requests.remove(thisKing.getUuid());
 					try {
-						king.addAlly(otherKing);
+						thisKing.addAlly(otherKing);
 					} catch(IllegalArgumentException e) {
 						sender.sendMessage("Cannot accept alliance: " + e.getMessage());
 						otherKing.assignedPlayer.sendMessage("Cannot accept alliance: " + e.getMessage());
@@ -129,12 +136,11 @@ public class DiploCommand implements CommandExecutor {
 						sender.sendMessage(ChatColor.RED + "Incorrect arguments: /diplomacy allyrevoke <player_name>");
 						return true;
 					}
-					if(!Data.isKing(args[1])) {
+					if(!kingData.get(Bukkit.getPlayer(args[1]).getUniqueId().toString()).isPresent()) {
 						sender.sendMessage(ChatColor.RED + "Player is not a king.");
 						return true;
 					}
-					King thisKing = Data.getInstance().kingData.get(((Player) sender).getUniqueId().toString());
-					King otherKing = Data.getInstance().kingData.get(Bukkit.getPlayer(args[1]).getUniqueId().toString());
+					King otherKing = kingData.get(Bukkit.getPlayer(args[1]).getUniqueId().toString()).get();
 					if(!thisKing.allies.contains(otherKing)) {
 						sender.sendMessage(ChatColor.RED + "This king is not your ally.");
 						return true;
@@ -174,5 +180,14 @@ public class DiploCommand implements CommandExecutor {
 				return Bukkit.getServer().getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
 			} else return Collections.emptyList();
 		}
+	}
+
+	public King getAnotherKing(String name) {
+		UUID otherUuid;
+		otherUuid = Objects.requireNonNull(Bukkit.getPlayer(name)).getUniqueId();
+		if(!kingData.get(otherUuid.toString()).isPresent()) {
+			return null;
+		}
+		return kingData.get(otherUuid.toString()).get();
 	}
 }

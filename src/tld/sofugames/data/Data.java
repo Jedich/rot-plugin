@@ -32,18 +32,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Data {
-	public static final int basicFee = 2;
 	private static Data instance = null;
 	public Plugin plugin;
-	public static final String UTF8_BOM = "п»ї";
-
-	public String username = "";
-	public String password = "";
-	public String host = "";
-	public String port = "";
-	public String db = "";
-
-
+	public HashMap<UUID, King> kingdomRequests = new HashMap<>();
 
 	public Connection getConnection() {
 		try {
@@ -69,14 +60,9 @@ public class Data {
 					lines.append(line);
 					lineNum++;
 				}
-//				if (lines.toString().startsWith(UTF8_BOM)) {
-//					strLines = lines.substring(3);
-//				} else {
-//					strLines = lines.toString();
-//				}
 				strLines = lines.toString();
 				Statement statement = connection.createStatement();
-				statement.setQueryTimeout(30);  // set timeout to 30 sec.
+				statement.setQueryTimeout(30);
 				statement.executeUpdate(strLines);
 				return connection;
 			}
@@ -169,34 +155,6 @@ public class Data {
 				.replace("CCCC", "CD")
 				.replace("DD", "M")
 				.replace("DCD", "CM");
-	}
-
-	public static boolean isKing(String username) {
-		UUID playerUuid;
-		try {
-			playerUuid = Bukkit.getPlayer(username).getUniqueId();
-		} catch(NullPointerException e) {
-			return false;
-		}
-		return Data.getInstance().kingData.containsKey(playerUuid.toString());
-	}
-
-	public void destroyWar(String atkUuid) {
-		War war = wars.get(atkUuid);
-		war.getAtk().setAtWar(false);
-		war.getDef().setAtWar(false);
-		war.getAtk().setCurrentWar(null);
-		war.getDef().setCurrentWar(null);
-		for(King ally : war.atkAllies) {
-			ally.setCurrentWar(null);
-			ally.setAtWar(false);
-		}
-		for(King ally : war.defAllies) {
-			ally.setCurrentWar(null);
-			ally.setAtWar(false);
-			ally.setWarAlly(false);
-		}
-		wars.remove(atkUuid);
 	}
 
 	public int getLastClaim() {

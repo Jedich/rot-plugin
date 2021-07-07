@@ -75,6 +75,26 @@ public class WarDao extends PersistentData implements Dao<War> {
 
 	@Override
 	public void delete(War war) {
-
+		war.getAtk().setAtWar(false);
+		war.getDef().setAtWar(false);
+		war.getAtk().setCurrentWar(null);
+		war.getDef().setCurrentWar(null);
+		for(King ally : war.atkAllies) {
+			ally.setCurrentWar(null);
+			ally.setAtWar(false);
+		}
+		for(King ally : war.defAllies) {
+			ally.setCurrentWar(null);
+			ally.setAtWar(false);
+			ally.setWarAlly(false);
+		}
+		try {
+			PreparedStatement pstmt = Data.getInstance().getConnection().prepareStatement("DELETE FROM wars WHERE id = ?");
+			pstmt.setInt(1, war.getId());
+			pstmt.executeUpdate();
+			getAll().remove(war.getAtk().getUuid().toString());
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }
