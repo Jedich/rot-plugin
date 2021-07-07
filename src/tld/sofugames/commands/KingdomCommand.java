@@ -94,9 +94,12 @@ public class KingdomCommand implements CommandExecutor {
 					sender.sendMessage(ChatColor.RED + "Incorrect arguments: /kingdom invite <player_name>");
 					return true;
 				}
-				if(Data.isKing(args[1])) {
-					sender.sendMessage(ChatColor.RED + "Player has his own lands to rule.");
-					return true;
+				King otherKing = null;
+				try {
+					otherKing = getAnotherKing(args[1]);
+				} catch(NullPointerException ignored) { }
+				if(otherKing != null) {
+					sender.sendMessage("King has his own lands to rule!");
 				}
 				Player invitedPlayer;
 				try {
@@ -123,5 +126,14 @@ public class KingdomCommand implements CommandExecutor {
 				return Bukkit.getServer().getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
 			} else return Collections.emptyList();
 		}
+	}
+
+	public King getAnotherKing(String name) {
+		UUID otherUuid;
+		otherUuid = Objects.requireNonNull(Bukkit.getPlayer(name)).getUniqueId();
+		if(!kingData.get(otherUuid.toString()).isPresent()) {
+			return null;
+		}
+		return kingData.get(otherUuid.toString()).get();
 	}
 }

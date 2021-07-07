@@ -10,7 +10,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import tld.sofugames.commands.*;
-import tld.sofugames.data.Data;
+import tld.sofugames.data.*;
 import tld.sofugames.gui.WarGui;
 import tld.sofugames.listeners.*;
 import tld.sofugames.listeners.EventListener;
@@ -27,6 +27,11 @@ import java.util.*;
 public class Main extends JavaPlugin {
 
 	static Connection connection;
+	DaoFactory daoFactory = new DaoFactory();
+	KingDao kingData = daoFactory.getKings();
+	ClaimDao claimData = daoFactory.getClaims();
+	HouseDao houseData = daoFactory.getHouses();
+	WarDao wars = daoFactory.getWars();
 
 	@Override
 	public void onEnable() {
@@ -75,8 +80,8 @@ public class Main extends JavaPlugin {
 			String chunkName = player.getLocation().getChunk().toString();
 			String ownerName = "None";
 			sender.sendMessage("Current chunk: " + chunkName);
-			if(Data.getInstance().claimData.get(chunkName) != null) {
-				sender.sendMessage("Current owner: " + Data.getInstance().claimData.get(chunkName).owner);
+			if(claimData.get(chunkName).isPresent()) {
+				sender.sendMessage("Current owner: " + claimData.get(chunkName).get().owner);
 			} else {
 				sender.sendMessage("The chunk is available for conquest!");
 			}
@@ -100,9 +105,10 @@ public class Main extends JavaPlugin {
 	}
 
 	public void restart() {
-		Data.getInstance().claimData.clear();
-		Data.getInstance().kingData.clear();
-		Data.getInstance().houseData.clear();
+		claimData.getAll().clear();
+		kingData.getAll().clear();
+		houseData.getAll().clear();
+		wars.getAll().clear();
 		onDisable();
 		onEnable();
 	}
@@ -124,12 +130,12 @@ public class Main extends JavaPlugin {
 	public void checkHouses() {
 		int incorrectTotal = 0;
 		HashMap<UUID, Integer> incorrectBeds = new HashMap<>();
-		Iterator iterator = Data.getInstance().houseData.entrySet().iterator();
+		Iterator<Map.Entry<String, House>> iterator = houseData.getAll().entrySet().iterator();
 		while(iterator.hasNext()) {
-			Map.Entry houseSet = (Map.Entry) iterator.next();
+			Map.Entry<String, House> houseSet = iterator.next();
 			House house = (House) houseSet.getValue();
-			if(Data.getInstance().kingData.get(house.owner.toString()).assignedPlayer != null) {
-				Player player = Data.getInstance().kingData.get(house.owner.toString()).assignedPlayer;
+			if(kingData.get(house.owner.toString()).orElse(new King()).assignedPlayer != null) {
+				Player player = kingData.get(house.owner.toString()).get().assignedPlayer;
 				if(!player.isOnline()) {
 					continue;
 				}
@@ -143,18 +149,18 @@ public class Main extends JavaPlugin {
 					} else {
 						incorrectBeds.put(house.owner, 1);
 					}
-					house.deleteFromDb(Data.getInstance().getConnection());
+					houseData.delete(house);
 					house.bedBlock.breakNaturally();
 					iterator.remove();
 					incorrectTotal++;
 				}
-			} catch(HousingOutOfBoundsException | SQLException e) {
+			} catch(HousingOutOfBoundsException e) {
 				e.printStackTrace();
 			}
 		}
 		for(Map.Entry<UUID, Integer> entry : incorrectBeds.entrySet()) {
-			if(Data.getInstance().kingData.get(entry.getKey().toString()).assignedPlayer != null) {
-				Player player = Data.getInstance().kingData.get(entry.getKey().toString()).assignedPlayer;
+			if(kingData.get(entry.getKey().toString()).orElse(new King()).assignedPlayer != null) {
+				Player player = kingData.get(entry.getKey().toString()).get().assignedPlayer;
 				if(player.isOnline()) {
 					player.sendMessage(ChatColor.RED + "Found " + entry.getValue() + " incorrect beds! They were destroyed.");
 				}
@@ -164,7 +170,7 @@ public class Main extends JavaPlugin {
 	}
 
 	public void checkIncomes() {
-		for(King king : Data.getInstance().kingData.values()) {
+		for(King king : kingData.getAll().values()) {
 			if(king.assignedPlayer != null) {
 				if(Bukkit.getPlayerExact(king.assignedPlayer.getName()) != null) {
 					king.setGoldBalance(king.getIncome() - king.getFee());

@@ -77,7 +77,7 @@ public class WarType {
 			for(ClaimedChunk claim : atk.warClaims) {
 				if(claim.owner.equals(def.getUuid())) {
 					pstmt.setString(1, atk.getUuid().toString());
-					pstmt.setInt(2, claim.id);
+					pstmt.setInt(2, claim.getId());
 					pstmt.addBatch();
 				}
 			}

@@ -1,6 +1,7 @@
 package tld.sofugames.models;
 
 import org.bukkit.Bukkit;
+import tld.sofugames.data.DaoFactory;
 import tld.sofugames.data.Data;
 import tld.sofugames.rot.WarType;
 
@@ -98,7 +99,7 @@ public class War {
 	public boolean signPeace() {
 		if(getScore() >= warType.getTargetScore()) {
 			warType.getGains().apply(getAtk(), getDef());
-			Data.getInstance().destroyWar(getAtk().getUuid().toString());
+			new DaoFactory().getWars().delete(this);
 			return true;
 		}
 		return false;
@@ -106,7 +107,7 @@ public class War {
 
 	public boolean signWhitePeace(boolean isAgreement) {
 		if(isAgreement || battleNum >= 10 || score <= -warType.getTargetScore()) {
-			Data.getInstance().destroyWar(getAtk().getUuid().toString());
+			new DaoFactory().getWars().delete(this);
 		}
 		return isAgreement || battleNum >= 10 || score <= -warType.getTargetScore();
 	}

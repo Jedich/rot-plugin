@@ -36,7 +36,7 @@ public class King extends RotPlayer {
 	public HashMap<UUID, Integer> relations = new HashMap<>();
 	public HashSet<UUID> advisors = new HashSet<>();
 	public HashSet<King> allies = new HashSet<>();
-
+	DaoFactory factory = new DaoFactory();
 
 	public King(Player player, ClaimedChunk homeChunk) {
 		super(player, homeChunk);
@@ -56,6 +56,7 @@ public class King extends RotPlayer {
 		this.kingdomLevel = kingdomLevel;
 		this.setIncome(0);
 		this.goldBalance = goldBalance;
+
 		this.setCurrentGen(currentGen);
 		if(player != null) {
 			loadGen();
@@ -133,12 +134,7 @@ public class King extends RotPlayer {
 				other.relations.put(getUuid(), 50);
 				assignedPlayer.sendMessage("First contact: " + kingdomName + " and " + other.kingdomName);
 				other.assignedPlayer.sendMessage("First contact: " + kingdomName + " and " + other.kingdomName);
-				try {
-					setRelationsDb(this, other);
-					setRelationsDb(other, this);
-				} catch(SQLException e) {
-					e.printStackTrace();
-				}
+				factory.getRelations().save(new Relation(this, other));
 			}
 		}
 	}
@@ -149,54 +145,13 @@ public class King extends RotPlayer {
 		}
 		allies.add(ally);
 		ally.allies.add(this);
-		try {
-			allianceDb(this, ally);
-		} catch(SQLException e) {
-			throw new IllegalArgumentException("db error.");
-		}
+		factory.getAlliances().save(new Relation(this, ally));
 	}
 
 	public void deleteAlly(King ally) throws IllegalArgumentException {
 		allies.remove(ally);
 		ally.allies.remove(this);
-		try {
-			deleteAllianceDb(this, ally);
-		} catch(SQLException e) {
-			throw new IllegalArgumentException("db error.");
-		}
-	}
-
-	private void allianceDb(King thisKing, King other) throws SQLException {
-
-	}
-
-	private void deleteAllianceDb(King thisKing, King other) throws SQLException {
-		PreparedStatement pstmt = (PreparedStatement) Data.getInstance().getConnection().prepareStatement(
-				"DELETE FROM alliances WHERE king1 = ?, king2 = ?");
-		pstmt.setString(1, thisKing.getUuid().toString());
-		pstmt.setString(2, other.getUuid().toString());
-		pstmt.executeUpdate();
-		pstmt.setString(1, other.getUuid().toString());
-		pstmt.setString(2, thisKing.getUuid().toString());
-		pstmt.executeUpdate();
-	}
-
-	private void setRelationsDb(King thisKing, King other) throws SQLException {
-		PreparedStatement pstmt = (PreparedStatement) Data.getInstance().getConnection().prepareStatement(
-				"INSERT INTO relations(name, meaning_of, value) VALUES(?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-		pstmt.setString(1, thisKing.getUuid().toString());
-		pstmt.setString(2, other.getUuid().toString());
-		pstmt.setInt(3, thisKing.relations.get(other.getUuid()));
-		pstmt.executeUpdate();
-	}
-
-	private void updateRelationsInDb(King thisKing, King other) throws SQLException {
-		PreparedStatement pstmt = (PreparedStatement) Data.getInstance().getConnection().prepareStatement(
-				"UPDATE relations SET value=? WHERE name=? AND meaning_of=?");
-		pstmt.setInt(1, thisKing.relations.get(other.getUuid()));
-		pstmt.setString(2, thisKing.getUuid().toString());
-		pstmt.setString(3, other.getUuid().toString());
-		pstmt.executeUpdate();
+		factory.getRelations().delete(new Relation(this, ally));
 	}
 
 	public void changeMeaning(UUID with, int value) {
@@ -207,11 +162,8 @@ public class King extends RotPlayer {
 		if(relations.get(with) < -100) {
 			relations.put(with, -100);
 		}
-		try {
-			updateRelationsInDb(this, new DaoFactory().getKings().get(with.toString()).get());
-		} catch(SQLException e) {
-			e.printStackTrace();
-		}
+		factory.getRelations().update(new Relation(this, factory.getKings().get(with.toString()).get()),
+				Collections.emptyMap());
 	}
 
 	public float getFee() {

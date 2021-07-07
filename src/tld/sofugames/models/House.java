@@ -5,7 +5,9 @@ import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import tld.sofugames.data.DaoFactory;
 import tld.sofugames.data.Data;
+import tld.sofugames.data.HouseDao;
 import tld.sofugames.rot.HousingOutOfBoundsException;
 
 import java.sql.Connection;
@@ -76,6 +78,7 @@ public class House {
 
 	private boolean allDirectionSearch(Block currentBlock, HashMap<String, Block> visitedList)
 			throws HousingOutOfBoundsException {
+		HouseDao houseData = new DaoFactory().getHouses();
 		for(BlockFace face : Data.getInstance().faces) {
 			Block rel = currentBlock.getRelative(face);
 			if(!visitedList.containsKey(rel.toString())) {
@@ -83,8 +86,8 @@ public class House {
 				if(rel.getType() == Material.AIR || rel.getType() == Material.CAVE_AIR || rel.getType() == Material.TORCH //*********************************
 						|| Data.getInstance().ignoreList.contains(rel.getType())) {
 					if(Tag.BEDS.getValues().contains(rel.getType())) {
-						if(Data.getInstance().houseData.containsKey(Data.getInstance().getBedHash(rel))) {
-							if(Data.getInstance().houseData.get(Data.getInstance().getBedHash(rel)) != this) {
+						if(houseData.get(Data.getInstance().getBedHash(rel)).isPresent()) {
+							if(houseData.get(Data.getInstance().getBedHash(rel)).get() != this) {
 								throw new HousingOutOfBoundsException("House is already claimed!");
 							}
 						}
@@ -105,7 +108,7 @@ public class House {
 	private void calculateIncome() {
 		float a = 1 + benefits * 0.025f;
 		income = (float) (4 * a * Math.sin(0.024 * area - 7.9) + 4 * a);
-		Data.getInstance().kingData.get(owner.toString()).changeIncome(income);
+		new DaoFactory().getKings().get(owner.toString()).orElse(new King()).changeIncome(income);
 	}
 
 	public int getId() {

@@ -42,12 +42,9 @@ public class KingDao extends PersistentData implements Dao<King> {
 				} finally {
 					PreparedStatement stmt;
 					ResultSet results;
-					stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM alliances");
-					results = stmt.executeQuery();
-					while(results.next()) {
-						King king = kingData.get(UUID.fromString(results.getString("king1")).toString());
-						king.allies.add(kingData.get(UUID.fromString(results.getString("king2")).toString()));
-					}
+					DaoFactory factory = new DaoFactory();
+					factory.getAlliances().getAll();
+					factory.getRelations().getAll();
 					stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM kingdom_helpers");
 					results = stmt.executeQuery();
 					while(results.next()) {
@@ -63,13 +60,6 @@ public class KingDao extends PersistentData implements Dao<King> {
 					while(results.next()) {
 						kingData.get(results.getString("by_king")).warClaims.add(
 								claimData.get(results.getString("chunk_name")));
-					}
-					stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM relations");
-					results = stmt.executeQuery();
-					while(results.next()) {
-						kingData.get(results.getString("name")).relations
-								.put(kingData.get(results.getString("meaning_of")).getUuid(),
-										results.getInt("value"));
 					}
 				}
 			}
