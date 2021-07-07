@@ -8,13 +8,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface Dao<T> {
-	Optional<T> get(String query) throws SQLException;
+	Optional<T> get(String query);
 
-	Map<String, T> getAll() throws SQLException;
+	Map<String, T> getAll();
 
-	void save(T t) throws SQLException;
+	void save(T t);
 
-	void update(T t, Map<String, Object> params) throws SQLException;
+	void update(T t, Map<String, Object> params);
 
 	void delete(T t);
 }

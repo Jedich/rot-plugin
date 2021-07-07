@@ -10,12 +10,14 @@ import java.sql.SQLException;
 import java.util.function.BiFunction;
 
 public class WarType {
+	private final int id;
 	private final String name;
 	private final float targetScore;
 	private WarCondition condition;
 	private WarCondition gains;
 
-	public WarType(String name, float targetScore, WarCondition condition, WarCondition gains) {
+	public WarType(int id, String name, float targetScore, WarCondition condition, WarCondition gains) {
+		this.id = id;
 		this.name = name;
 		this.targetScore = targetScore;
 		this.condition = condition;
@@ -39,11 +41,11 @@ public class WarType {
 	}
 
 	public static WarType[] types = new WarType[] {
-		new WarType("Humiliation", 0.5f, WarType::raidCond, WarType::humiGain),
-		new WarType("Raid", 0.4f, WarType::raidCond, WarType::raidGain),
-		new WarType("Expansion", 0.6f, WarType::expCond, WarType::expGain),
-		new WarType("Vassalisation", 1f, WarType::vassalCond, WarType::humiGain),
-		new WarType("Conquest", 1f, WarType::expCond, WarType::humiGain)
+		new WarType(0, "Humiliation", 0.5f, WarType::raidCond, WarType::humiGain),
+		new WarType(1, "Raid", 0.4f, WarType::raidCond, WarType::raidGain),
+		new WarType(2, "Expansion", 0.6f, WarType::expCond, WarType::expGain),
+		new WarType(3, "Vassalisation", 1f, WarType::vassalCond, WarType::humiGain),
+		new WarType(4, "Conquest", 1f, WarType::expCond, WarType::humiGain)
 	};
 
 	public static boolean raidCond(King atk, King def) {
@@ -86,6 +88,10 @@ public class WarType {
 			e.printStackTrace();
 		}
 		return true;
+	}
+
+	public int getId() {
+		return id;
 	}
 }
 

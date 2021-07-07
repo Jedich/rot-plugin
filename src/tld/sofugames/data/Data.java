@@ -35,14 +35,6 @@ public class Data {
 	public static final int basicFee = 2;
 	private static Data instance = null;
 	public Plugin plugin;
-	//key Chunk.toString()
-	public HashMap<String, ClaimedChunk> claimData = new HashMap<>();
-	//key UUID.toString()
-	public HashMap<String, King> kingData = new HashMap<>();
-	//key bedBlock.toString()
-	public HashMap<String, House> houseData = new HashMap<>();
-	//key UUID.toString()
-	public HashMap<String, War> wars = new HashMap<>();
 	public static final String UTF8_BOM = "п»ї";
 
 	public String username = "";

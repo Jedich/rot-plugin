@@ -15,7 +15,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class House implements Model {
+public class House {
 
 	public int id;
 	public UUID owner;

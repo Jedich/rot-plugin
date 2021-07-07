@@ -17,6 +17,8 @@ public class RotPlayer {
 		this.uuid = assignedPlayer.getUniqueId();
 	}
 
+	public RotPlayer() {}
+
 	public UUID getUuid() {
 		return uuid;
 	}
@@ -27,5 +29,13 @@ public class RotPlayer {
 
 	public void setWarAlly(boolean warAlly) {
 		this.warAlly = warAlly;
+	}
+
+	public ClaimedChunk getHomeChunk() {
+		return homeChunk;
+	}
+
+	public void setHomeChunk(ClaimedChunk homeChunk) {
+		this.homeChunk = homeChunk;
 	}
 }

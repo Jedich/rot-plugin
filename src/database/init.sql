@@ -64,11 +64,12 @@ CREATE TABLE IF NOT EXISTS relations
 CREATE TABLE IF NOT EXISTS wars
 (
     id         INTEGER NOT NULL,
-    atk        VARCHAR(64)   DEFAULT NULL,
-    def        VARCHAR(64)   DEFAULT NULL,
-    score      FLOAT(5) DEFAULT 0,
-    exhaustion INT(11)       DEFAULT NULL,
-    start_time INT(11)       DEFAULT NULL,
+    type       VARCHAR(64) DEFAULT NULL,
+    atk        VARCHAR(64) DEFAULT NULL,
+    def        VARCHAR(64) DEFAULT NULL,
+    score      FLOAT(5)    DEFAULT 0,
+    exhaustion INT(11)     DEFAULT NULL,
+    start_time INT(11)     DEFAULT NULL,
     PRIMARY KEY ("id" AUTOINCREMENT)
 );
 

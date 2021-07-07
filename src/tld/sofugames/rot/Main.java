@@ -38,18 +38,6 @@ public class Main extends JavaPlugin {
 		world = Bukkit.getWorlds().get(0);
 		try {
 			PreparedStatement stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM kings");
-			results = stmt.executeQuery();
-			while(results.next()) {
-				Data.getInstance().kingData.put(results.getString("name"), new King(results.getInt("id"),
-						Bukkit.getPlayer(UUID.fromString(results.getString("name"))),
-						results.getString("title"),
-						results.getString("kingdom_name"),
-						results.getInt("kingdom_level"),
-						results.getInt("current_gen"),
-						results.getFloat("balance")
-				));
-				Data.getInstance().lastKing = results.getInt("id");
-			}
 			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM alliances");
 			results = stmt.executeQuery();
 			while(results.next()) {
@@ -66,24 +54,7 @@ public class Main extends JavaPlugin {
 				);
 				parent.advisors.add(UUID.fromString(results.getString("name")));
 			}
-			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM user_claims");
-			results = stmt.executeQuery();
-			while(results.next()) {
-				ClaimedChunk newChunk = new ClaimedChunk(results.getInt("id"),
-						results.getString("name"),
-						UUID.fromString(results.getString("owner")),
-						ChunkType.valueOf(results.getString("type")),
-						world.getChunkAt(results.getInt("chunk_x"),
-								results.getInt("chunk_y")));
 
-				Data.getInstance().claimData.put(results.getString("name"), newChunk);
-				King owner = Data.getInstance().kingData.get(newChunk.owner.toString());
-				if(newChunk.type == ChunkType.Home) {
-					owner.homeChunk = newChunk;
-				}
-				owner.setChunkNumber(owner.getChunkNumber() + 1);
-				Data.getInstance().lastClaim = results.getInt("id");
-			}
 			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM houses");
 			results = stmt.executeQuery();
 			while(results.next()) {

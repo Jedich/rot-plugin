@@ -11,7 +11,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitScheduler;
-import tld.sofugames.data.Data;
+import tld.sofugames.data.*;
 import tld.sofugames.gui.WarGui;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.King;
@@ -19,14 +19,17 @@ import tld.sofugames.models.War;
 import tld.sofugames.rot.ChunkType;
 
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class WarCommand implements CommandExecutor {
 	public HashMap<String, King> requests = new HashMap<>();
+	DaoFactory daoFactory = new DaoFactory();
+	KingDao kingData = daoFactory.getKings();
+	ClaimDao claimData = daoFactory.getClaims();
+	WarDao wars = daoFactory.getWars();
+
+	//.orElse(new King()) is used because command can be used only with rotr.king permission
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(command.getName().equalsIgnoreCase("war")) {
@@ -36,12 +39,12 @@ public class WarCommand implements CommandExecutor {
 						sender.sendMessage(ChatColor.RED + "Incorrect arguments: /war declare <king_name>");
 						return true;
 					}
-					if(!Data.isKing(args[1])) {
+					if(!kingData.get(Bukkit.getPlayer(args[1]).getUniqueId().toString()).isPresent()) {
 						sender.sendMessage(ChatColor.RED + "No king with this username found.");
 						return true;
 					}
-					King thisKing = Data.getInstance().kingData.get(((Player) sender).getUniqueId().toString());
-					King otherKing = Data.getInstance().kingData.get(Bukkit.getPlayer(args[1]).getUniqueId().toString());
+					King thisKing = kingData.get(((Player) sender).getUniqueId().toString()).orElse(new King());
+					King otherKing = kingData.get(Bukkit.getPlayer(args[1]).getUniqueId().toString()).get();
 					if(thisKing.equals(otherKing)) {
 						sender.sendMessage(ChatColor.RED + "Can't declare war on yourself!");
 						return true;
@@ -55,11 +58,11 @@ public class WarCommand implements CommandExecutor {
 						return true;
 					}
 					War war = new War(thisKing, otherKing);
-					Data.getInstance().wars.put(((Player) sender).getUniqueId().toString(), war);
+					wars.save(war);
 					WarGui warGui = new WarGui();
 					((Player) sender).openInventory(warGui.getInventory());
 				} else if(args[0].equalsIgnoreCase("info")) {
-					King king = Data.getInstance().kingData.get(((Player) sender).getUniqueId().toString());
+					King king = kingData.get(((Player) sender).getUniqueId().toString()).orElse(new King());
 					if(king.isAtWar()) {
 						War war = king.getCurrentWar();
 						float score = (war.getDef().equals(king) ? -1 : 1) * war.getScore() * 100;
@@ -70,7 +73,7 @@ public class WarCommand implements CommandExecutor {
 						sender.sendMessage("You have peace on your grounds... for now.");
 					}
 				} else if(args[0].equalsIgnoreCase("end") || args[0].equalsIgnoreCase("whitepeace")) {
-					King king = Data.getInstance().kingData.get(((Player) sender).getUniqueId().toString());
+					King king = kingData.get(((Player) sender).getUniqueId().toString()).orElse(new King());
 					if(!king.isAtWar()) {
 						sender.sendMessage("§cYou must be at war to end it!");
 						return true;
@@ -110,7 +113,7 @@ public class WarCommand implements CommandExecutor {
 						sendPeaceMessage(atk, def, false);
 					}
 				} else if(args[0].equalsIgnoreCase("acceptpeace")) {
-					King king = Data.getInstance().kingData.get(((Player) sender).getUniqueId().toString());
+					King king = kingData.get(((Player) sender).getUniqueId().toString()).orElse(new King());
 					if(!king.isAtWar()) {
 						sender.sendMessage("§cYou must be at war to end it!");
 						return true;
@@ -127,21 +130,22 @@ public class WarCommand implements CommandExecutor {
 					sendPeaceMessage(king, enemy, true);
 				} else if(args[0].equalsIgnoreCase("claim")) {
 					Player player = (Player) sender;
-					King king = Data.getInstance().kingData.get(player.getUniqueId().toString());
+					King king = kingData.get(player.getUniqueId().toString()).orElse(new King());
 					if(king.isAtWar()) {
 						sender.sendMessage(ChatColor.RED + "You cannot unclaim war claims during wars!");
 						return true;
 					}
 					Chunk targetChunk = player.getLocation().getChunk();
 					if(isNeighboring(targetChunk, king)) {
-						ClaimedChunk chunk = Data.getInstance().claimData.get(targetChunk.toString());
+						//isNeighboring already checks if chunk is null
+						ClaimedChunk chunk = claimData.get(targetChunk.toString()).orElse(new ClaimedChunk());
 						try {
 							king.addWarClaim(chunk);
 						} catch(SQLException e) {
 							e.printStackTrace();
 							return true;
 						}
-						King otherKing = Data.getInstance().kingData.get(chunk.owner.toString());
+						King otherKing = kingData.get(chunk.owner.toString()).orElse(new King());
 						king.changeMeaning(otherKing.getUuid(), -50);
 						otherKing.changeMeaning(king.getUuid(), -80);
 						otherKing.assignedPlayer
@@ -153,14 +157,14 @@ public class WarCommand implements CommandExecutor {
 					}
 				} else if(args[0].equalsIgnoreCase("unclaim")) {
 					Player player = (Player) sender;
-					King king = Data.getInstance().kingData.get(player.getUniqueId().toString());
+					King king = kingData.get(player.getUniqueId().toString()).orElse(new King());
 					if(king.isAtWar()) {
 						sender.sendMessage(ChatColor.RED + "You cannot change war claims during wars!");
 						return true;
 					}
 					Chunk targetChunk = player.getLocation().getChunk();
-					if(Data.getInstance().claimData.containsKey(targetChunk.toString())) {
-						ClaimedChunk chunk = Data.getInstance().claimData.get(targetChunk.toString());
+					if(claimData.get(targetChunk.toString()).isPresent()) {
+						ClaimedChunk chunk = claimData.get(targetChunk.toString()).get();
 						if(king.warClaims.contains(chunk)) {
 							try {
 								king.deleteWarClaim(chunk);
@@ -168,7 +172,7 @@ public class WarCommand implements CommandExecutor {
 								e.printStackTrace();
 								return true;
 							}
-							King otherKing = Data.getInstance().kingData.get(chunk.owner.toString());
+							King otherKing = kingData.get(chunk.owner.toString()).orElse(new King());
 							king.changeMeaning(otherKing.getUuid(), 10);
 							otherKing.changeMeaning(king.getUuid(), 10);
 							otherKing.assignedPlayer
@@ -187,12 +191,12 @@ public class WarCommand implements CommandExecutor {
 						sender.sendMessage(ChatColor.RED + "Player is not a king.");
 						return true;
 					}
-					King thisKing = Data.getInstance().kingData.get(((Player) sender).getUniqueId().toString());
+					King thisKing = kingData.get(((Player) sender).getUniqueId().toString()).orElse(new King());
 					if(thisKing.isAtWar()) {
 						sender.sendMessage(ChatColor.RED + "You are already at war!");
 						return true;
 					}
-					King otherKing = Data.getInstance().kingData.get(Bukkit.getPlayer(args[1]).getUniqueId().toString());
+					King otherKing = kingData.get(Bukkit.getPlayer(args[1]).getUniqueId().toString()).orElse(new King());
 					if(thisKing.equals(otherKing)) {
 						sender.sendMessage(ChatColor.RED + "Can't declare war on yourself!");
 						return true;
@@ -249,16 +253,17 @@ public class WarCommand implements CommandExecutor {
 	}
 
 	private boolean isNeighboring(Chunk targetChunk, King king) {
-		if(Data.getInstance().claimData.containsKey(targetChunk.toString())) {
-			ClaimedChunk ch = Data.getInstance().claimData.get(targetChunk.toString());
+		if(claimData.get(targetChunk.toString()).isPresent()) {
+			ClaimedChunk ch = claimData.get(targetChunk.toString()).get();
 			if(king.warClaims.contains(ch)) {
 				return false;
 			}
 			for(Chunk chunk : ch.getRelatives()) {
-				if(Data.getInstance().claimData.containsKey(chunk.toString())) {
-					ClaimedChunk neighbor = Data.getInstance().claimData.get(chunk.toString());
+				if(claimData.get(chunk.toString()).isPresent()) {
+					ClaimedChunk neighbor = claimData.get(chunk.toString()).get();
+					//if chunk exists owner exists
 					if((neighbor.owner.equals(king.getUuid()) || king.warClaims.contains(neighbor)) &&
-					!Data.getInstance().kingData.get(neighbor.owner.toString()).homeChunk.equals(neighbor)) {
+					!kingData.get(neighbor.owner.toString()).orElse(new King()).homeChunk.equals(neighbor)) {
 						return true;
 					}
 				}

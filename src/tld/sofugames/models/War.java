@@ -10,7 +10,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
 
-public class War implements Model {
+public class War {
+	private int id;
 	private WarType warType;
 	private final King atk, def;
 	private float score;
@@ -30,12 +31,13 @@ public class War implements Model {
 		Bukkit.getWorlds().get(0).getFullTime();
 	}
 
-	public War(WarType warType, King atk, King def, float score, int exhaustion, long startTime) {
+	public War(int id, WarType warType, King atk, King def, float score, float exhaustion, long startTime) {
+		this.id = id;
 		this.warType = warType;
 		this.atk = atk;
 		this.def = def;
 		this.score = score;
-		this.battleNum = exhaustion;
+		this.battleNum = (int)exhaustion;
 		this.startTime = startTime;
 	}
 
@@ -85,6 +87,14 @@ public class War implements Model {
 		return score;
 	}
 
+	public float getExhaustion() {
+		return battleNum;
+	}
+
+	public long getStartTime() {
+		return startTime;
+	}
+
 	public boolean signPeace() {
 		if(getScore() >= warType.getTargetScore()) {
 			warType.getGains().apply(getAtk(), getDef());
@@ -115,23 +125,5 @@ public class War implements Model {
 		} else if(score <= -warType.getTargetScore()) {
 			getDef().assignedPlayer.sendMessage("Our enemies totally lost! You can sign a white peace now.");
 		}
-	}
-
-	@Override
-	public boolean pushToDb(Connection connection) throws SQLException {
-		PreparedStatement pstmt = (PreparedStatement) connection.prepareStatement(
-				"INSERT INTO wars VALUES(?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-		pstmt.setString(1, atk.getUuid().toString());
-		pstmt.setString(2, def.getUuid().toString());
-		pstmt.setFloat(3, score);
-		pstmt.setInt(4, battleNum);
-		pstmt.setLong(5, startTime);
-		pstmt.executeUpdate();
-		return true;
-	}
-
-	@Override
-	public boolean readFromDb(Connection connection) throws SQLException {
-		return true;
 	}
 }

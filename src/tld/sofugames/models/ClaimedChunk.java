@@ -9,7 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
 
-public class ClaimedChunk implements Model {
+public class ClaimedChunk {
 	public int id;
 	public UUID owner;
 	public String chunkId = "";
@@ -28,6 +28,8 @@ public class ClaimedChunk implements Model {
 		this.z = world.getZ();
 	}
 
+	public ClaimedChunk() {}
+
 	public HashSet<Chunk> getRelatives() {
 		HashSet<Chunk> chunks = new HashSet<>();
 		chunks.add(world.getWorld().getChunkAt(x+1, z));
@@ -37,48 +39,8 @@ public class ClaimedChunk implements Model {
 		return chunks;
 	}
 
-	public int getRelativeNumber(Chunk prev) {
-		int relativeNumber = 0;
-		HashSet<Chunk> rels = getRelatives();
-		for (Chunk chunk: rels) {
-			if(Data.getInstance().claimData.containsKey(chunk.toString()) && !chunk.equals(prev)) {
-				relativeNumber++;
-			}
-		}
-		return relativeNumber;
-	}
-
 	public float distance(ClaimedChunk toChunk) {
 		return (float)Math.sqrt(Math.pow(toChunk.x - x, 2) + Math.pow(toChunk.z - z, 2));
-	}
-
-
-	@Override
-	public boolean pushToDb(Connection connection) throws SQLException {
-		PreparedStatement pstmt = Data.getInstance().getConnection().prepareStatement(
-				"INSERT INTO user_claims VALUES(?, ?, ?, ?, ?, ?)");
-		pstmt.setInt(1, id);
-		pstmt.setString(2, chunkId);
-		pstmt.setInt(3, world.getX());
-		pstmt.setInt(4, world.getZ());
-		pstmt.setString(5, owner.toString());
-		pstmt.setString(6, type.name());
-		pstmt.executeUpdate();
-		System.out.println(pstmt.toString());
-		return true;
-	}
-
-	@Override
-	public boolean readFromDb(Connection connection) throws SQLException {
-		return false;
-	}
-
-	public void delete() throws SQLException {
-		PreparedStatement pstmt = Data.getInstance().getConnection().prepareStatement("DELETE FROM user_claims WHERE id = ?");
-		pstmt.setInt(1, id);
-		pstmt.executeUpdate();
-		Data.getInstance().claimData.remove(world.toString());
-		Data.getInstance().kingData.get(owner.toString()).setChunkNumber(Data.getInstance().kingData.get(owner.toString()).getChunkNumber() - 1);
 	}
 
 	@Override
