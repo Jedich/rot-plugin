@@ -19,14 +19,9 @@ public class HouseDao extends PersistentData implements Dao<House> {
 	}
 
 	@Override
-	public Optional<House> get(String query) {
-		return Optional.of(getAll().get(query));
-	}
-
-	@Override
 	public Map<String, House> getAll() {
 		try {
-			if(PersistentData.getInstance().kingData.size() == 0) {
+			if(PersistentData.getInstance().houseData.size() == 0) {
 				PreparedStatement stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM houses");
 				ResultSet results = stmt.executeQuery();
 				while(results.next()) {

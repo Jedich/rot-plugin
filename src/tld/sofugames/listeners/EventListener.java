@@ -27,7 +27,7 @@ public class EventListener implements Listener {
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockBreak(BlockBreakEvent event) {
 		if(isWorld(event.getPlayer())) {
-			if(!checkOwnership(event.getPlayer(), event.getBlock())) {
+			if(!isClaimedAndOwned(event.getPlayer(), event.getBlock())) {
 				event.setCancelled(true);
 				event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
 			} else {
@@ -49,12 +49,14 @@ public class EventListener implements Listener {
 
 	@EventHandler
 	public void onInteract(PlayerInteractEvent e) {
-		checkInteraction(e.getPlayer(), e.getClickedBlock(), e);
+		if(e.getClickedBlock() != null) {
+			checkInteraction(e.getPlayer(), e.getClickedBlock(), e);
+		}
 	}
 
 	public void checkInteraction(Player player, Block block, Cancellable event) {
 		if(isWorld(player)) {
-			if(!checkOwnership(player, block)) {
+			if(!isClaimedAndOwned(player, block)) {
 				player.sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
 				event.setCancelled(true);
 			}
@@ -138,17 +140,15 @@ public class EventListener implements Listener {
 		player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
 	}
 
-	public static boolean checkOwnership(Player player, Block block) {
+	public static boolean isClaimedAndOwned(Player player, Block block) {
 		UUID senderUUID = player.getUniqueId();
 		ClaimDao claimData = new DaoFactory().getClaims();
-		ClaimedChunk chunk = claimData.get(block.getChunk().toString()).get();
 		if(block.getY() <= 16 || block.getY() >= 40) {
 			if(claimData.get(block.getChunk().toString()).isPresent()) {
+				ClaimedChunk chunk = claimData.get(block.getChunk().toString()).get();
 				//claimed chunk without owner is impossible
 				King owner = new DaoFactory().getKings().get(chunk.owner.toString()).orElse(new King());
 				return chunk.owner.equals(senderUUID) || owner.advisors.contains(senderUUID);
-			} else {
-				return false;
 			}
 		}
 		return true;

@@ -20,15 +20,11 @@ public class ClaimDao extends PersistentData implements Dao<ClaimedChunk> {
 	public ClaimDao() {
 		connection = Data.getInstance().getConnection();
 	}
-	@Override
-	public Optional<ClaimedChunk> get(String query) {
-		return Optional.of(getAll().get(query));
-	}
 
 	@Override
 	public Map<String, ClaimedChunk> getAll() {
 		try {
-			if(PersistentData.getInstance().kingData.size() == 0) {
+			if(PersistentData.getInstance().claimData.size() == 0) {
 				PreparedStatement stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM user_claims");
 				ResultSet results = stmt.executeQuery();
 				while(results.next()) {

@@ -8,7 +8,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface Dao<T> {
-	Optional<T> get(String query);
+	default Optional<T> get(String query) {
+		return Optional.ofNullable(getAll().get(query));
+	}
 
 	Map<String, T> getAll();
 

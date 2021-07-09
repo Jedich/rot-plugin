@@ -18,10 +18,6 @@ public class AllianceDao extends PersistentData implements Dao<Relation> {
 		connection = Data.getInstance().getConnection();
 	}
 
-	@Override
-	public Optional<Relation> get(String query) {
-		return Optional.empty();
-	}
 
 	@Override
 	public Map<String, Relation> getAll() {
@@ -31,8 +27,8 @@ public class AllianceDao extends PersistentData implements Dao<Relation> {
 			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM alliances");
 			results = stmt.executeQuery();
 			while(results.next()) {
-				King king = kingData.get(UUID.fromString(results.getString("king1")).toString());
-				king.allies.add(kingData.get(UUID.fromString(results.getString("king2")).toString()));
+				King king = PersistentData.getInstance().kingData.get(UUID.fromString(results.getString("king1")).toString());
+				king.allies.add(PersistentData.getInstance().kingData.get(UUID.fromString(results.getString("king2")).toString()));
 			}
 		} catch(SQLException e) {
 			e.printStackTrace();

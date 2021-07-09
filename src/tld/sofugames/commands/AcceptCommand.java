@@ -20,7 +20,7 @@ public class AcceptCommand implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if(command.getName().equalsIgnoreCase("kingdom")) {
+		if(command.getName().equalsIgnoreCase("accept")) {
 			if(args == null || args.length == 0) {
 				sender.sendMessage("§6Accept command:");
 				sender.sendMessage("§6join§f: lets you join a kingdom.");
@@ -44,7 +44,7 @@ public class AcceptCommand implements CommandExecutor {
 					e.printStackTrace();
 				}
 				sender.sendMessage("§aYou have joined " + parent.kingdomName + "!");
-				sender.sendMessage("§aInvite accepted!");
+				parent.assignedPlayer.sendMessage("§aInvite accepted!");
 			}
 			return true;
 		}

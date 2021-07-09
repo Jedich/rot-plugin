@@ -15,10 +15,6 @@ public class RelationsDao extends PersistentData implements Dao<Relation> {
 	public RelationsDao() {
 		connection = Data.getInstance().getConnection();
 	}
-	@Override
-	public Optional<Relation> get(String query) {
-		return Optional.empty();
-	}
 
 	@Override
 	public Map<String, Relation> getAll() {
@@ -28,8 +24,8 @@ public class RelationsDao extends PersistentData implements Dao<Relation> {
 			stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM relations");
 			results = stmt.executeQuery();
 			while(results.next()) {
-				kingData.get(results.getString("name")).relations
-						.put(kingData.get(results.getString("meaning_of")).getUuid(),
+				PersistentData.getInstance().kingData.get(results.getString("name")).relations
+						.put(PersistentData.getInstance().kingData.get(results.getString("meaning_of")).getUuid(),
 								results.getInt("value"));
 			}
 		} catch(SQLException e) {

@@ -20,7 +20,7 @@ public class MultiBlockPlaceListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onMultiBlockPlace(BlockMultiPlaceEvent event) {
 		if(EventListener.isWorld(event.getPlayer())) {
-			if(EventListener.checkOwnership(event.getPlayer(), event.getBlock())) {
+			if(EventListener.isClaimedAndOwned(event.getPlayer(), event.getBlock())) {
 				Block start = event.getBlock();
 				if(start.getBlockData() instanceof org.bukkit.block.data.type.Bed) {
 					House newHouse = new House(event.getPlayer().getUniqueId(), Data.getInstance().getBedHash(start), start);

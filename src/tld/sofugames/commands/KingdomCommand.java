@@ -23,16 +23,20 @@ public class KingdomCommand implements CommandExecutor {
 	KingDao kingData = daoFactory.getKings();
 	ClaimDao claimData = daoFactory.getClaims();
 
+	public void sendCommandList(CommandSender sender) {
+		sender.sendMessage("§6Kingdom command:");
+		sender.sendMessage("§6setname <name>§f: sets a kingdom name (spaces allowed).");
+		sender.sendMessage("§6info§f: gives an important information about your kingdom.");
+		sender.sendMessage("§6show§f: visualizes claimed chunks.");
+		sender.sendMessage("§6invite§f: invites an advisor to your kingdom.");
+		sender.sendMessage("§6join§f: lets you join as an advisor.");
+	}
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(command.getName().equalsIgnoreCase("kingdom")) {
 			if(args == null || args.length == 0) {
-				sender.sendMessage("§6Kingdom command:");
-				sender.sendMessage("§6setname <name>§f: sets a kingdom name (spaces allowed).");
-				sender.sendMessage("§6info§f: gives an important information about your kingdom.");
-				sender.sendMessage("§6show§f: visualizes claimed chunks.");
-				sender.sendMessage("§6invite§f: invites an advisor to your kingdom.");
-				sender.sendMessage("§6join§f: lets you join as an advisor.");
+				sendCommandList(sender);
 				return true;
 			}
 			Player player = (Player) sender;
@@ -98,9 +102,15 @@ public class KingdomCommand implements CommandExecutor {
 				King otherKing = null;
 				try {
 					otherKing = getAnotherKing(args[1]);
-				} catch(NullPointerException ignored) { }
+				} catch(NullPointerException ignored) {
+				}
 				if(otherKing != null) {
+					if(otherKing.equals(thisKing)) {
+						sender.sendMessage("You can't invite yourself to your kingdom!");
+						return true;
+					}
 					sender.sendMessage("King has his own lands to rule!");
+					return true;
 				}
 				Player invitedPlayer;
 				try {
@@ -111,9 +121,12 @@ public class KingdomCommand implements CommandExecutor {
 				}
 				Data.getInstance().kingdomRequests.put(invitedPlayer.getUniqueId(), thisKing);
 				invitedPlayer.sendMessage("An invite to join kingdom as an advisor\nfrom " + thisKing.fullTitle +
-						"\nUse §a/kingdom join§f to accept invitation.");
+						"\nUse §a/accept join§f to accept invitation.");
 				sender.sendMessage("Invite sent.");
+			} else {
+				sendCommandList(sender);
 			}
+			return true;
 		}
 		return false;
 	}
@@ -122,8 +135,8 @@ public class KingdomCommand implements CommandExecutor {
 		@Override
 		public List<String> onTabComplete(@NotNull CommandSender sender, Command cde, String arg, String[] args) {
 			if(args.length < 2) {
-				return Arrays.asList("setname", "info", "show", "invite", "join");
-			} else if(arg.equalsIgnoreCase("invite")) {
+				return Arrays.asList("setname", "info", "show", "invite");
+			} else if(args[0].equalsIgnoreCase("invite")) {
 				return Bukkit.getServer().getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
 			} else return Collections.emptyList();
 		}

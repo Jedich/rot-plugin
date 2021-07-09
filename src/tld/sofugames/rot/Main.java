@@ -41,6 +41,7 @@ public class Main extends JavaPlugin {
 
 		getCommand("claim").setExecutor(new ClaimCommand());
 		getCommand("unclaim").setExecutor(new UnclaimCommand());
+		getCommand("accept").setExecutor(new AcceptCommand());
 		KingdomCommand k = new KingdomCommand();
 		getCommand("kingdom").setExecutor(k);
 		getCommand("kingdom").setTabCompleter(k.new PluginTabCompleter());

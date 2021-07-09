@@ -18,10 +18,6 @@ public class WarDao extends PersistentData implements Dao<War>, AbstractWarDao {
 	public WarDao() {
 		connection = Data.getInstance().getConnection();
 	}
-	@Override
-	public Optional<War> get(String query) {
-		return Optional.of(getAll().get(query));
-	}
 
 	@Override
 	public Map<String, War> getAll() {

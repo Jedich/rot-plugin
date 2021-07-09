@@ -14,7 +14,9 @@ public class RotPlayer {
 	public RotPlayer(Player player, ClaimedChunk homeChunk) {
 		this.assignedPlayer = player;
 		this.homeChunk = homeChunk;
-		this.uuid = assignedPlayer.getUniqueId();
+		if(player != null) {
+			this.uuid = assignedPlayer.getUniqueId();
+		}
 	}
 
 	public RotPlayer() {}

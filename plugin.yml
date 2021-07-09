@@ -1,6 +1,6 @@
 main: tld.sofugames.rot.Main
 name: RoT-Reloaded
-version: 0.3-beta
+version: 0.4-beta
 api-version: 1.16
 author: jedichchch
 description: Roots of Ternaria Reloaded!
@@ -47,9 +47,14 @@ commands:
     permission-message: You don't have the rot.god permission.
   givegold:
     description: Gives gold to a player
-    usage: /gibegold <player_name>
+    usage: /givegold <player_name>
     permission: rot.god
     permission-message: You don't have the rot.god permission.
+  accept:
+    description: Gives gold to a player
+    usage: /accept <task>
+    permission: rot.king
+    permission-message: You don't have the rot.king permission.
 permissions:
   rot.king:
     description: Allows king commands
