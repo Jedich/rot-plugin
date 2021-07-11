@@ -65,7 +65,7 @@ public class KingDao extends PersistentData implements Dao<King> {
 	public void save(King king) {
 		try {
 			PreparedStatement stmt = (PreparedStatement) Data.getInstance().getConnection().prepareStatement(
-					"INSERT INTO kings VALUES(?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+					"INSERT INTO kings(name, title, kingdom_name, home_chunk, kingdom_level, current_gen, balance) VALUES(?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 			stmt.setString(1, king.assignedPlayer.getUniqueId().toString());
 			stmt.setString(2, king.getTitle());
 			stmt.setString(3, king.kingdomName);
@@ -78,7 +78,7 @@ public class KingDao extends PersistentData implements Dao<King> {
 			if(retrievedId.next()) {
 				king.setId(retrievedId.getInt(1));
 			}
-			getAll().put(king.getUuid().toString(), king);
+			PersistentData.getInstance().kingData.put(king.getUuid().toString(), king);
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}

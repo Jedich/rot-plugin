@@ -56,7 +56,7 @@ public class HouseDao extends PersistentData implements Dao<House> {
 	public void save(House house) {
 		try {
 			PreparedStatement pstmt = (PreparedStatement) connection.prepareStatement(
-					"INSERT INTO houses VALUES(?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+					"INSERT INTO houses(owner, bed_block, level, area, benefits, income) VALUES(?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 			pstmt.setString(1, house.owner.toString());
 			pstmt.setString(2, house.bedBlockId);
 			pstmt.setInt(3, house.level);
@@ -80,7 +80,7 @@ public class HouseDao extends PersistentData implements Dao<House> {
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
-		getAll().put(house.bedBlockId, house);
+		PersistentData.getInstance().houseData.put(house.bedBlockId, house);
 	}
 
 	@Override

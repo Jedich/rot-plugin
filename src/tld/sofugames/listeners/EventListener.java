@@ -136,7 +136,7 @@ public class EventListener implements Listener {
 		player.teleport(highestAtCenter);
 		player.setGameMode(GameMode.SURVIVAL);
 		Data.getInstance().giveBed(player, false);
-		player.sendTitle(ChatColor.GOLD + "Glory to the new King!", deceasedKing.fullTitle, 20, 70, 20);
+		player.sendTitle(ChatColor.GOLD + "Glory to the New King!", deceasedKing.fullTitle, 20, 70, 20);
 		player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
 	}
 

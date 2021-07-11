@@ -54,14 +54,14 @@ public class ClaimDao extends PersistentData implements Dao<ClaimedChunk> {
 	public void save(ClaimedChunk chunk) {
 		try {
 			PreparedStatement pstmt = Data.getInstance().getConnection().prepareStatement(
-					"INSERT INTO user_claims VALUES(?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+					"INSERT INTO user_claims(name, chunk_x, chunk_y, owner, type) VALUES(?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 			pstmt.setString(1, chunk.chunkId);
 			pstmt.setInt(2, chunk.world.getX());
 			pstmt.setInt(3, chunk.world.getZ());
 			pstmt.setString(4, chunk.owner.toString());
 			pstmt.setString(5, chunk.type.name());
 			pstmt.executeUpdate();
-			getAll().put(chunk.chunkId, chunk);
+			PersistentData.getInstance().claimData.put(chunk.chunkId, chunk);
 			System.out.println(pstmt.toString());
 			ResultSet retrievedId = pstmt.getGeneratedKeys();
 			if(retrievedId.next()){

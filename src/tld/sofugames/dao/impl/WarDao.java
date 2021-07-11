@@ -49,7 +49,7 @@ public class WarDao extends PersistentData implements Dao<War>, AbstractWarDao {
 	public void save(War war) {
 		try {
 			PreparedStatement pstmt = (PreparedStatement) connection.prepareStatement(
-					"INSERT INTO wars VALUES(?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+					"INSERT INTO wars(type, atk, def, score, exhaustion, start_time) VALUES(?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 			pstmt.setInt(1, war.getWarType().getId());
 			pstmt.setString(2, war.getAtk().getUuid().toString());
 			pstmt.setString(3, war.getDef().getUuid().toString());
@@ -57,7 +57,7 @@ public class WarDao extends PersistentData implements Dao<War>, AbstractWarDao {
 			pstmt.setFloat(5, war.getExhaustion());
 			pstmt.setLong(6, war.getStartTime());
 			pstmt.executeUpdate();
-			getAll().put(war.getAtk().getUuid().toString(), war);
+			PersistentData.getInstance().wars.put(war.getAtk().getUuid().toString(), war);
 			ResultSet retrievedId = pstmt.getGeneratedKeys();
 			if(retrievedId.next()){
 				war.setId(retrievedId.getInt(1));
