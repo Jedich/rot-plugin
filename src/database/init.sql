@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS war_claims
 CREATE TABLE IF NOT EXISTS relations
 (
     id         INTEGER NOT NULL,
-    name       VARCHAR(64) DEFAULT NULL,
+    king       INT(11)     DEFAULT NULL,
     meaning_of VARCHAR(64) DEFAULT NULL,
     value      INT(11)     DEFAULT 50,
     PRIMARY KEY ("id" AUTOINCREMENT)

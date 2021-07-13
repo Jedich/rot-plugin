@@ -8,38 +8,24 @@ commands:
   claim:
     description: Claims a chunk as your kingdom property for daily charge
     usage: /claim
-    permission: rot.king
-    permission-message: You don't have the rot.king permission.
   unclaim:
     description: Unclaims a previously claimed chunk
     usage: /unclaim
-    permission: rot.king
-    permission-message: You don't have the rot.king permission.
   chunk-info:
     description: Gives information about chunks' ruler
     usage: /chunk-info
-    permission: rot.king
-    permission-message: You don't have the rot.king permission.
   timeleft:
     description: Shows time until respawn.
     usage: /timeleft
-    permission: rot.king
-    permission-message: You don't have the rot.king permission.
   kingdom:
     description: Gives info about your kingdom
     usage: /kingdom <task> {name}
-    permission: rot.king
-    permission-message: You don't have the rot.king permission.
   diplomacy:
     description: Gives info about your kingdom relations
     usage: /diplomacy <task> <player_name> {action}
-    permission: rot.king
-    permission-message: You don't have the rot.king permission.
   war:
     description: Gives you control over military actions on enemies
     usage: /war <task> {player_name}
-    permission: rot.king
-    permission-message: You don't have the rot.king permission.
   reset:
     description: Resets all claimed chunks
     usage: /reset
@@ -53,12 +39,7 @@ commands:
   accept:
     description: Gives gold to a player
     usage: /accept <task>
-    permission: rot.king
-    permission-message: You don't have the rot.king permission.
 permissions:
-  rot.king:
-    description: Allows king commands
-    default: op
   rot.god:
     description: Allows god commands
     default: op

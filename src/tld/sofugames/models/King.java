@@ -27,7 +27,7 @@ public class King extends RotPlayer {
 	private float goldBalance = 10;
 	private float income;
 	private int chunkNumber = 0;
-	private int currentGen = 0;
+	private int currentGen = 1;
 	private BossBar kingdomBar;
 	public boolean barSetToCancel;
 	public LinkedList<ClaimedChunk> warClaims = new LinkedList<>();
@@ -39,7 +39,10 @@ public class King extends RotPlayer {
 
 	public King(Player player, ClaimedChunk homeChunk) {
 		super(player, homeChunk);
-		setBossBar();
+		if(player != null) {
+			generateGen();
+			setBossBar();
+		}
 	}
 
 	public King() {

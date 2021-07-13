@@ -23,20 +23,21 @@ public class KingDao extends PersistentData implements Dao<King> {
 			if(PersistentData.getInstance().kingData.size() == 0) {
 				PreparedStatement stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM kings");
 				ResultSet results = stmt.executeQuery();
+				DaoFactory factory = new DaoFactory();
 				while(results.next()) {
-					PersistentData.getInstance().kingData.put(results.getString("name"), new King(results.getInt("id"),
+					King king = new King(results.getInt("id"),
 							Bukkit.getPlayer(UUID.fromString(results.getString("name"))),
 							results.getString("title"),
 							results.getString("kingdom_name"),
 							results.getInt("kingdom_level"),
 							results.getInt("current_gen"),
 							results.getFloat("balance")
-					));
+					);
+					PersistentData.getInstance().kingData.put(results.getString("name"), king);
+					king.relations = factory.getRelations().getByKingId(king.getId());
 				}
 				new DaoFactory().getClaims().getAll();
-				DaoFactory factory = new DaoFactory();
 				factory.getAlliances().getAll();
-				factory.getRelations().getAll();
 				stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM kingdom_helpers");
 				results = stmt.executeQuery();
 				while(results.next()) {

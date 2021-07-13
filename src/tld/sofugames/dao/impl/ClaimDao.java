@@ -25,8 +25,13 @@ public class ClaimDao extends PersistentData implements Dao<ClaimedChunk> {
 	public Map<String, ClaimedChunk> getAll() {
 		try {
 			if(PersistentData.getInstance().claimData.size() == 0) {
+				Statement pstmt = connection.createStatement();
+				ResultSet results = pstmt.executeQuery("SELECT CASE WHEN EXISTS(SELECT 1 FROM user_claims) THEN 0 ELSE 1 END AS IsEmpty");
+				if(!results.next()) {
+					return null;
+				}
 				PreparedStatement stmt = (PreparedStatement) connection.prepareStatement("SELECT * FROM user_claims");
-				ResultSet results = stmt.executeQuery();
+				results = stmt.executeQuery();
 				while(results.next()) {
 					ClaimedChunk newChunk = new ClaimedChunk(results.getInt("id"),
 							results.getString("name"),
