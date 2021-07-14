@@ -97,14 +97,15 @@ public class WarCommand implements CommandExecutor {
 					} else {
 						canBeFinished = king.getCurrentWar().signWhitePeace(false);
 						if(!canBeFinished) {
+							sender.sendMessage("Peace offer sent.");
 							enemy.assignedPlayer.sendMessage("§6Enemy offers to sign a white peace.\n" +
 									"§fUse §a/war acceptpeace §fto answer, otherwise ignore this message.\n" +
 									"You hase 3 minutes to choose.");
-							requests.put(king.getUuid().toString(), enemy);
+							requests.put(enemy.getUuid().toString(), king);
 							BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 							scheduler.scheduleSyncDelayedTask(Data.getInstance().plugin, () -> {
-								if(requests.containsKey(king.getUuid().toString())) {
-									requests.remove(king.getUuid().toString());
+								if(requests.containsKey(enemy.getUuid().toString())) {
+									requests.remove(enemy.getUuid().toString());
 									king.assignedPlayer.sendMessage("§cPeace offer was rejected.");
 								}
 							}, 3600L);
@@ -127,9 +128,8 @@ public class WarCommand implements CommandExecutor {
 						sender.sendMessage("You have no pending requests.");
 						return true;
 					}
+					King enemy = requests.get(king.getUuid().toString());
 					requests.remove(king.getUuid().toString());
-					King enemy = king.getCurrentWar().getDef().equals(king) ?
-							king.getCurrentWar().getAtk() : king.getCurrentWar().getDef();
 
 					king.getCurrentWar().signWhitePeace(true);
 					sendPeaceMessage(king, enemy, true);

@@ -26,18 +26,18 @@ public class WarDao extends PersistentData implements Dao<War> {
 				ResultSet results = stmt.executeQuery();
 				KingDao kings = new DaoFactory().getKings();
 				while(results.next()) {
-					King king1 = kings.get(results.getString("king1")).orElse(null);
-					King king2 = kings.get(results.getString("king2")).orElse(null);
+					King king1 = kings.get(results.getString("atk")).orElse(null);
+					King king2 = kings.get(results.getString("def")).orElse(null);
 					War newWar = new War(
 							results.getInt("id"),
 							WarType.types[results.getInt("type")],
 							king1,
 							king2,
 							results.getFloat("score"),
-							results.getFloat("kingdom_name"),
+							results.getFloat("exhaustion"),
 							results.getLong("start_time")
 					);
-					PersistentData.getInstance().wars.put(results.getString("name"), newWar);
+					PersistentData.getInstance().wars.put(results.getString("atk"), newWar);
 					stmt = connection.prepareStatement("SELECT * FROM war_helpers WHERE atk=?");
 					results = stmt.executeQuery();
 					while(results.next()) {
@@ -79,10 +79,11 @@ public class WarDao extends PersistentData implements Dao<War> {
 	public void addWarHelper(War war, King helper, WarSide side) {
 		try {
 			PreparedStatement pstmt = (PreparedStatement) connection.prepareStatement(
-					"INSERT INTO war_helpers(atk, helper, side) VALUES(?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-			pstmt.setString(1, war.getAtk().getUuid().toString());
-			pstmt.setString(2, helper.getUuid().toString());
-			pstmt.setString(3, side.toString());
+					"INSERT INTO war_helpers(war_id, atk, helper, side) VALUES(?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+			pstmt.setInt(1, war.getId());
+			pstmt.setString(2, war.getAtk().getUuid().toString());
+			pstmt.setString(3, helper.getUuid().toString());
+			pstmt.setString(4, side.toString());
 			pstmt.executeUpdate();
 		} catch(SQLException e) {
 			e.printStackTrace();
@@ -120,8 +121,10 @@ public class WarDao extends PersistentData implements Dao<War> {
 		try {
 			PreparedStatement pstmt = Data.getInstance().getConnection().prepareStatement("DELETE FROM wars WHERE id = ?");
 			pstmt.setInt(1, war.getId());
+			pstmt = Data.getInstance().getConnection().prepareStatement("DELETE FROM war_helpers WHERE war_id = ?");
+			pstmt.setInt(1, war.getId());
 			pstmt.executeUpdate();
-			getAll().remove(war.getAtk().getUuid().toString());
+			PersistentData.getInstance().wars.remove(war.getAtk().getUuid().toString());
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}

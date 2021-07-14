@@ -109,6 +109,7 @@ public class Main extends JavaPlugin {
 		houseData.getAll().clear();
 		wars.getAll().clear();
 		onDisable();
+		connection = Data.getInstance().getConnection();
 		onEnable();
 	}
 
