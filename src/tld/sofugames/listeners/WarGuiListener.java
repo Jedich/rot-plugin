@@ -37,6 +37,7 @@ public class WarGuiListener implements Listener {
 			War thisWar = wars.get(p.getUniqueId().toString()).get();
 			thisWar.setWarType(WarType.types[e.getRawSlot() - 2]);
 			p.closeInventory();
+			thisWar.updateWarState(true);
 			thisWar.getAtk().assignedPlayer.sendTitle("§4WAR!", "", 20, 70, 20);
 			thisWar.getAtk().assignedPlayer.playSound(thisWar.getAtk().assignedPlayer.getLocation(),
 					Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1, 1);
@@ -67,7 +68,7 @@ public class WarGuiListener implements Listener {
 			if(wars.get(atkUuid).isPresent()) {
 				War war = wars.get(atkUuid).get();
 				if(war.getWarType() == null) {
-					wars.deleteSoftly(war);
+					war.updateWarState(false);
 				}
 			}
 		}

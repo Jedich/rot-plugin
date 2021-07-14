@@ -2,6 +2,7 @@ package tld.sofugames.models;
 
 import org.bukkit.Bukkit;
 import tld.sofugames.dao.impl.DaoFactory;
+import tld.sofugames.rot.WarSide;
 import tld.sofugames.rot.WarType;
 
 import java.util.HashSet;
@@ -123,11 +124,34 @@ public class War {
 		}
 	}
 
+	public void updateWarState(boolean isOn) {
+		War ongoingWar = isOn ? this : null;
+		getAtk().setAtWar(isOn);
+		getDef().setAtWar(isOn);
+		getAtk().setCurrentWar(ongoingWar);
+		getDef().setCurrentWar(ongoingWar);
+		for(King ally : atkAllies) {
+			ally.setCurrentWar(ongoingWar);
+			ally.setAtWar(isOn);
+			ally.setWarAlly(isOn);
+		}
+		for(King ally : defAllies) {
+			ally.setCurrentWar(ongoingWar);
+			ally.setAtWar(isOn);
+			ally.setWarAlly(isOn);
+		}
+	}
+
 	public int getId() {
 		return id;
 	}
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	@Override
+	public String toString() {
+		return warType.getName() + " war: " + getAtk().assignedPlayer.getName() + " vs. " +  getDef().assignedPlayer.getName();
 	}
 }

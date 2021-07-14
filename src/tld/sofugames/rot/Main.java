@@ -64,11 +64,8 @@ public class Main extends JavaPlugin {
 		BukkitScheduler scheduler = getServer().getScheduler();
 		scheduler.scheduleSyncRepeatingTask(this, this::checkIncomes, 24000L, 24000L);
 		scheduler.scheduleSyncRepeatingTask(this, this::checkHouses, 0, 6000L);
-		//}
-//		else {
-//			System.out.println("Database not configured! Restarting...");
-//			restart();
-//		}
+
+		wars.getAll();
 	}
 
 	@Override
@@ -118,6 +115,7 @@ public class Main extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
+		wars.updateAll();
 		try {
 			if(connection != null && !connection.isClosed()) {
 				connection.close();

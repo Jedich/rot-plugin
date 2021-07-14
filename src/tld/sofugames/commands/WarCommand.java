@@ -17,6 +17,7 @@ import tld.sofugames.gui.WarGui;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.King;
 import tld.sofugames.models.War;
+import tld.sofugames.rot.WarSide;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -215,7 +216,9 @@ public class WarCommand implements CommandExecutor {
 						sender.sendMessage(ChatColor.RED + "Your ally is not at war!");
 						return true;
 					}
-					otherKing.getCurrentWar().addAlly(otherKing, thisKing);
+					War war = otherKing.getCurrentWar();
+					war.addAlly(otherKing, thisKing);
+					new DaoFactory().getWars().addWarHelper(war, thisKing, war.getDef().equals(otherKing) ? WarSide.Def : WarSide.Atk);
 				}
 			} else {
 				sender.sendMessage(ChatColor.GOLD + "War command commands:");
