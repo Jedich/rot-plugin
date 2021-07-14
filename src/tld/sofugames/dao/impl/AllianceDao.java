@@ -57,7 +57,7 @@ public class AllianceDao extends PersistentData implements Dao<Relation> {
 	public void delete(Relation o) {
 		try {
 			PreparedStatement pstmt = (PreparedStatement) Data.getInstance().getConnection().prepareStatement(
-					"DELETE FROM alliances WHERE king1 = ?, king2 = ?");
+					"DELETE FROM alliances WHERE king1 = ? AND king2 = ?");
 			setStrings(o, pstmt);
 		} catch(SQLException e) {
 			e.printStackTrace();

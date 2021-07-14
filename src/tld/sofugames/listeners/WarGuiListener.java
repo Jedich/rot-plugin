@@ -41,7 +41,7 @@ public class WarGuiListener implements Listener {
 			thisWar.getAtk().assignedPlayer.playSound(thisWar.getAtk().assignedPlayer.getLocation(),
 					Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1, 1);
 			thisWar.getDef().assignedPlayer.sendTitle("§4WAR!",
-					"King " + thisWar.getAtk().fullTitle + " §cdeclares war on us!", 20, 70, 20);
+					"King " + thisWar.getAtk().getFullTitle() + " §cdeclares war on us!", 20, 70, 20);
 			thisWar.getDef().assignedPlayer.playSound(thisWar.getDef().assignedPlayer.getLocation(),
 					Sound.EVENT_RAID_HORN, 1, 1);
 			thisWar.getDef().assignedPlayer.playSound(thisWar.getDef().assignedPlayer.getLocation(),

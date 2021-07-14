@@ -27,7 +27,7 @@ public class EventListener implements Listener {
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockBreak(BlockBreakEvent event) {
 		if(isWorld(event.getPlayer())) {
-			if(!isClaimedAndOwned(event.getPlayer(), event.getBlock())) {
+			if(!canInteract(event.getPlayer(), event.getBlock())) {
 				event.setCancelled(true);
 				event.getPlayer().sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
 			} else {
@@ -56,7 +56,7 @@ public class EventListener implements Listener {
 
 	public void checkInteraction(Player player, Block block, Cancellable event) {
 		if(isWorld(player)) {
-			if(!isClaimedAndOwned(player, block)) {
+			if(!canInteract(player, block)) {
 				player.sendMessage(ChatColor.RED + "This land is not owned by you or your kingdom!");
 				event.setCancelled(true);
 			}
@@ -75,7 +75,6 @@ public class EventListener implements Listener {
 			King king = kingData.get(player.getUniqueId().toString()).get();
 			king.assignedPlayer = player;
 			king.setBossBar();
-			king.loadGen();
 			king.setUuid(player.getUniqueId());
 		}
 	}
@@ -136,11 +135,11 @@ public class EventListener implements Listener {
 		player.teleport(highestAtCenter);
 		player.setGameMode(GameMode.SURVIVAL);
 		Data.getInstance().giveBed(player, false);
-		player.sendTitle(ChatColor.GOLD + "Glory to the New King!", deceasedKing.fullTitle, 20, 70, 20);
+		player.sendTitle(ChatColor.GOLD + "Glory to the New King!", deceasedKing.getFullTitle(), 20, 70, 20);
 		player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
 	}
 
-	public static boolean isClaimedAndOwned(Player player, Block block) {
+	public static boolean canInteract(Player player, Block block) {
 		UUID senderUUID = player.getUniqueId();
 		ClaimDao claimData = new DaoFactory().getClaims();
 		if(block.getY() <= 16 || block.getY() >= 40) {

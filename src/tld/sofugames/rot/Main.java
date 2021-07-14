@@ -82,7 +82,8 @@ public class Main extends JavaPlugin {
 			String ownerName = "None";
 			sender.sendMessage("Current chunk: " + chunkName);
 			if(claimData.get(chunkName).isPresent()) {
-				sender.sendMessage("Current owner: " + claimData.get(chunkName).get().owner);
+				sender.sendMessage("Current owner: " +
+						new DaoFactory().getKings().get(claimData.get(chunkName).get().owner.toString()).get().getFullTitle());
 			} else {
 				sender.sendMessage("The chunk is available for conquest!");
 			}

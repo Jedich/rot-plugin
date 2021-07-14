@@ -21,13 +21,12 @@ public class King extends RotPlayer {
 	private int id;
 
 	public String kingdomName = "Unnamed Kingdom";
-	private String title;
-	public String fullTitle;
+	private String title = ", §6Father of the Nation§f";
 	public int kingdomLevel = 1;
 	private float goldBalance = 10;
 	private float income;
 	private int chunkNumber = 0;
-	private int currentGen = 1;
+	private int currentGen = 0;
 	private BossBar kingdomBar;
 	public boolean barSetToCancel;
 	public LinkedList<ClaimedChunk> warClaims = new LinkedList<>();
@@ -40,7 +39,6 @@ public class King extends RotPlayer {
 	public King(Player player, ClaimedChunk homeChunk) {
 		super(player, homeChunk);
 		if(player != null) {
-			generateGen();
 			setBossBar();
 		}
 	}
@@ -61,7 +59,6 @@ public class King extends RotPlayer {
 
 		this.setCurrentGen(currentGen);
 		if(player != null) {
-			loadGen();
 			setBossBar();
 			this.uuid = player.getUniqueId();
 		}
@@ -81,36 +78,28 @@ public class King extends RotPlayer {
 		getKingdomBar().addPlayer(assignedPlayer);
 	}
 
+	public String getFullTitle() {
+		return assignedPlayer.getName() + " " + Data.getInstance().getRomanNumber(getCurrentGen()) + title + ChatColor.WHITE;
+	}
+
 	public void generateGen() {
-		if(getCurrentGen() == 1) {
-			title = ", " + ChatColor.GOLD + "Father of the Nation";
-		} else {
+		if(getCurrentGen() != 1) {
 			title = Data.getInstance().titles[new Random().nextInt(Data.getInstance().titles.length)];
 		}
-		fullTitle = assignedPlayer.getName() + " " + Data.getInstance().getRomanNumber(getCurrentGen()) + title + ChatColor.WHITE;
-		assignedPlayer.setDisplayName(fullTitle);
+		assignedPlayer.setDisplayName(getFullTitle());
 		new DaoFactory().getKings().update(this,
 				Stream.of(new Object[][]{{"title", title}, {"current_gen", getCurrentGen()}})
 						.collect(Collectors.toMap(data -> (String) data[0], data -> data[1])));
 	}
 
-	public void loadGen() {
-		if(!title.equals("")) {
-			fullTitle = assignedPlayer.getName() + " " + Data.getInstance().getRomanNumber(getCurrentGen()) + title;
-		} else {
-			generateGen();
-		}
-		assignedPlayer.setDisplayName(fullTitle);
-	}
-
 	public void changeGen() {
 		setCurrentGen(getCurrentGen() + 1);
 		generateGen();
-		assignedPlayer.setDisplayName(fullTitle);
+		assignedPlayer.setDisplayName(getFullTitle());
 	}
 
 	public void addWarClaim(ClaimedChunk chunk) throws SQLException {
-		PreparedStatement pstmt = (PreparedStatement) Data.getInstance().getConnection().prepareStatement(
+		PreparedStatement pstmt = Data.getInstance().getConnection().prepareStatement(
 				"INSERT INTO war_claims(by_king, chunk_name) VALUES(?, ?)", Statement.RETURN_GENERATED_KEYS);
 		pstmt.setString(1, getUuid().toString());
 		pstmt.setString(2, chunk.world.toString());
@@ -120,7 +109,7 @@ public class King extends RotPlayer {
 	}
 
 	public void deleteWarClaim(ClaimedChunk chunk) throws SQLException {
-		PreparedStatement pstmt = (PreparedStatement) Data.getInstance().getConnection().prepareStatement(
+		PreparedStatement pstmt = Data.getInstance().getConnection().prepareStatement(
 				"DELETE FROM war_claims WHERE by_king = ? AND chunk_name = ?");
 		pstmt.setString(1, getUuid().toString());
 		pstmt.setString(2, chunk.world.toString());
@@ -153,7 +142,7 @@ public class King extends RotPlayer {
 	public void deleteAlly(King ally) throws IllegalArgumentException {
 		allies.remove(ally);
 		ally.allies.remove(this);
-		factory.getRelations().delete(new Relation(this, ally));
+		factory.getAlliances().delete(new Relation(this, ally));
 	}
 
 	public void changeMeaning(UUID with, int value) {

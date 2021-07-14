@@ -3,14 +3,12 @@ package tld.sofugames.dao.impl;
 import org.bukkit.Bukkit;
 import tld.sofugames.dao.Dao;
 import tld.sofugames.data.Data;
-import tld.sofugames.dao.impl.PersistentData;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.King;
 import tld.sofugames.rot.ChunkType;
 
 import java.sql.*;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 public class ClaimDao extends PersistentData implements Dao<ClaimedChunk> {
@@ -89,7 +87,7 @@ public class ClaimDao extends PersistentData implements Dao<ClaimedChunk> {
 			pstmt.setInt(1, chunk.getId());
 			pstmt.executeUpdate();
 			getAll().remove(chunk.world.toString());
-			King owner = kingData.get(chunk.owner.toString());
+			King owner = PersistentData.getInstance().kingData.get(chunk.owner.toString());
 			owner.changeChunkNumber(-1);
 		} catch(SQLException e) {
 			e.printStackTrace();

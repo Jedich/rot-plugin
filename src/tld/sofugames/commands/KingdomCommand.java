@@ -120,7 +120,7 @@ public class KingdomCommand implements CommandExecutor {
 					return true;
 				}
 				Data.getInstance().kingdomRequests.put(invitedPlayer.getUniqueId(), thisKing);
-				invitedPlayer.sendMessage("An invite to join kingdom as an advisor\nfrom " + thisKing.fullTitle +
+				invitedPlayer.sendMessage("An invite to join kingdom as an advisor\nfrom " + thisKing.getFullTitle() +
 						"\nUse §a/accept join§f to accept invitation.");
 				sender.sendMessage("Invite sent.");
 			} else {

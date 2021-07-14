@@ -101,4 +101,8 @@ public class WarDao extends PersistentData implements Dao<War>, AbstractWarDao {
 			ally.setWarAlly(false);
 		}
 	}
+
+	public void saveSoftly(War war) {
+		PersistentData.getInstance().wars.put(war.getAtk().getUuid().toString(), war);
+	}
 }

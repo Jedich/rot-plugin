@@ -34,7 +34,7 @@ public class RelationsDao extends PersistentData implements Dao<Relation> {
 			stmt.setInt(1, kingId);
 			results = stmt.executeQuery();
 			while(results.next()) {
-				relations.put(UUID.fromString(results.getString("meaning_of")), results.getInt("meaning"));
+				relations.put(UUID.fromString(results.getString("meaning_of")), results.getInt("value"));
 			}
 		} catch(SQLException e) {
 			e.printStackTrace();
@@ -75,6 +75,8 @@ public class RelationsDao extends PersistentData implements Dao<Relation> {
 			pstmt.setInt(2, o.getKing2().getId());
 			pstmt.setString(3, o.getKing1().getUuid().toString());
 			pstmt.executeUpdate();
+			System.out.println("Relations between " +  o.getKing1().assignedPlayer.getName() + " and "
+					+  o.getKing2().assignedPlayer.getName() + " have been updated.");
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}

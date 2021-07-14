@@ -42,7 +42,7 @@ public class ClaimCommand implements CommandExecutor {
 					sender.sendMessage("Chunk successfully claimed!" + ChatColor.GOLD + " You are now a King.");
 					sender.sendMessage("Please, name your kingdom with /kingdom setname <name>");
 					thisKing.changeGen();
-					((Player) sender).sendTitle("Glory to a new kingdom!", thisKing.fullTitle, 20, 100, 20);
+					((Player) sender).sendTitle("Glory to a new kingdom!", thisKing.getFullTitle(), 20, 100, 20);
 					player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1, 1);
 					Data.getInstance().giveBed((Player) sender, true);
 				} else {

@@ -11,10 +11,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitScheduler;
-import tld.sofugames.dao.impl.ClaimDao;
-import tld.sofugames.dao.impl.DaoFactory;
-import tld.sofugames.dao.impl.KingDao;
-import tld.sofugames.dao.impl.WarDao;
+import tld.sofugames.dao.impl.*;
 import tld.sofugames.data.*;
 import tld.sofugames.gui.WarGui;
 import tld.sofugames.models.ClaimedChunk;
@@ -60,8 +57,12 @@ public class WarCommand implements CommandExecutor {
 						sender.sendMessage(ChatColor.RED + "You are already at war!");
 						return true;
 					}
+					if(thisKing.allies.contains(otherKing)) {
+						sender.sendMessage("You can't declare war on your ally!");
+						return true;
+					}
 					War war = new War(thisKing, otherKing);
-					wars.save(war);
+					wars.saveSoftly(war);
 					WarGui warGui = new WarGui();
 					((Player) sender).openInventory(warGui.getInventory());
 				} else if(args[0].equalsIgnoreCase("info")) {
@@ -69,8 +70,8 @@ public class WarCommand implements CommandExecutor {
 					if(king.isAtWar()) {
 						War war = king.getCurrentWar();
 						float score = (war.getDef().equals(king) ? -1 : 1) * war.getScore() * 100;
-						sender.sendMessage("§e" + war.getWarType().getName() + " war.\n§6Attacker:§f " + war.getAtk().fullTitle +
-								"\n§6Defender:§f " + war.getDef().fullTitle + "\n§fScore: " + (score < 0 ? "§c" : "§a") +
+						sender.sendMessage("§e" + war.getWarType().getName() + " war.\n§6Attacker:§f " + war.getAtk().getFullTitle() +
+								"\n§6Defender:§f " + war.getDef().getFullTitle() + "\n§fScore: " + (score < 0 ? "§c" : "§a") +
 								String.format("%.2f", score) + "%");
 					} else {
 						sender.sendMessage("You have peace on your grounds... for now.");
@@ -152,7 +153,7 @@ public class WarCommand implements CommandExecutor {
 						king.changeMeaning(otherKing.getUuid(), -50);
 						otherKing.changeMeaning(king.getUuid(), -80);
 						otherKing.assignedPlayer
-								.sendMessage("§cKing " + king.fullTitle + " acquired a war claim on one of our chunks! ");
+								.sendMessage("§cKing " + king.getFullTitle() + " acquired a war claim on one of our chunks! ");
 						king.assignedPlayer.sendMessage("War claim acquired.");
 					} else {
 						king.assignedPlayer.sendMessage("§cTarget chunk is not owned by any king or it's not " +
@@ -179,7 +180,7 @@ public class WarCommand implements CommandExecutor {
 							king.changeMeaning(otherKing.getUuid(), 10);
 							otherKing.changeMeaning(king.getUuid(), 10);
 							otherKing.assignedPlayer
-									.sendMessage("King " + king.fullTitle + " revokes some of their claims.");
+									.sendMessage("King " + king.getFullTitle() + " revokes some of their claims.");
 							king.assignedPlayer.sendMessage("War claim revoked.");
 						} else {
 							king.assignedPlayer.sendMessage("You don't have any war claim on this land.");
