@@ -100,7 +100,7 @@ public class House {
 		return this.area <= 150;
 	}
 
-	private void calculateIncome() {
+	public void calculateIncome() {
 		float a = 1 + benefits * 0.025f;
 		income = (float) (4 * a * Math.sin(0.024 * area - 7.9) + 4 * a);
 		new DaoFactory().getKings().get(owner.toString()).orElse(new King()).changeIncome(income);

@@ -62,7 +62,6 @@ public class WarGuiListener implements Listener {
 
 	@EventHandler
 	public void onInventoryClose(final InventoryCloseEvent e) {
-		System.out.println(e.getInventory().getHolder());
 		if(e.getInventory().getHolder() instanceof WarGui) {
 			String atkUuid = e.getPlayer().getUniqueId().toString();
 			if(wars.get(atkUuid).isPresent()) {

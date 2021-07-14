@@ -28,6 +28,7 @@ public class MultiBlockPlaceListener implements Listener {
 						if(newHouse.isEnclosed()) {
 							event.getPlayer().sendMessage(ChatColor.GOLD + "House claimed!");
 							houseData.save(newHouse);
+							newHouse.calculateIncome();
 							Data.getInstance().giveBed(event.getPlayer(), false);
 						}
 						else {

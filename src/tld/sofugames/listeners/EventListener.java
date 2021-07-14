@@ -143,13 +143,20 @@ public class EventListener implements Listener {
 		UUID senderUUID = player.getUniqueId();
 		ClaimDao claimData = new DaoFactory().getClaims();
 		if(block.getY() <= 16 || block.getY() >= 40) {
+			//System.out.println("im at level");
 			if(claimData.get(block.getChunk().toString()).isPresent()) {
+				//System.out.println("im at claim");
 				ClaimedChunk chunk = claimData.get(block.getChunk().toString()).get();
 				//claimed chunk without owner is impossible
-				King owner = new DaoFactory().getKings().get(chunk.owner.toString()).orElse(new King());
-				return chunk.owner.equals(senderUUID) || owner.advisors.contains(senderUUID);
+				King kingOwner = new DaoFactory().getKings().get(chunk.owner.toString()).orElse(null);
+				return chunk.owner.equals(senderUUID) || kingOwner.advisors.contains(senderUUID);
+			} else {
+				//System.out.println("no claim ok");
+				return false;
 			}
+		} else {
+			//System.out.println("level is ok");
+			return true;
 		}
-		return true;
 	}
 }
