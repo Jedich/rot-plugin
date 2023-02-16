@@ -4,7 +4,7 @@
             <mkdir dir="target"/>
             <jar destfile="target/${ant.project.name}.jar">
                 <fileset dir="out/production/rot-plugin"/>
-                <fileset file="plugin.yml"/>
+                <fileset file="src/main/resources/plugin.yml"/>
             </jar>
         </target>
     </project>

@@ -1,13 +1,11 @@
 package tld.sofugames.rot;
 
-import com.mysql.jdbc.Statement;
 import tld.sofugames.data.Data;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.King;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.function.BiFunction;
 
 public class WarType {
 	private final int id;

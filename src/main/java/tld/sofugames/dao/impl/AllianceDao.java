@@ -1,14 +1,12 @@
 package tld.sofugames.dao.impl;
 
 import tld.sofugames.dao.Dao;
-import tld.sofugames.dao.impl.PersistentData;
 import tld.sofugames.data.Data;
 import tld.sofugames.models.King;
 import tld.sofugames.models.Relation;
 
 import java.sql.*;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 public class AllianceDao extends PersistentData implements Dao<Relation> {

@@ -1,7 +1,7 @@
 main: tld.sofugames.rot.Main
 name: RoT-Reloaded
 version: 0.4-beta
-api-version: 1.16
+api-version: 1.19
 author: jedichchch
 description: Roots of Ternaria Reloaded!
 commands:

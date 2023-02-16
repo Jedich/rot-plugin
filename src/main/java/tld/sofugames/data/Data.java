@@ -1,29 +1,22 @@
 package tld.sofugames.data;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Bed;
-
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
-import tld.sofugames.models.ClaimedChunk;
-import tld.sofugames.models.House;
 import tld.sofugames.models.King;
-import tld.sofugames.models.War;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -45,8 +38,9 @@ public class Data {
 				prop.setProperty("useSSL", "false"); //Set to true if you have a SSL installed to your database (?)
 				prop.setProperty("autoReconnect", "true");
 				connection = DriverManager.getConnection("jdbc:sqlite:plugins/RoT-Reloaded/rotr.db", prop);
+				System.out.println(getClass().getClassLoader().getResourceAsStream("init.sql"));
 				BufferedReader bufferedReader = new BufferedReader(
-						new InputStreamReader(getClass().getResourceAsStream("/database/init.sql")));
+						new InputStreamReader(getClass().getClassLoader().getResourceAsStream("init.sql")));
 				StringBuilder lines = new StringBuilder();
 				String strLines;
 				String line;

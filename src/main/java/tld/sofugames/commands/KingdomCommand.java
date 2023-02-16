@@ -1,15 +1,18 @@
 package tld.sofugames.commands;
 
-import com.sun.istack.internal.NotNull;
-import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.*;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import tld.sofugames.dao.impl.ClaimDao;
 import tld.sofugames.dao.impl.DaoFactory;
 import tld.sofugames.dao.impl.KingDao;
-import tld.sofugames.data.*;
+import tld.sofugames.data.Data;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.King;
 
