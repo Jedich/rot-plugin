@@ -1,6 +1,5 @@
 package tld.sofugames.commands;
 
-import org.jetbrains.annotations.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -9,8 +8,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import tld.sofugames.dao.impl.ClaimDao;
 import tld.sofugames.dao.impl.DaoFactory;
+import tld.sofugames.dao.impl.HouseDao;
 import tld.sofugames.dao.impl.KingDao;
 import tld.sofugames.data.Data;
 import tld.sofugames.models.ClaimedChunk;
@@ -37,21 +38,28 @@ public class KingdomCommand implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if(command.getName().equalsIgnoreCase("kingdom")) {
-			if(args == null || args.length == 0) {
-				sendCommandList(sender);
-				return true;
-			}
-			Player player = (Player) sender;
-			String uuid = player.getUniqueId().toString();
-			King thisKing;
-			if(!kingData.get(uuid).isPresent()) {
-				sender.sendMessage("You are not a king yet! Type your first /claim to become a king!");
-				return true;
-			}
-			thisKing = kingData.get(uuid).get();
-			String chunkName = player.getLocation().getChunk().toString();
-			if(args[0].equalsIgnoreCase("setname")) {
+		if(!command.getName().equalsIgnoreCase("kingdom")) {
+			return false;
+		}
+
+		if(args == null || args.length == 0) {
+			sendCommandList(sender);
+			return true;
+		}
+
+		Player player = (Player) sender;
+		String uuid = player.getUniqueId().toString();
+		King thisKing;
+		if(!kingData.get(uuid).isPresent()) {
+			sender.sendMessage("You are not a king yet! Type your first /claim to become a king!");
+			return true;
+		}
+
+		thisKing = kingData.get(uuid).get();
+		String chunkName = player.getLocation().getChunk().toString();
+		switch(args[0].toLowerCase()) {
+
+			case "setname":
 				String name = StringUtils.join(args, ' ', 1, args.length);
 				Pattern regex = Pattern.compile("[$%&+,'\":;=?@#|]");
 				if(name.equals("")) {
@@ -65,11 +73,17 @@ public class KingdomCommand implements CommandExecutor {
 				} else {
 					sender.sendMessage(ChatColor.RED + "Specified name has invalid characters!");
 				}
-			} else if(args[0].equalsIgnoreCase("info")) {
+				break;
+
+			case "info":
 				sender.sendMessage((ChatColor.GOLD + thisKing.kingdomName) +
 						ChatColor.WHITE + ", the kingdom of " + ChatColor.GOLD + sender.getName());
 				//sender.sendMessage("Kingdom level: " + thisKing.kingdomLevel);
 				sender.sendMessage("Total chunks: " + thisKing.getChunkNumber());
+				HouseDao houseData = new DaoFactory().getHouses();
+				sender.sendMessage("Total houses: " + houseData.getHouseNumber(thisKing.getUuid()));
+				sender.sendMessage("Population: " + (1 + thisKing.advisors.size()));
+				System.out.println(thisKing.advisors);
 				if(chunkName.equals(thisKing.homeChunk.chunkId)) {
 					sender.sendMessage("This is the ruler's home chunk.");
 				}
@@ -80,7 +94,9 @@ public class KingdomCommand implements CommandExecutor {
 					sender.sendMessage(ChatColor.DARK_RED + "The treasury is empty, my lord! " +
 							"We should take a foreign aid before it's not too late!");
 				}
-			} else if(args[0].equalsIgnoreCase("show")) {
+				break;
+
+			case "show":
 				for(Map.Entry<String, ClaimedChunk> chunk : claimData.getAll().entrySet()) {
 					ClaimedChunk ch = chunk.getValue();
 					int a = ch.world.getX() * 16;
@@ -97,7 +113,9 @@ public class KingdomCommand implements CommandExecutor {
 						}
 					}
 				}
-			} else if(args[0].equalsIgnoreCase("invite")) {
+				break;
+
+			case "invite":
 				if(args.length != 2) {
 					sender.sendMessage(ChatColor.RED + "Incorrect arguments: /kingdom invite <player_name>");
 					return true;
@@ -126,19 +144,36 @@ public class KingdomCommand implements CommandExecutor {
 				invitedPlayer.sendMessage("An invite to join kingdom as an advisor\nfrom " + thisKing.getFullTitle() +
 						"\nUse §a/accept join§f to accept invitation.");
 				sender.sendMessage("Invite sent.");
-			} else {
+				break;
+
+			case "settitle":
+				name = StringUtils.join(args, ' ', 1, args.length);
+				regex = Pattern.compile("[$%&+,'\":;=?@#|]");
+				if(name.equals("")) {
+					sender.sendMessage(ChatColor.RED + "Please specify a title for yourself! (Spaces allowed).");
+					return true;
+				}
+				if(!regex.matcher(name).find()) {
+					thisKing.setTitle(name);
+					kingData.update(thisKing, Collections.singletonMap("title", thisKing.getTitle()));
+					sender.sendMessage(ChatColor.GOLD + "You are now " + thisKing.getFullTitle() + ".");
+				} else {
+					sender.sendMessage(ChatColor.RED + "Specified name has invalid characters!");
+				}
+				break;
+
+			default:
 				sendCommandList(sender);
-			}
-			return true;
+				break;
 		}
-		return false;
+		return true;
 	}
 
 	public class PluginTabCompleter implements TabCompleter {
 		@Override
 		public List<String> onTabComplete(@NotNull CommandSender sender, Command cde, String arg, String[] args) {
 			if(args.length < 2) {
-				return Arrays.asList("setname", "info", "show", "invite");
+				return Arrays.asList("setname", "info", "show", "invite", "settitle");
 			} else if(args[0].equalsIgnoreCase("invite")) {
 				return Bukkit.getServer().getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
 			} else return Collections.emptyList();

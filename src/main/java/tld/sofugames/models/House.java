@@ -87,7 +87,7 @@ public class House {
 							}
 						}
 					}
-					if(this.area > 150) {
+					if(this.area > 250) {
 						return false;
 					}
 					this.area++;
@@ -97,7 +97,7 @@ public class House {
 				}
 			}
 		}
-		return this.area <= 150;
+		return this.area <= 250;
 	}
 
 	public void calculateIncome() {

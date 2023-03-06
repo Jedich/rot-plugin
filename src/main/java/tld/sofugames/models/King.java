@@ -82,6 +82,11 @@ public class King extends RotPlayer {
 		return assignedPlayer.getName() + " " + Data.getInstance().getRomanNumber(getCurrentGen()) + title + ChatColor.WHITE;
 	}
 
+	public void setTitle(String title) {
+		this.title = ", " + ChatColor.GOLD + title;
+		assignedPlayer.setDisplayName(getFullTitle());
+	}
+
 	public void generateGen() {
 		if(getCurrentGen() != 1) {
 			title = Data.getInstance().titles[new Random().nextInt(Data.getInstance().titles.length)];
@@ -158,7 +163,7 @@ public class King extends RotPlayer {
 	}
 
 	public float getFee() {
-		return (float) ((1.3f * (getChunkNumber() + 0.5)) * Math.log(getChunkNumber() + 0.5));
+		return (float) Math.pow(getChunkNumber(), 1.9f)/20 + 0.15f;// ((1.3f * (getChunkNumber() + 0.5)) * Math.log(getChunkNumber() + 0.5));
 	}
 
 	public void changeIncome(float income) {

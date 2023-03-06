@@ -8,7 +8,6 @@ import tld.sofugames.models.King;
 
 import java.sql.*;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 public class HouseDao extends PersistentData implements Dao<House> {
@@ -52,6 +51,22 @@ public class HouseDao extends PersistentData implements Dao<House> {
 		return null;
 	}
 
+	public int getHouseNumber(UUID owner) {
+		int houseNumber = 0;
+		try {
+			PreparedStatement stmt = connection.prepareStatement("SELECT COUNT(*) AS 'count' FROM houses WHERE owner = ?");
+			stmt.setString(1, owner.toString());
+			ResultSet results = stmt.executeQuery();
+			while(results.next()) {
+				houseNumber = results.getInt("count");
+			}
+			return houseNumber;
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
 	@Override
 	public void save(House house) {
 		try {
@@ -65,7 +80,7 @@ public class HouseDao extends PersistentData implements Dao<House> {
 			pstmt.setFloat(6, house.income);
 			pstmt.executeUpdate();
 			ResultSet retrievedId = pstmt.getGeneratedKeys();
-			if(retrievedId.next()){
+			if(retrievedId.next()) {
 				house.setId(retrievedId.getInt(1));
 			}
 			System.out.println(pstmt.toString());

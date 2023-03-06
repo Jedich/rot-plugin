@@ -7,24 +7,31 @@ description: Roots of Ternaria Reloaded!
 commands:
   claim:
     description: Claims a chunk as your kingdom property for daily charge
+    permission: rot.king
     usage: /claim
   unclaim:
     description: Unclaims a previously claimed chunk
+    permission: rot.king
     usage: /unclaim
   chunk-info:
     description: Gives information about chunks' ruler
+    permission: rot.king
     usage: /chunk-info
   timeleft:
     description: Shows time until respawn.
+    permission: rot.king
     usage: /timeleft
   kingdom:
     description: Gives info about your kingdom
+    permission: rot.king
     usage: /kingdom <task> {name}
   diplomacy:
     description: Gives info about your kingdom relations
+    permission: rot.king
     usage: /diplomacy <task> <player_name> {action}
   war:
     description: Gives you control over military actions on enemies
+    permission: rot.king
     usage: /war <task> {player_name}
   reset:
     description: Resets all claimed chunks
@@ -38,8 +45,14 @@ commands:
     permission-message: You don't have the rot.god permission.
   accept:
     description: Gives gold to a player
+    permission: rot.king
     usage: /accept <task>
 permissions:
   rot.god:
     description: Allows god commands
+    default: op
+  rot.king:
+    description: Allows king commands
+  rot.exclusive:
+    description: Allows block breaking everywhere
     default: op
