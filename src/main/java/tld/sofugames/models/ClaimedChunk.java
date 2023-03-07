@@ -1,13 +1,10 @@
 package tld.sofugames.models;
 
 import org.bukkit.Chunk;
-import tld.sofugames.data.Data;
 import tld.sofugames.rot.ChunkType;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.UUID;
 
 public class ClaimedChunk {
 	private int id;
@@ -15,7 +12,7 @@ public class ClaimedChunk {
 	public String chunkId = "";
 	public ChunkType type = ChunkType.Default;
 	public Chunk world = null;
-	int x, z;
+	public int x, z;
 	public float income = 0;
 
 	public ClaimedChunk(int id, String chunkId, UUID owner, ChunkType type, Chunk world) {

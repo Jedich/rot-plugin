@@ -11,6 +11,7 @@ import tld.sofugames.dao.impl.ClaimDao;
 import tld.sofugames.dao.impl.DaoFactory;
 import tld.sofugames.dao.impl.KingDao;
 import tld.sofugames.data.*;
+import tld.sofugames.dynmap.Dynmap;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.King;
 import tld.sofugames.rot.ChunkType;
@@ -42,6 +43,8 @@ public class ClaimCommand implements CommandExecutor {
 					sender.sendMessage("Chunk successfully claimed!" + ChatColor.GOLD + " You are now a King.");
 					sender.sendMessage("Please, name your kingdom with /kingdom setname <name>");
 					thisKing.changeGen();
+					Dynmap.addKing(thisKing);
+					Dynmap.paintChunk(homeChunk);
 					((Player) sender).sendTitle("Glory to a new kingdom!", thisKing.getFullTitle(), 20, 100, 20);
 					player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1, 1);
 					Data.getInstance().giveBed((Player) sender, true);
@@ -55,6 +58,7 @@ public class ClaimCommand implements CommandExecutor {
 								claimData.save(claim);
 								king.setChunkNumber(king.getChunkNumber() + 1);
 								king.setGoldBalance(-2);
+								Dynmap.paintChunk(claim);
 								sender.sendMessage("Chunk successfully claimed!");
 							} else {
 								sender.sendMessage(ChatColor.RED + "Strip claiming is forbidden!");

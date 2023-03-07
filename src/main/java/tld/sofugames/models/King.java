@@ -20,6 +20,7 @@ public class King extends RotPlayer {
 
 	private int id;
 
+	public UUID rawName;
 	public String kingdomName = "Unnamed Kingdom";
 	private String title = ", §6Father of the Nation§f";
 	public int kingdomLevel = 1;
@@ -46,10 +47,11 @@ public class King extends RotPlayer {
 	public King() {
 	}
 
-	public King(int id, Player player, String title, String kingdomName,
+	public King(int id, UUID rawName, Player player, String title, String kingdomName,
 				int kingdomLevel, int currentGen, float goldBalance) {
 		super(player, null);
 		this.id = id;
+		this.rawName = rawName;
 		this.assignedPlayer = player;
 		this.title = title;
 		this.kingdomName = kingdomName;
@@ -163,7 +165,8 @@ public class King extends RotPlayer {
 	}
 
 	public float getFee() {
-		return (float) Math.pow(getChunkNumber(), 1.9f)/20 + 0.15f;// ((1.3f * (getChunkNumber() + 0.5)) * Math.log(getChunkNumber() + 0.5));
+		return (float) (getChunkNumber() < 22 ? Math.sin(0.1 * getChunkNumber() + 4.7f) + 22.2f : 2 * Math.log10(getChunkNumber() - 16) * 15 + 11);
+		//return (float) Math.pow(getChunkNumber(), 1.9f) / 20 + 0.15f;// ((1.3f * (getChunkNumber() + 0.5)) * Math.log(getChunkNumber() + 0.5));
 	}
 
 	public void changeIncome(float income) {

@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import tld.sofugames.dao.impl.ClaimDao;
 import tld.sofugames.dao.impl.DaoFactory;
 import tld.sofugames.dao.impl.KingDao;
+import tld.sofugames.dynmap.Dynmap;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.King;
 import tld.sofugames.rot.ChunkType;
@@ -47,6 +48,7 @@ public class UnclaimCommand implements CommandExecutor {
 			}
 			claimData.delete(claim);
 			sender.sendMessage("Chunk unclaimed.");
+			Dynmap.removeChunk(claim);
 			return true;
 		}
 		return false;

@@ -14,6 +14,7 @@ import tld.sofugames.dao.impl.DaoFactory;
 import tld.sofugames.dao.impl.HouseDao;
 import tld.sofugames.dao.impl.KingDao;
 import tld.sofugames.data.Data;
+import tld.sofugames.dynmap.Dynmap;
 import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.King;
 
@@ -30,6 +31,7 @@ public class KingdomCommand implements CommandExecutor {
 	public void sendCommandList(CommandSender sender) {
 		sender.sendMessage("§6Kingdom command:");
 		sender.sendMessage("§6setname <name>§f: sets a kingdom name (spaces allowed).");
+		sender.sendMessage("§6settitle <title>§f: sets a kingdom ruler's title (spaces allowed).");
 		sender.sendMessage("§6info§f: gives an important information about your kingdom.");
 		sender.sendMessage("§6show§f: visualizes claimed chunks.");
 		sender.sendMessage("§6invite§f: invites an advisor to your kingdom.");
@@ -70,6 +72,7 @@ public class KingdomCommand implements CommandExecutor {
 					thisKing.kingdomName = name;
 					kingData.update(thisKing, Collections.singletonMap("kingdom_name", name));
 					sender.sendMessage(ChatColor.GOLD + "Your kingdom was successfully renamed to '" + name + "'!");
+					Dynmap.changeLabel(thisKing, name);
 				} else {
 					sender.sendMessage(ChatColor.RED + "Specified name has invalid characters!");
 				}
@@ -79,17 +82,17 @@ public class KingdomCommand implements CommandExecutor {
 				sender.sendMessage((ChatColor.GOLD + thisKing.kingdomName) +
 						ChatColor.WHITE + ", the kingdom of " + ChatColor.GOLD + sender.getName());
 				//sender.sendMessage("Kingdom level: " + thisKing.kingdomLevel);
-				sender.sendMessage("Total chunks: " + thisKing.getChunkNumber());
 				HouseDao houseData = new DaoFactory().getHouses();
-				sender.sendMessage("Total houses: " + houseData.getHouseNumber(thisKing.getUuid()));
-				sender.sendMessage("Population: " + (1 + thisKing.advisors.size()));
+				sender.sendMessage("Total chunks: " + ChatColor.GOLD + thisKing.getChunkNumber() +  ". " + ChatColor.WHITE +
+						"Total houses: " + ChatColor.GOLD + houseData.getHouseNumber(thisKing.getUuid()) +  ". " + ChatColor.WHITE);
+				sender.sendMessage("Population: " + ChatColor.GOLD + (1 + thisKing.advisors.size()) +  ". ");
 				System.out.println(thisKing.advisors);
 				if(chunkName.equals(thisKing.homeChunk.chunkId)) {
 					sender.sendMessage("This is the ruler's home chunk.");
 				}
-				sender.sendMessage("Income: " + ChatColor.GREEN + String.format(Locale.US, "%.1f", thisKing.getIncome()) + "ing. " +
-						ChatColor.WHITE + "Charge: " + ChatColor.RED + String.format(Locale.US, "%.1f", thisKing.getFee()) + "ing.");
-				sender.sendMessage("Your balance: " + ChatColor.GOLD + String.format(Locale.US, "%.1f", thisKing.getGoldBalance()) + "ing.");
+				sender.sendMessage("Income: " + ChatColor.GREEN + String.format(Locale.US, "%.1f", thisKing.getIncome()) + " ingots. " +
+						ChatColor.WHITE + "Charge: " + ChatColor.RED + String.format(Locale.US, "%.1f", thisKing.getFee()) + " ingots.");
+				sender.sendMessage("Your balance: " + ChatColor.GOLD + String.format(Locale.US, "%.1f", thisKing.getGoldBalance()) + " ingots.");
 				if(thisKing.getGoldBalance() < -5) {
 					sender.sendMessage(ChatColor.DARK_RED + "The treasury is empty, my lord! " +
 							"We should take a foreign aid before it's not too late!");

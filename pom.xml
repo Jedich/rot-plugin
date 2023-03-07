@@ -20,6 +20,11 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+
+        <repository>
+            <id>MikeRepo</id>
+            <url>https://repo.mikeprimm.com/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -50,6 +55,14 @@
             <artifactId>annotations</artifactId>
             <version>13.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>us.dynmap</groupId>
+            <artifactId>dynmap-api</artifactId>
+            <version>3.4-beta-5</version>
+            <scope>provided</scope>
+        </dependency>
+
 
     </dependencies>
 

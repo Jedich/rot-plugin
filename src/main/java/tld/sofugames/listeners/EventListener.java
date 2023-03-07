@@ -167,7 +167,7 @@ public class EventListener implements Listener {
 	}
 
 	public static boolean canInteract(Player player, Block block, Action action) {
-		if(block.getY() <= 40) {
+		if(block.getY() <= 50 || block.getY() <= Data.GetHighestBlockHeightmap(block.getX(), block.getZ()) - 50) {
 			//System.out.println("level is ok");
 			return true;
 		}

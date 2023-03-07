@@ -26,6 +26,7 @@ public class KingDao extends PersistentData implements Dao<King> {
 				DaoFactory factory = new DaoFactory();
 				while(results.next()) {
 					King king = new King(results.getInt("id"),
+							UUID.fromString(results.getString("name")),
 							Bukkit.getPlayer(UUID.fromString(results.getString("name"))),
 							results.getString("title"),
 							results.getString("kingdom_name"),

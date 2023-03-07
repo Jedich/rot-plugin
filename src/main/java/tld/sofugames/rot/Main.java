@@ -8,11 +8,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.dynmap.DynmapAPI;
+import org.dynmap.markers.MarkerSet;
 import tld.sofugames.commands.*;
 import tld.sofugames.dao.impl.*;
 import tld.sofugames.data.Data;
+import tld.sofugames.dynmap.Dynmap;
 import tld.sofugames.listeners.EventListener;
 import tld.sofugames.listeners.*;
+import tld.sofugames.models.ClaimedChunk;
 import tld.sofugames.models.House;
 import tld.sofugames.models.King;
 
@@ -61,7 +65,10 @@ public class Main extends JavaPlugin {
 		scheduler.scheduleSyncRepeatingTask(this, this::checkIncomes, 24000L, 24000L);
 		scheduler.scheduleSyncRepeatingTask(this, this::checkHouses, 0, 6000L);
 
+		scheduler.scheduleSyncDelayedTask(Data.getInstance().plugin, () -> registerDynmap(this), 100L);
+		Data.LoadHeightmap(this);
 		wars.getAll();
+
 	}
 
 	@Override
@@ -174,11 +181,11 @@ public class Main extends JavaPlugin {
 
 					king.assignedPlayer.sendMessage(ChatColor.GOLD + "Good morning, my honor!");
 					king.assignedPlayer.sendMessage("Income: " + ChatColor.GREEN +
-							String.format(Locale.US, "%.1f", king.getIncome()) + "ing. " +
+							String.format(Locale.US, "%.1f", king.getIncome()) + "ingots. " +
 							ChatColor.WHITE + "Charge: " + ChatColor.RED +
-							String.format(Locale.US, "%.1f", king.getFee()) + "ing.");
+							String.format(Locale.US, "%.1f", king.getFee()) + " ingots.");
 					king.assignedPlayer.sendMessage("Your balance: " + ChatColor.GOLD +
-							String.format(Locale.US, "%.1f", king.getGoldBalance()) + "ing.");
+							String.format(Locale.US, "%.1f", king.getGoldBalance()) + "ingots.");
 					if(king.getGoldBalance() < -5 && king.getGoldBalance() > -20) {
 						king.assignedPlayer.playSound(king.assignedPlayer.getLocation(),
 								Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 1, 1);
@@ -188,8 +195,8 @@ public class Main extends JavaPlugin {
 						king.assignedPlayer.sendMessage(ChatColor.DARK_RED + "Pillagers " +
 								ChatColor.RED + "have come to end your pathetic suffering.");
 						Location loc = king.homeChunk.world.getBlock(1, king.assignedPlayer.getWorld()
-								.getHighestBlockYAt(king.homeChunk.world.getX()*16+1,
-										king.homeChunk.world.getZ()*16+1), 1).getLocation();
+								.getHighestBlockYAt(king.homeChunk.world.getX() * 16 + 1,
+										king.homeChunk.world.getZ() * 16 + 1), 1).getLocation();
 						World world = king.assignedPlayer.getWorld();
 						for(int i = 0; i < 20; i++) {
 							world.spawnEntity(loc, EntityType.PILLAGER);
@@ -204,4 +211,28 @@ public class Main extends JavaPlugin {
 			}
 		}
 	}
+
+	public static void registerDynmap(JavaPlugin p) {
+		Dynmap.dapi = (DynmapAPI) Bukkit.getServer().getPluginManager().getPlugin("dynmap");
+		if(Dynmap.dapi == null) {
+			Bukkit.getServer().getPluginManager().disablePlugin(p);
+		}
+
+		for(MarkerSet ms : Dynmap.dapi.getMarkerAPI().getMarkerSets()) {
+			ms.deleteMarkerSet();
+		}
+
+		DaoFactory daoFactory = new DaoFactory();
+		KingDao kingData = daoFactory.getKings();
+		for(King king : kingData.getAll().values()) {
+			Dynmap.addKing(king);
+		}
+
+		ClaimDao claimData = daoFactory.getClaims();
+		for(ClaimedChunk chunk : claimData.getAll().values()) {
+			Dynmap.paintChunk(chunk);
+		}
+
+	}
+
 }
