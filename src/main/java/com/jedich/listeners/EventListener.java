@@ -1,12 +1,12 @@
 package com.jedich.listeners;
 
-import com.jedich.dao.impl.ClaimDao;
-import com.jedich.dao.impl.DaoFactory;
-import com.jedich.dao.impl.HouseDao;
-import com.jedich.dao.impl.KingDao;
+import com.jedich.dao.impl.*;
 import com.jedich.data.Data;
 import com.jedich.models.ClaimedChunk;
+import com.jedich.models.DeferredEvent;
 import com.jedich.models.King;
+import com.jedich.rot.DeferredEventType;
+import org.apache.commons.lang3.time.DateUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -22,15 +22,16 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class EventListener implements Listener {
 
 	DaoFactory daoFactory = new DaoFactory();
 	KingDao kingData = daoFactory.getKings();
+	EventDao deferredEventData = daoFactory.getDeferredEvents();
 	HouseDao houseData = daoFactory.getHouses();
+
+	private static final long DEATH_COOLDOWN_TICKS = 4800L;
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockBreak(BlockBreakEvent event) {
@@ -54,14 +55,17 @@ public class EventListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockPlace(BlockPlaceEvent event) {
+		if(event.getItemInHand().getType().equals(Material.STONE_SHOVEL)) {
+			return;
+		}
 		checkInteraction(event.getPlayer(), event.getBlock(), event, Action.LEFT_CLICK_BLOCK);
 	}
 
 	@EventHandler
 	public void onInteract(PlayerInteractEvent e) {
-		if(e.getClickedBlock() != null) {
-			if (e.getClickedBlock().getType().equals(Material.DIRT_PATH)) {
-				if (e.getItem().getType().equals(Material.STONE_SHOVEL)) {
+		if(e.getClickedBlock() != null && e.getItem() != null) {
+			if(e.getClickedBlock().getType().equals(Material.DIRT_PATH)) {
+				if(e.getItem().getType().equals(Material.STONE_SHOVEL)) {
 					e.getClickedBlock().setType(Material.GRASS_BLOCK);
 					return;
 				}
@@ -97,8 +101,32 @@ public class EventListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
-		if(kingData.get(player.getUniqueId().toString()).isPresent()) {
-			King king = kingData.get(player.getUniqueId().toString()).get();
+		String uuid = player.getUniqueId().toString();
+		if(kingData.get(uuid).isPresent()) {
+			King king = kingData.get(uuid).get();
+			System.out.println(deferredEventData.getAll());
+			if(deferredEventData.get(uuid).isPresent()) {
+				System.out.println("found ded player");
+				DeferredEvent e = deferredEventData.get(uuid).get();
+				Date endDate = DateUtils.addSeconds(e.getIssuedAt(), (int) (DEATH_COOLDOWN_TICKS / 20));
+				Date now = new Date();
+				System.out.println(now);
+				System.out.println(e.getIssuedAt());
+				System.out.println(endDate);
+				if(now.after(endDate)) {
+					System.out.println("time is after");
+					king.assignedPlayer = player;
+					rebirth(king);
+				} else {
+					if(Data.getInstance().timers.containsKey(player.getUniqueId())) {
+						return;
+					}
+					long diffInMillies = endDate.getTime() - now.getTime();
+					Data.getInstance().timers.put(player.getUniqueId(), System.currentTimeMillis() + diffInMillies);
+					Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(
+							Data.getInstance().plugin, () -> rebirth(king), diffInMillies / 1000 * 20);
+				}
+			}
 			king.assignedPlayer = player;
 			king.setBossBar();
 			king.setUuid(player.getUniqueId());
@@ -123,11 +151,16 @@ public class EventListener implements Listener {
 		BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 		deceasedPlayer.setGameMode(GameMode.SPECTATOR);
 		king.changeGen();
+
 		event.setRespawnLocation(king.homeChunk.world.getBlock(7, 150, 7).getLocation());
-		scheduler.scheduleSyncDelayedTask(Data.getInstance().plugin, () -> rebirth(king), 4800L);
-		Data.getInstance().timers.put(deceasedPlayer.getUniqueId(), System.currentTimeMillis() + (4 * 60 * 1000));
+		DeferredEvent e = new DeferredEvent(deceasedPlayer.getUniqueId(), new Date(), DeferredEventType.DEATH);
+		deferredEventData.save(e);
+		scheduler.scheduleSyncDelayedTask(Data.getInstance().plugin, () -> rebirth(king), DEATH_COOLDOWN_TICKS);
+		Data.getInstance().timers.put(deceasedPlayer.getUniqueId(), System.currentTimeMillis() + (DEATH_COOLDOWN_TICKS / 20 * 1000));
+
 		deceasedPlayer.sendMessage(ChatColor.AQUA + "Waiting for your resurrection...");
 		deceasedPlayer.sendMessage(ChatColor.AQUA + "Use /timeleft to check how much time you need to wait!");
+
 		int randomSong = new Random().nextInt(101);
 		deceasedPlayer.stopSound(Sound.MUSIC_CREATIVE);
 		deceasedPlayer.stopSound(Sound.MUSIC_GAME);
@@ -170,6 +203,9 @@ public class EventListener implements Listener {
 		Bukkit.broadcastMessage(ChatColor.WHITE + "Glory to the New King, " + deceasedKing.getFullTitle()
 				+ " of " + ChatColor.GOLD + deceasedKing.kingdomName + ".");
 		player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+		EventDao deferredEventData = new DaoFactory().getDeferredEvents();
+		Optional<DeferredEvent> e = deferredEventData.get(player.getUniqueId().toString());
+		e.ifPresent(deferredEventData::delete);
 	}
 
 	public static boolean canInteract(Player player, Block block, Action action) {
@@ -183,8 +219,13 @@ public class EventListener implements Listener {
 
 		Optional<ClaimedChunk> claim = claimData.get(block.getChunk().toString());
 		if(!claim.isPresent()) {
-			if (block.getType().equals(Material.GRASS_BLOCK) || block.getType().equals(Material.DIRT_PATH)) {
-				if (player.getEquipment().getItemInMainHand().getType().equals(Material.WOODEN_SHOVEL)) {
+			if(block.getType().equals(Material.GRASS_BLOCK) || block.getType().equals(Material.DIRT_PATH)) {
+				try {
+					Objects.requireNonNull(player.getEquipment()).getItemInMainHand();
+				} catch(NullPointerException e) {
+					return false;
+				}
+				if(player.getEquipment().getItemInMainHand().getType().equals(Material.WOODEN_SHOVEL)) {
 					return true;
 				}
 			}
@@ -192,13 +233,6 @@ public class EventListener implements Listener {
 			if(block.getType().toString().contains("DOOR")) {
 				return true;
 			}
-//			if(player.getInventory().getItemInMainHand().getType().toString().contains("WOODEN_SHOVEL")) {
-//
-//			}
-//			if(action.equals(Action.RIGHT_CLICK_BLOCK)) {
-//				System.out.println(player.getInventory().getItemInMainHand().getType().toString().contains("WOODEN_SHOVEL"));
-//				return player.getInventory().getItemInMainHand().getType().toString().contains("WOODEN_SHOVEL");
-//			}
 			return false;
 		}
 

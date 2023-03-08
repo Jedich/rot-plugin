@@ -1,9 +1,6 @@
 package com.jedich.dao.impl;
 
-import com.jedich.models.House;
-import com.jedich.models.King;
-import com.jedich.models.ClaimedChunk;
-import com.jedich.models.War;
+import com.jedich.models.*;
 
 import java.util.HashMap;
 
@@ -16,11 +13,12 @@ public class PersistentData {
 	protected HashMap<String, King> kingData = new HashMap<>();
 	//key bedBlock.toString()
 	protected HashMap<String, House> houseData = new HashMap<>();
+	protected HashMap<String, DeferredEvent> deferredEventData = new HashMap<>();
 	//key UUID.toString()
 	protected HashMap<String, War> wars = new HashMap<>();
 
 	public static PersistentData getInstance() {
-		if (instance == null) {
+		if(instance == null) {
 			instance = new PersistentData();
 		}
 		return instance;

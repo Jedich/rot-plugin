@@ -19,4 +19,7 @@ public class DaoFactory {
 	public RelationsDao getRelations() {
 		return new RelationsDao();
 	}
+	public EventDao getDeferredEvents() {
+		return new EventDao();
+	}
 }

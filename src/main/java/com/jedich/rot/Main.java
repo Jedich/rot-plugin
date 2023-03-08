@@ -93,18 +93,24 @@ public class Main extends JavaPlugin {
 			}
 			return true;
 		} else if(command.getName().equalsIgnoreCase("timeleft")) {
-			if(((Player) sender).getGameMode() == GameMode.SPECTATOR) {
-				long time = (Data.getInstance().timers.get(((Player) sender).getUniqueId())
-						- System.currentTimeMillis()) / 1000;
-				int minutes = 0;
-				while(time >= 60) {
-					time -= 60;
-					minutes++;
-				}
-				sender.sendMessage(ChatColor.AQUA + "" + minutes + "m " + time + "s left until respawn...");
-			} else {
+			if(((Player) sender).getGameMode() != GameMode.SPECTATOR) {
 				sender.sendMessage(ChatColor.ITALIC + "You are alive... breathing, at least.");
+				return true;
 			}
+			if(!Data.getInstance().timers.containsKey(((Player) sender).getUniqueId())) {
+				sender.sendMessage(ChatColor.ITALIC + "Unable to find your death story...");
+				return true;
+			}
+
+			long time = (Data.getInstance().timers.get(((Player) sender).getUniqueId())
+					- System.currentTimeMillis()) / 1000;
+			int minutes = 0;
+			while(time >= 60) {
+				time -= 60;
+				minutes++;
+			}
+
+			sender.sendMessage(ChatColor.AQUA + "" + minutes + "m " + time + "s left until respawn...");
 			return true;
 		} else if(command.getName().equalsIgnoreCase("rot-respawn")) {
 			EventListener.rebirth(kingData.get(((Player) sender).getUniqueId().toString()).orElse(new King()));

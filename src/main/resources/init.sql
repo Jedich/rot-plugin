@@ -107,4 +107,13 @@ CREATE TABLE IF NOT EXISTS towns
     house_number INT(11)     DEFAULT 0,
     level        INT(11)     DEFAULT 50,
     PRIMARY KEY ("id" AUTOINCREMENT)
+);
+
+CREATE TABLE IF NOT EXISTS deferred_events
+(
+    id           INTEGER     NOT NULL,
+    affects_uuid VARCHAR(64) NOT NULL,
+    issued_at    DATETIME    NOT NULL,
+    type   VARCHAR(64) NOT NULL,
+    PRIMARY KEY ("id" AUTOINCREMENT)
 )
