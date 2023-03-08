@@ -12,7 +12,9 @@ import com.jedich.models.King;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -22,6 +24,7 @@ import org.dynmap.markers.MarkerSet;
 
 import java.sql.Connection;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class Main extends JavaPlugin {
@@ -51,6 +54,7 @@ public class Main extends JavaPlugin {
 		WarCommand w = new WarCommand();
 		getCommand("war").setExecutor(w);
 		getCommand("war").setTabCompleter(w.new PluginTabCompleter());
+		getCommand("rot-respawn").setTabCompleter(this.new PluginTabCompleter());
 
 
 		getServer().getPluginManager().registerEvents(new EventListener(), this);
@@ -102,8 +106,19 @@ public class Main extends JavaPlugin {
 				sender.sendMessage(ChatColor.ITALIC + "You are alive... breathing, at least.");
 			}
 			return true;
+		} else if(command.getName().equalsIgnoreCase("rot-respawn")) {
+			EventListener.rebirth(kingData.get(((Player) sender).getUniqueId().toString()).orElse(new King()));
 		}
 		return false;
+	}
+
+	public class PluginTabCompleter implements TabCompleter {
+		@Override
+		public List<String> onTabComplete(CommandSender sender, Command cde, String arg, String[] args) {
+			if(args.length > 0) {
+				return Bukkit.getServer().getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
+			} else return Collections.emptyList();
+		}
 	}
 
 	public void restart() {

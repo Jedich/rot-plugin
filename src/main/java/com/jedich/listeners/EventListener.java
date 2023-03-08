@@ -1,7 +1,11 @@
 package com.jedich.listeners;
 
+import com.jedich.dao.impl.ClaimDao;
+import com.jedich.dao.impl.DaoFactory;
 import com.jedich.dao.impl.HouseDao;
+import com.jedich.dao.impl.KingDao;
 import com.jedich.data.Data;
+import com.jedich.models.ClaimedChunk;
 import com.jedich.models.King;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -17,10 +21,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.scheduler.BukkitScheduler;
-import com.jedich.dao.impl.ClaimDao;
-import com.jedich.dao.impl.DaoFactory;
-import com.jedich.dao.impl.KingDao;
-import com.jedich.models.ClaimedChunk;
 
 import java.util.Optional;
 import java.util.Random;
@@ -60,6 +60,12 @@ public class EventListener implements Listener {
 	@EventHandler
 	public void onInteract(PlayerInteractEvent e) {
 		if(e.getClickedBlock() != null) {
+			if (e.getClickedBlock().getType().equals(Material.DIRT_PATH)) {
+				if (e.getItem().getType().equals(Material.STONE_SHOVEL)) {
+					e.getClickedBlock().setType(Material.GRASS_BLOCK);
+					return;
+				}
+			}
 			checkInteraction(e.getPlayer(), e.getClickedBlock(), e, e.getAction());
 		}
 	}
@@ -152,7 +158,7 @@ public class EventListener implements Listener {
 		return rainbowText.toString();
 	}
 
-	public void rebirth(King deceasedKing) {
+	public static void rebirth(King deceasedKing) {
 		Player player = deceasedKing.assignedPlayer;
 		Location highestAtCenter = player.getWorld().getHighestBlockAt(
 				deceasedKing.homeChunk.world.getBlock(7, 0, 7).getLocation()).getLocation();
@@ -177,6 +183,11 @@ public class EventListener implements Listener {
 
 		Optional<ClaimedChunk> claim = claimData.get(block.getChunk().toString());
 		if(!claim.isPresent()) {
+			if (block.getType().equals(Material.GRASS_BLOCK) || block.getType().equals(Material.DIRT_PATH)) {
+				if (player.getEquipment().getItemInMainHand().getType().equals(Material.WOODEN_SHOVEL)) {
+					return true;
+				}
+			}
 			//System.out.println("no claim");
 			if(block.getType().toString().contains("DOOR")) {
 				return true;

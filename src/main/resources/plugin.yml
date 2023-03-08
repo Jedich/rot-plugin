@@ -43,6 +43,11 @@ commands:
     usage: /givegold <player_name>
     permission: rot.god
     permission-message: You don't have the rot.god permission.
+  rot-respawn:
+    description: Respawns a player if one was bugged.
+    usage: /rot-respawn <player_name>
+    permission: rot.god
+    permission-message: You don't have the rot.god permission.
   accept:
     description: Gives gold to a player
     permission: rot.king

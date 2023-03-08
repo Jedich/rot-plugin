@@ -40,7 +40,8 @@ public class House {
 		this.bedBlock = bedBlock;
 	}
 
-	public House() { }
+	public House() {
+	}
 
 	private boolean hasCeiling(Block current, int counter) {
 		if(counter > 15) return false;
@@ -78,8 +79,7 @@ public class House {
 			Block rel = currentBlock.getRelative(face);
 			if(!visitedList.containsKey(rel.toString())) {
 				visitedList.put(rel.toString(), rel);
-				if(rel.getType() == Material.AIR || rel.getType() == Material.CAVE_AIR || rel.getType() == Material.TORCH //*********************************
-						|| Data.getInstance().ignoreList.contains(rel.getType())) {
+				if(Data.getInstance().ignoreList.contains(rel.getType())) {
 					if(Tag.BEDS.getValues().contains(rel.getType())) {
 						if(houseData.get(Data.getInstance().getBedHash(rel)).isPresent()) {
 							if(houseData.get(Data.getInstance().getBedHash(rel)).get() != this) {
@@ -101,8 +101,10 @@ public class House {
 	}
 
 	public void calculateIncome() {
-		float a = 1 + benefits * 0.025f;
-		income = (float) (4 * a * Math.sin(0.024 * area - 7.9) + 4 * a);
+		if(benefits > 100) benefits = 100;
+		float a = 1 + benefits * 0.004f;
+		income = (float) (a * 3 * Math.log(area + 12) - 8);
+		//income = (float) (4 * a * (Math.sin(0.01255 * area - 7.859) + 1));
 		new DaoFactory().getKings().get(owner.toString()).orElse(new King()).changeIncome(income);
 	}
 

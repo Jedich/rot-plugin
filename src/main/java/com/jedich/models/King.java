@@ -165,8 +165,10 @@ public class King extends RotPlayer {
 	}
 
 	public float getFee() {
-		return (float) (getChunkNumber() < 22 ? Math.sin(0.1 * getChunkNumber() + 4.7f) + 22.2f : 2 * Math.log10(getChunkNumber() - 16) * 15 + 11);
-		//return (float) Math.pow(getChunkNumber(), 1.9f) / 20 + 0.15f;// ((1.3f * (getChunkNumber() + 0.5)) * Math.log(getChunkNumber() + 0.5));
+		return (float) (getChunkNumber() < 26.821 ? 22 * Math.sin(0.1 * getChunkNumber() + 4.7f) + 22.2f : getChunkNumber() + 14.9747);
+		//return (float) (getChunkNumber() < 25 ? 22 * Math.sin(0.1 * getChunkNumber() + 4.7f) + 22.2f : 2 * Math.log10(getChunkNumber() - 16) * 15 + 11);
+		//return (float) Math.pow(getChunkNumber(), 1.9f) / 20 + 0.15f;
+		// ((1.3f * (getChunkNumber() + 0.5)) * Math.log(getChunkNumber() + 0.5));
 	}
 
 	public void changeIncome(float income) {

@@ -116,17 +116,24 @@ public class Data {
 
 	public HashMap<UUID, Long> timers = new HashMap<>();
 
-	public EnumSet<Material> ignoreList = Stream.of(Tag.ANVIL, Tag.CARPETS, Tag.CROPS,
+	public Stream<Material> ignoreTagList = Stream.of(Tag.BEDS, Tag.ANVIL, Tag.WOOL_CARPETS, Tag.CROPS,
 					Tag.BUTTONS, Tag.BANNERS, Tag.BEDS, Tag.RAILS, Tag.FLOWERS,
-					Tag.FIRE, Tag.CLIMBABLE, Tag.PRESSURE_PLATES, Tag.SIGNS, Tag.CROPS, Tag.SAPLINGS)
+					Tag.FIRE, Tag.CLIMBABLE, Tag.PRESSURE_PLATES, Tag.SIGNS, Tag.STANDING_SIGNS, Tag.CROPS, Tag.SAPLINGS)
 			.map(Tag::getValues)
-			.flatMap(Set::stream)
-			.collect(Collectors.toCollection(() -> EnumSet.noneOf(Material.class)));
+			.flatMap(Set::stream);
 
-	public EnumSet<Material> benefitList = Stream.of(Tag.CARPETS, Tag.CLIMBABLE, Tag.FLOWER_POTS, Tag.FLOWERS,
-					Tag.CAMPFIRES, Tag.SLABS, Tag.TRAPDOORS, Tag.STAIRS, Tag.WOOL, Tag.LOGS, Tag.BANNERS, Tag.WALL_SIGNS)
+	public EnumSet<Material> ignoreList = Stream.concat(ignoreTagList,
+			Stream.of(Material.AIR, Material.CAVE_AIR, Material.TORCH, Material.PAINTING))
+					.collect(Collectors.toCollection(() -> EnumSet.noneOf(Material.class)));
+
+	public Stream<Material> benefitTagList = Stream.of(Tag.WOOL_CARPETS, Tag.CLIMBABLE, Tag.FLOWER_POTS, Tag.FLOWERS,
+					Tag.CAMPFIRES, Tag.SLABS, Tag.TRAPDOORS, Tag.STAIRS, Tag.WOOL, Tag.LOGS, Tag.BANNERS,
+					Tag.SIGNS, Tag.STANDING_SIGNS, Tag.CANDLES, Tag.WOOL_CARPETS)
 			.map(Tag::getValues)
-			.flatMap(Set::stream)
+			.flatMap(Set::stream);
+
+	public EnumSet<Material> benefitList = Stream.concat(benefitTagList,
+			Stream.of(Material.GLASS, Material.GLASS_PANE, Material.IRON_BARS, Material.PAINTING))
 			.collect(Collectors.toCollection(() -> EnumSet.noneOf(Material.class)));
 
 	public static List<Integer> colors = Stream.of(
@@ -135,9 +142,11 @@ public class Data {
 			0xe0e0e0, 0x66411e, 0xffe600, 0xc8ff69).collect(Collectors.toList());
 	public static Map<String, Integer> kingMapColor = new HashMap<>();
 
-	Stream<String> titleStream = Stream.of("Kind", "Bastard", "Hunter", "Fearless", "Terrible", "Bold", "Brave",
-			"Gracious", "Ruthless", "Headless", "Evil", "Abomination", "Trader", "Tiny", "Gentle", "Bald",
-			"java.lang.TooMuchEvilException", "Wise", "Bear", "Legendary", "Architect", "Builder");
+	Stream<String> titleStream = Stream.of("Bastard", "Hunter", "Fearless", "Bold", "Brave",
+			"Gracious", "Gentleman", "Wise", "Bear", "Abandoned", "Absolutist", "Accursed", "Iris",
+			"Conqueror", "Ceremonious", "Chief", "Desired", "Exile", "Fair", "Outlaw", "Righteous",
+			"Fortunate", "Hammer", "Just", "Iron", "Liberator", "Monk", "Old", "Philosopher",
+			"Silent", "Soldier", "Vengeful", "Warrior", "Winter King", "Lion of Justice", "Dead Eye");
 	public String[] titles = titleStream.map(name -> ", " + ChatColor.GOLD + "the " + name).toArray(String[]::new);
 
 	public String getRomanNumber(int number) {
